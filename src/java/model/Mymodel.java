@@ -7,9 +7,9 @@ public class Mymodel {
 
     static Connection con;
 
-    private static final String URL = "jdbc:mysql://localhost:3306/securitymanagementsystem";
+    private static final String URL = "jdbc:mysql://centerbeam.proxy.rlwy.net:44139/railway";
     private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "DyGtOeODJPDYnopkiNVzrprQfClCQJfT";
 
     // ---------------- Database Connection ----------------
     public static void connection() {
