@@ -315,11 +315,9 @@ body {
         <a href="personnelDashboard.jsp">Dashboard</a>
         <a href="attendance.jsp">Attendance</a>
         <a href="staffRegistration.jsp">Staff Registration</a>
-        <a href="qrGenerator.jsp">QR Generator</a>
-        <a href="reports.jsp">Reports</a>
-        <a href="settings.jsp">Settings</a>
-    </div>
 
+    </div>
+    
     <div class="main-content">
         <!-- Status Messages -->
         <div class="status-section" id="statusMessage" style="display:none;"></div>
@@ -339,7 +337,7 @@ body {
             if(errorParam.equals("already_checked_in")) {
                 urlMessage = "Staff member already checked in today!";
                 urlType = "error";
-            } else if(errorParam.equals("attendance_failed")) {
+           } else if(errorParam.equals("attendance_failed")) {
                 urlMessage = "Failed to record attendance!";
                 urlType = "error";
             } else if(errorParam.equals("system_error")) {

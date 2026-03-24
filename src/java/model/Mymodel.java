@@ -7,9 +7,10 @@ public class Mymodel {
 
     static Connection con;
 
-    private static final String URL = "jdbc:mysql://centerbeam.proxy.rlwy.net:44139/railway";
+    // localhost Database Connection for local development
+    private static final String URL = "jdbc:mysql://localhost:3306/securitymanagementsystem";
     private static final String USER = "root";
-    private static final String PASSWORD = "DyGtOeODJPDYnopkiNVzrprQfClCQJfT";
+    private static final String PASSWORD = "";
 
     // ---------------- Database Connection ----------------
     public static void connection() {
@@ -239,7 +240,7 @@ public class Mymodel {
     public static int getTotalIncidents() {
         connection();
         try {
-            String sql = "SELECT COUNT(*) FROM shift_checks WHERE status='Not ok'";
+            String sql = "SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
@@ -333,8 +334,8 @@ public class Mymodel {
             if (status != null && !status.trim().isEmpty()) {
                 if ("OK".equals(status)) {
                     sql.append(" AND sc.status = 'OK'");
-                } else if ("Not ok".equals(status)) {
-                    sql.append(" AND sc.status = 'Not ok'");
+                } else if ("NOT_OK".equals(status)) {
+                    sql.append(" AND sc.status = 'NOT_OK'");
                 }
             }
 
@@ -369,7 +370,7 @@ public class Mymodel {
                          "FROM shift_checks s " +
                          "JOIN security_personnel sp ON s.personnel_id = sp.id " +
                          "JOIN branches b ON sp.branch_id = b.id " +
-                         "WHERE s.status='Not ok' " +
+                         "WHERE s.status='NOT_OK' " +
                          "GROUP BY b.name";
 
             PreparedStatement ps = con.prepareStatement(sql);

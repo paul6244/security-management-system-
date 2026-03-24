@@ -195,8 +195,7 @@ textarea {
     <a href="personnelDashboard.jsp">Dashboard</a>
     <a href="attendance.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
-    <a href="qrGenerator.jsp">QR Generator</a>
-    <a href="reports.jsp">Reports</a>
+
     <a href="Logout">Logout</a>
 </div>
 

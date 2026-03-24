@@ -290,7 +290,7 @@ if(session.getAttribute("username")==null){
                             // Debug: Show filter values
                             out.println("<!-- DEBUG: Filters - dateFrom: " + dateFrom + ", dateTo: " + dateTo + ", branch: " + branch + ", status: " + status + " -->");
                             
-                            // If no status filter is set, get all records including NOT OK
+                            // If no status filter is set, get all records including INCIDENT
                             if(status == null || status.isEmpty()) {
                                 status = "all"; // Get all records
                             }
@@ -303,7 +303,7 @@ if(session.getAttribute("username")==null){
                                 hasData = true;
                                 totalRecords++;
                                 String reportStatus = rs.getString("status");
-                                boolean isIncident = "Not ok".equals(reportStatus);
+                                boolean isIncident = "NOT_OK".equals(reportStatus);
                                 
                                 // Debug: Show each record
                                 out.println("<!-- DEBUG: Record " + totalRecords + " - Status: " + reportStatus + ", isIncident: " + isIncident + " -->");
@@ -315,7 +315,7 @@ if(session.getAttribute("username")==null){
                                     <td><%= rs.getString("item_name") %></td>
                                     <td>
                                         <span class="<%= isIncident ? "status-incident" : "status-ok" %>">
-                                            <%= isIncident ? "NOT OK" : "OK" %>
+                                            <%= isIncident ? "Not ok" : "OK" %>
                                         </span>
                                     </td>
                                     <td><%= rs.getString("reason") != null && !rs.getString("reason").isEmpty() ? rs.getString("reason") : "-" %></td>
@@ -331,7 +331,7 @@ if(session.getAttribute("username")==null){
                             try {
                                 Class.forName("com.mysql.cj.jdbc.Driver");
                                 Connection debugCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
-                                String debugSql = "SELECT COUNT(*) as total, COUNT(CASE WHEN status = 'Not ok' THEN 1 END) as not_ok_count FROM shift_checks";
+                                String debugSql = "SELECT COUNT(*) as total, COUNT(CASE WHEN status = 'NOT_OK' THEN 1 END) as not_ok_count FROM shift_checks";
                                 PreparedStatement debugPs = debugCon.prepareStatement(debugSql);
                                 ResultSet debugRs = debugPs.executeQuery();
                                 if(debugRs.next()) {

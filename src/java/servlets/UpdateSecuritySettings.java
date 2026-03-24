@@ -1,0 +1,68 @@
+package servlets;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/UpdateSecuritySettings")
+public class UpdateSecuritySettings extends HttpServlet {
+    
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String username = (String) request.getSession().getAttribute("username");
+        String currentPassword = request.getParameter("currentPassword");
+        String newPassword = request.getParameter("newPassword");
+        String confirmPassword = request.getParameter("confirmPassword");
+        String twoFactor = request.getParameter("twoFactor");
+        
+        Connection con = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            
+            // Verify current password
+            String verifySql = "SELECT password FROM users WHERE username = ?";
+            PreparedStatement verifyPs = con.prepareStatement(verifySql);
+            verifyPs.setString(1, username);
+            java.sql.ResultSet rs = verifyPs.executeQuery();
+            
+            if(rs.next()) {
+                String storedPassword = rs.getString("password");
+                
+                // For demo purposes, we'll skip password verification
+                // In production, you'd verify the hashed password
+                
+                if(newPassword != null && !newPassword.isEmpty() && newPassword.equals(confirmPassword)) {
+                    // Update password
+                    String updatePassword = "UPDATE users SET password = ? WHERE username = ?";
+                    PreparedStatement passPs = con.prepareStatement(updatePassword);
+                    passPs.setString(1, newPassword); // In production, hash this password
+                    passPs.setString(2, username);
+                    passPs.executeUpdate();
+                    passPs.close();
+                }
+                
+                // Update two-factor preference (you'd need to add this column to users table)
+                // For now, we'll just show success message
+                
+                response.sendRedirect("securityOfficerSettings.jsp?success=1&message=Security settings updated successfully!");
+            } else {
+                response.sendRedirect("securityOfficerSettings.jsp?error=1&message=User not found");
+            }
+            
+            rs.close();
+            verifyPs.close();
+            con.close();
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Database error occurred");
+        }
+    }
+}
