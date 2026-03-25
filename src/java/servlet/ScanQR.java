@@ -1,5 +1,6 @@
 package servlet;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
