@@ -315,11 +315,9 @@ body {
         <a href="personnelDashboard.jsp">Dashboard</a>
         <a href="attendance.jsp">Attendance</a>
         <a href="staffRegistration.jsp">Staff Registration</a>
-        <a href="qrGenerator.jsp">QR Generator</a>
-        <a href="reports.jsp">Reports</a>
-        <a href="settings.jsp">Settings</a>
+        
     </div>
-
+    
     <div class="main-content">
         <!-- Status Messages -->
         <div class="status-section" id="statusMessage" style="display:none;"></div>

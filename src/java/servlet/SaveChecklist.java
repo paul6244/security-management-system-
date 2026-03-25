@@ -19,42 +19,41 @@ public class SaveChecklist extends HttpServlet {
 
             String username = (String) request.getSession().getAttribute("username");
 
-            // GET user ID (same as StartShift)
+            // GET user ID
             String sqlUser = "SELECT id FROM users WHERE username=?";
             PreparedStatement psUser = con.prepareStatement(sqlUser);
             psUser.setString(1, username);
             ResultSet rs = psUser.executeQuery();
 
             if(!rs.next()){
-                response.getWriter().println("User not found");
+                response.sendRedirect("personnelDashboard.jsp?status=error&message=User not found");
                 return;
             }
 
             int userId = rs.getInt("id");
 
-            // Get personnel ID for checklist insertion
-            String sqlPersonnel = "SELECT sp.id FROM security_personnel sp WHERE sp.user_id=?";
+            // Get personnel ID
+            String sqlPersonnel = "SELECT id FROM security_personnel WHERE user_id=?";
             PreparedStatement psPersonnel = con.prepareStatement(sqlPersonnel);
             psPersonnel.setInt(1, userId);
             ResultSet rsPersonnel = psPersonnel.executeQuery();
 
+            int personnelId = 0;
             if(!rsPersonnel.next()){
-                response.getWriter().println("Personnel not found");
+                response.sendRedirect("personnelDashboard.jsp?status=error&message=Personnel not found");
                 return;
             }
+            personnelId = rsPersonnel.getInt("id");
 
-            int personnelId = rsPersonnel.getInt("id");
-
-            // Get current shift ID (using same userId as StartShift)
+            // Get current shift ID
             String shiftSql = "SELECT id FROM shifts WHERE user_id = ? AND end_time IS NULL ORDER BY start_time DESC LIMIT 1";
             PreparedStatement shiftPs = con.prepareStatement(shiftSql);
-            shiftPs.setInt(1, userId);  // Use userId, not personnelId
+            shiftPs.setInt(1, userId);
             ResultSet shiftRs = shiftPs.executeQuery();
             
             int shiftId = 0;
             if(shiftRs.next()) {
                 shiftId = shiftRs.getInt("id");
-                
                 // Update shift to mark it as ended
                 String updateShiftSql = "UPDATE shifts SET end_time = NOW() WHERE id = ?";
                 PreparedStatement updatePs = con.prepareStatement(updateShiftSql);
@@ -62,12 +61,25 @@ public class SaveChecklist extends HttpServlet {
                 updatePs.executeUpdate();
                 updatePs.close();
             } else {
-                response.getWriter().println("No active shift found");
-                return;
+                // Create a new shift if no active shift exists
+                String createShiftSql = "INSERT INTO shifts(user_id, start_time, end_time) VALUES(?, NOW(), NOW())";
+                PreparedStatement createPs = con.prepareStatement(createShiftSql, PreparedStatement.RETURN_GENERATED_KEYS);
+                createPs.setInt(1, userId);
+                createPs.executeUpdate();
+                
+                ResultSet generatedKeys = createPs.getGeneratedKeys();
+                if(generatedKeys.next()) {
+                    shiftId = generatedKeys.getInt(1);
+                }
+                createPs.close();
             }
+            shiftRs.close();
+            shiftPs.close();
 
-            // Process checklist items
+            // Process checklist items - ORIGINAL SIMPLE VERSION
             Enumeration<String> params = request.getParameterNames();
+            int itemsProcessed = 0;
+            
             while(params.hasMoreElements()){
                 String param = params.nextElement();
 
@@ -76,37 +88,39 @@ public class SaveChecklist extends HttpServlet {
                     String status = request.getParameter(param);
                     String reason = request.getParameter("reason_" + itemId);
 
-                    if("NOT_OK".equals(status) && (reason == null || reason.trim().isEmpty())){
-                        response.getWriter().println("Provide reason for item " + itemId);
-                        return;
-                    }
-
-                    if("OK".equals(status)){
-                        reason = "";
-                    }
-
-                    try {
-                        String sql = "INSERT INTO shift_checks(personnel_id,item_id,status,reason,check_time,check_date) VALUES(?,?,?,?,NOW(),NOW())";
-                        PreparedStatement itemPs = con.prepareStatement(sql);
-                        itemPs.setInt(1, personnelId);
-                        itemPs.setInt(2, itemId);
-                        itemPs.setString(3, status);
-                        itemPs.setString(4, reason);
-                        itemPs.executeUpdate();
-                        itemPs.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(status != null && !status.trim().isEmpty()){
+                        
+                        if(reason == null) reason = "";
+                        if("OK".equals(status)) reason = "";
+                        
+                        try {
+                            String sql = "INSERT INTO shift_checks(shift_id,personnel_id,item_id,status,reason,check_time) VALUES(?,?,?,?,?,NOW())";
+                            PreparedStatement itemPs = con.prepareStatement(sql);
+                            itemPs.setInt(1, shiftId); // Use actual shift ID
+                            itemPs.setInt(2, personnelId);
+                            itemPs.setInt(3, itemId);
+                            itemPs.setString(4, status);
+                            itemPs.setString(5, reason);
+                            itemPs.executeUpdate();
+                            itemPs.close();
+                            itemsProcessed++;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
 
-            // Close all prepared statements
+            // Close connections
             if(psUser != null) psUser.close();
-            if(shiftPs != null) shiftPs.close();
+            if(psPersonnel != null) psPersonnel.close();
             if(con != null) con.close();
             
-            // Redirect with success message
-            response.sendRedirect("personnelDashboard.jsp?status=success&message=Shift ended successfully and checklist submitted!");
+            if(itemsProcessed > 0) {
+                response.sendRedirect("personnelDashboard.jsp?status=success&message=Shift ended successfully! " + itemsProcessed + " checklist items submitted.");
+            } else {
+                response.sendRedirect("personnelDashboard.jsp?status=error&message=No checklist items were processed. Please check your submission and try again.");
+            }
 
         } catch(Exception e){
             e.printStackTrace();

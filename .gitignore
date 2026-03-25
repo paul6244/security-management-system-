@@ -1,0 +1,10 @@
+/build/
+/target/
+*.class
+*.war
+*.jar
+.mvn/
+mvnw
+mvnw.cmd
+.DS_Store
+.vscode/

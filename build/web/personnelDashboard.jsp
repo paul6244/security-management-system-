@@ -155,7 +155,7 @@ th, td {
     <a href="personnelDashboard.jsp">Checklist</a>
     <a href="attendance.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
-    <a href="qrGenerator.jsp">QR Generator</a>
+    <a href="securityOfficerSettings.jsp">Settings</a>
     <a href="Logout">Logout</a>
 </div>
 
@@ -176,7 +176,8 @@ th, td {
 <div class="card">
 <h3>Shift Checklist</h3>
 
-<form action="SaveChecklist" method="post" onsubmit="showShiftNotification('end')">
+<!-- ORIGINAL FORM -->
+<form action="SaveChecklist" method="post" onsubmit="showShiftNotification('end')" id="mainForm">
 
 <table>
 <thead>
@@ -191,8 +192,13 @@ th, td {
 
 <%
 ResultSet rs = Mymodel.getChecklistItems();
-while(rs != null && rs.next()){
-    int id = rs.getInt("id");
+if(rs == null) {
+    out.println("<tr><td colspan='3' style='text-align: center; color: red;'>Error loading checklist items. Please check database connection.</td></tr>");
+} else {
+    boolean hasItems = false;
+    while(rs != null && rs.next()){
+        hasItems = true;
+        int id = rs.getInt("id");
 %>
 
 <tr>
@@ -200,8 +206,8 @@ while(rs != null && rs.next()){
 
 <td>
     <!-- IMPORTANT: name must be item_ID -->
-    <select name="item_<%= id %>" onchange="toggleReason(<%= id %>, this.value)">
-        <option value="OK">OK</option>
+    <select name="item_<%= id %>" onchange="toggleReason(<%= id %>, this.value)" form="mainForm">
+        <option value="OK" selected>OK</option>
         <option value="NOT_OK">NOT_OK</option>
     </select>
 </td>
@@ -211,12 +217,17 @@ while(rs != null && rs.next()){
            id="reason_<%= id %>"
            name="reason_<%= id %>"
            placeholder="Enter reason"
+           form="mainForm"
            style="display:none; width:100%;">
 </td>
 
 </tr>
 
 <%
+    }
+    if(!hasItems) {
+        out.println("<tr><td colspan='3' style='text-align: center; color: #666;'>No checklist items found. Please add items to the checklist_items table.</td></tr>");
+    }
 }
 if(rs != null) rs.close();
 %>
@@ -396,11 +407,11 @@ if(rs != null) rs.close();
                                 out.println("OK");
                                 out.println("<small>All items completed</small>");
                             } else {
-                                out.println("NOT OK");
+                                out.println("Not ok");
                                 out.println("<small>Issues found</small>");
                             }
                         } else {
-                            out.println("NOT OK");
+                            out.println("Not ok");
                             out.println("<small>No checklist submitted</small>");
                         }
                         checklistRs.close();
