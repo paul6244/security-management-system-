@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.github.jsimone</groupId>
             <artifactId>webapp-runner</artifactId>
-            <version>9.0.41.0</version>
+            <version>9.0.27.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
