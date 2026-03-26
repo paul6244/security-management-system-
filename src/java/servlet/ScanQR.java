@@ -7,6 +7,7 @@ import java.util.Base64;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import config.DatabaseConfig;
 
 @WebServlet("/ScanQR")
 public class ScanQR extends HttpServlet {
@@ -15,8 +16,7 @@ public class ScanQR extends HttpServlet {
     throws IOException {
 
         try {
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
 
             // Get face recognition data instead of QR code
             String staffId = request.getParameter("staff_id");

@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import config.DatabaseConfig;
+
 @WebServlet("/UpdateSecurityOfficerSettings")
 public class UpdateSecurityOfficerSettings extends HttpServlet {
     
@@ -24,8 +26,7 @@ public class UpdateSecurityOfficerSettings extends HttpServlet {
         
         Connection con = null;
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            con = DatabaseConfig.getConnection();
             
             // Update security_personnel table
             String updatePersonnel = "UPDATE security_personnel SET name = ?, email = ? WHERE user_id = (SELECT id FROM users WHERE username = ?)";

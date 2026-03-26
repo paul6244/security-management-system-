@@ -9,21 +9,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import config.DatabaseConfig;
+
 @WebServlet("/UpdateShiftPreferences")
 public class UpdateShiftPreferences extends HttpServlet {
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        String username = (String) request.getSession().getAttribute("username");
+        String username = request.getParameter("username");
         String preferredBranch = request.getParameter("preferredBranch");
         String preferredShift = request.getParameter("preferredShift");
         String autoCheckin = request.getParameter("autoCheckin");
         
         Connection con = null;
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            con = DatabaseConfig.getConnection();
             
             // Update security_personnel table
             String updateSql = "UPDATE security_personnel SET branch_id = ?, shift_time = ? WHERE user_id = (SELECT id FROM users WHERE username = ?)";

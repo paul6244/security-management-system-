@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import config.DatabaseConfig;
+
 @WebServlet("/TestDatabase")
 public class TestDatabase extends HttpServlet {
     
@@ -25,8 +27,7 @@ public class TestDatabase extends HttpServlet {
         out.println("<h2>Database Test Results</h2>");
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
             
             out.println("<h3>✅ Database Connection: SUCCESS</h3>");
             

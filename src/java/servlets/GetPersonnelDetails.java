@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import config.DatabaseConfig;
+
 @WebServlet("/GetPersonnelDetails")
 public class GetPersonnelDetails extends HttpServlet {
     
@@ -42,9 +44,7 @@ public class GetPersonnelDetails extends HttpServlet {
         
         try {
             // Get database connection
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = java.sql.DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem", "root", "");
+            conn = DatabaseConfig.getConnection();
             
             // Get user details
             String userSql = "SELECT u.id, u.username, u.email, u.role, " +

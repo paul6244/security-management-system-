@@ -9,13 +9,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import config.DatabaseConfig;
+
 @WebServlet("/UpdateSecuritySettings")
 public class UpdateSecuritySettings extends HttpServlet {
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        String username = (String) request.getSession().getAttribute("username");
+        String username = request.getParameter("username");
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
@@ -23,8 +25,7 @@ public class UpdateSecuritySettings extends HttpServlet {
         
         Connection con = null;
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            con = DatabaseConfig.getConnection();
             
             // Verify current password
             String verifySql = "SELECT password FROM users WHERE username = ?";

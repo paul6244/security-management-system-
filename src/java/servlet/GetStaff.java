@@ -9,18 +9,20 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
+import config.DatabaseConfig;
+
 @WebServlet("/GetStaff")
 public class GetStaff extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
             
             String sql = "SELECT id, first_name, last_name, employee_id, selfie_path FROM staff_registration ORDER BY first_name, last_name";
             PreparedStatement ps = con.prepareStatement(sql);

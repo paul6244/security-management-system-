@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Mymodel;
+import config.DatabaseConfig;
 
 @WebServlet("/RemovePersonnel")
 public class RemovePersonnel extends HttpServlet {
@@ -18,13 +19,15 @@ public class RemovePersonnel extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        response.setContentType("text/plain");
+        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
         String username = request.getParameter("username");
         String email = request.getParameter("email");
         
         try {
+            Connection con = DatabaseConfig.getConnection();
+            
             boolean success = removePersonnelFromDatabase(username, email);
             
             if (success) {
@@ -48,9 +51,7 @@ public class RemovePersonnel extends HttpServlet {
         
         try {
             // Get database connection
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = java.sql.DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem", "root", "");
+            conn = DatabaseConfig.getConnection();
             
             // First, get the user ID from username
             String getUserIdSql = "SELECT id FROM users WHERE username = ? AND email = ?";
