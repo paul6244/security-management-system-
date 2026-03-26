@@ -40,13 +40,13 @@ if(success != null){
 
 <form action="Signup" method="post">
     <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
+    <input type="text" id="username" name="username" autocomplete="username" required>
 
     <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
+    <input type="email" id="email" name="email" autocomplete="email" required>
 
     <label for="role">Role:</label>
-    <select id="role" name="role" required>
+    <select id="role" name="role" autocomplete="organization-title" required>
         <option value="">Select Role</option>
         <option value="security_officer">Security Officer</option>
         <option value="admin">Admin</option>
@@ -54,7 +54,7 @@ if(success != null){
 
     <div id="securityFields" style="display:none; margin-top:10px;">
         <label for="branch_id">Branch:</label>
-      <select id="branch_id" name="branch_id">
+      <select id="branch_id" name="branch_id" autocomplete="organization">
     <option value="">Select Branch</option>
 
          <%
@@ -71,14 +71,14 @@ if(success != null){
     </select>
 
         <label for="shift_time" id="shift_label">Shift Time:</label>
-        <input type="text" id="shift_time" name="shift_time" placeholder="Enter shift time">
+        <input type="text" id="shift_time" name="shift_time" autocomplete="organization" placeholder="Enter shift time">
     </div>
 
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
+    <input type="password" id="password" name="password" autocomplete="new-password" required>
 
     <label for="confirm_password">Confirm Password:</label>
-    <input type="password" id="confirm_password" name="confirmPassword" required>
+    <input type="password" id="confirm_password" name="confirmPassword" autocomplete="new-password" required>
 
     <input type="submit" value="Signup">
     <input type="reset" value="Clear">
