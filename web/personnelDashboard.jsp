@@ -1,6 +1,7 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="config.DatabaseConfig" %>
 
 <%
 if(session.getAttribute("username")==null){
@@ -252,8 +253,7 @@ if(rs != null) rs.close();
         <div class="stat-number">
             <%
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                Connection con = DatabaseConfig.getConnection();
                 
                 String currentUser = session.getAttribute("username").toString();
                 
@@ -324,8 +324,7 @@ if(rs != null) rs.close();
         <div class="stat-number">
             <%
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                Connection con = DatabaseConfig.getConnection();
                 
                 String currentUser = session.getAttribute("username").toString();
                 
@@ -372,8 +371,7 @@ if(rs != null) rs.close();
         <div class="stat-number">
             <%
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                Connection con = DatabaseConfig.getConnection();
                 
                 String currentUser = session.getAttribute("username").toString();
                 
@@ -441,8 +439,7 @@ if(rs != null) rs.close();
         <div class="stat-number">
             <%
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                Connection con = DatabaseConfig.getConnection();
                 
                 String currentUser = session.getAttribute("username").toString();
                 
@@ -508,12 +505,11 @@ if(rs != null) rs.close();
 
 <div style="margin-top: 20px;">
     <button class="btn btn-secondary" onclick="exportMyReport()">Export My Report</button>
-    <button class="btn btn-secondary" onclick="window.open('TestDatabase', '_blank')" style="margin-left: 10px;">Test Database</button>
+    <button class="btn btn-secondary" onclick="window.open('testConnection.jsp', '_blank')" style="margin-left: 10px;">Test Database</button>
 </div>
 
 </div>
 
-</div>
 </div>
 
 <!-- Popup Notification -->
