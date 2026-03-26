@@ -147,11 +147,11 @@
                                 while(rs.next()){
                         %>
                         <tr class="personnel-row">
-                            <td class="username"><%= rs.getString("username") %></td>
+                            <td class="username"><%= rs.getString("name") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
-                            <td class="branch"><%= rs.getString("branch") %></td>
+                            <td class="branch"><%= rs.getString("branch_name") %></td>
                             <td class="shift-time"><%= rs.getString("shift_time") %></td>
-                            <td class="personnel-name"><%= rs.getString("personnel_name") != null ? rs.getString("personnel_name") : "N/A" %></td>
+                            <td class="personnel-name"><%= rs.getString("name") %></td>
                         </tr>
                         <%
                                 }
@@ -289,10 +289,10 @@
     new Chart(document.getElementById("reportChart"), {
         type: "line",
         data: {
-            labels: [<%= reportLabels.length() > 0 ? reportLabels : "''" %>],
+            labels: [<%= (reportLabels.length() > 0 ? reportLabels.toString() : "") %>],
             datasets: [{
                 label: "Reports",
-                data: [<%= reportData.length() > 0 ? reportData : "0" %>],
+                data: [<%= (reportData.length() > 0 ? reportData.toString() : "0") %>],
                 borderWidth: 2,
                 fill: false,
                 borderColor: "#3498db",
@@ -311,10 +311,10 @@
     new Chart(document.getElementById("incidentChart"), {
         type: "bar",
         data: {
-            labels: [<%= incidentLabels.length() > 0 ? incidentLabels : "''" %>],
+            labels: [<%= (incidentLabels != null && incidentLabels.length() > 0) ? incidentLabels.toString() : "" %>],
             datasets: [{
                 label: "Incidents",
-                data: [<%= incidentData.length() > 0 ? incidentData : "0" %>],
+                data: [<%= (incidentData != null && incidentData.length() > 0) ? incidentData.toString() : "0" %>],
                 backgroundColor: "#e74c3c"
             }]
         },
