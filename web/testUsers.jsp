@@ -26,10 +26,10 @@
                 // Create test users
                 String[] testUsers = {
                     "INSERT INTO users(username, email, password, role) VALUES('Pg123', 'admin@example.com', '" + universalManager.hashPassword("admin123") + "', 'admin')",
-                    "INSERT INTO users(username, email, password, role) VALUES('PK', 'security1@example.com', '" + universalManager.hashPassword("security123") + "', 'security_officer')",
-                    "INSERT INTO users(username, email, password, role) VALUES('ok', 'security2@example.com', '" + universalManager.hashPassword("security123") + "', 'security_officer')",
-                    "INSERT INTO users(username, email, password, role) VALUES('Banard', 'security3@example.com', '" + universalManager.hashPassword("security123") + "', 'security_officer')",
-                    "INSERT INTO users(username, email, password, role) VALUES('kumii2010', 'security4@example.com', '" + universalManager.hashPassword("security123") + "', 'security_officer')"
+                    "INSERT INTO users(username, email, password, role) VALUES('PK', 'security1@example.com', '" + universalManager.hashPassword("PK123") + "', 'security_officer')",
+                    "INSERT INTO users(username, email, password, role) VALUES('ok', 'security2@example.com', '" + universalManager.hashPassword("ok123") + "', 'security_officer')",
+                    "INSERT INTO users(username, email, password, role) VALUES('Banard', 'security3@example.com', '" + universalManager.hashPassword("Banard123") + "', 'security_officer')",
+                    "INSERT INTO users(username, email, password, role) VALUES('kumii2010', 'security4@example.com', '" + universalManager.hashPassword("kumii123") + "', 'security_officer')"
                 };
                 
                 for (String userSql : testUsers) {
@@ -38,6 +38,31 @@
                         out.println("<p style='color:green;'>✅ Created test user</p>");
                     } catch (SQLException e) {
                         out.println("<p style='color:orange;'>⚠️ User might already exist: " + e.getMessage() + "</p>");
+                    }
+                }
+                
+                // Query users again
+                rs = stmt.executeQuery("SELECT id, username, email, role FROM users");
+            } else {
+                out.println("<p style='color:orange;'>⚠️ Users already exist. Updating passwords...</p>");
+                
+                // Update existing users with correct passwords
+                String[] updateUsers = {
+                    "UPDATE users SET password = '" + universalManager.hashPassword("admin123") + "' WHERE username = 'Pg123'",
+                    "UPDATE users SET password = '" + universalManager.hashPassword("PK123") + "' WHERE username = 'PK'",
+                    "UPDATE users SET password = '" + universalManager.hashPassword("ok123") + "' WHERE username = 'ok'",
+                    "UPDATE users SET password = '" + universalManager.hashPassword("Banard123") + "' WHERE username = 'Banard'",
+                    "UPDATE users SET password = '" + universalManager.hashPassword("kumii123") + "' WHERE username = 'kumii2010'"
+                };
+                
+                for (String updateSql : updateUsers) {
+                    try {
+                        int rows = stmt.executeUpdate(updateSql);
+                        if (rows > 0) {
+                            out.println("<p style='color:green;'>✅ Updated user password</p>");
+                        }
+                    } catch (SQLException e) {
+                        out.println("<p style='color:orange;'>⚠️ Update error: " + e.getMessage() + "</p>");
                     }
                 }
                 
