@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.sql.*" %>
 <%@page import="model.Mymodel" %>
+<%@page import="config.DatabaseConfig" %>
 <!DOCTYPE html>
 <html>
 <head>
