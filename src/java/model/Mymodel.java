@@ -256,4 +256,47 @@ public class Mymodel {
         }
         return null;
     }
+
+    public static ResultSet getFilteredReports(String dateFrom, String dateTo, String branch, String status) {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT sc.*, b.name as branch_name FROM shift_checks sc JOIN branches b ON sc.branch_id = b.id WHERE 1=1");
+            
+            if (dateFrom != null && !dateFrom.isEmpty()) {
+                sql.append(" AND sc.check_date >= ?");
+            }
+            if (dateTo != null && !dateTo.isEmpty()) {
+                sql.append(" AND sc.check_date <= ?");
+            }
+            if (branch != null && !branch.isEmpty()) {
+                sql.append(" AND b.name = ?");
+            }
+            if (status != null && !status.isEmpty()) {
+                sql.append(" AND sc.status = ?");
+            }
+            
+            sql.append(" ORDER BY sc.check_date DESC");
+            
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            int paramIndex = 1;
+            
+            if (dateFrom != null && !dateFrom.isEmpty()) {
+                ps.setString(paramIndex++, dateFrom);
+            }
+            if (dateTo != null && !dateTo.isEmpty()) {
+                ps.setString(paramIndex++, dateTo);
+            }
+            if (branch != null && !branch.isEmpty()) {
+                ps.setString(paramIndex++, branch);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
