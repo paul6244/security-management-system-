@@ -102,7 +102,8 @@ public class Mymodel {
 
     // ---------------- Login ----------------
     public static String getUserRole(String username, String password) {
-        try (Connection conn = DatabaseConfig.getConnection()) {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
             String hash = universalManager.hashPassword(password);
 
             String sql = "SELECT role FROM users WHERE username=? AND password=?";
@@ -111,7 +112,17 @@ public class Mymodel {
             ps.setString(2, hash);
 
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getString("role");
+            if (rs.next()) {
+                String role = rs.getString("role");
+                rs.close();
+                ps.close();
+                conn.close();
+                return role;
+            }
+            
+            rs.close();
+            ps.close();
+            conn.close();
 
         } catch (Exception e) {
             e.printStackTrace();
