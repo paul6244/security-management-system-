@@ -87,23 +87,21 @@ public class Mymodel {
         return false;
     }
     public static ResultSet getChecklistItems() {
-    connection();
-    try {
-        String sql = "SELECT * FROM checklist_items";
-        PreparedStatement ps = con.prepareStatement(sql);
-        return ps.executeQuery();
-    } catch(Exception e){
-        e.printStackTrace();
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = "SELECT * FROM checklist_items";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
-    return null;
-}
 
     // ---------------- Get All Users (Staff/Teachers/Lecturers) ----------------
     public static ResultSet getAllUsers() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT id, username, email, role FROM users ORDER BY username";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
 
         } catch (Exception e) {
@@ -114,8 +112,7 @@ public class Mymodel {
 
     // ---------------- Get All Users With Personnel Details ----------------
     public static ResultSet getAllUsersWithPersonnelDetails() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT u.id, u.username, u.email, u.role, " +
                          "sp.name AS personnel_name, sp.branch_id, sp.shift_time, " +
                          "b.name AS branch " +
@@ -123,7 +120,7 @@ public class Mymodel {
                          "LEFT JOIN security_personnel sp ON u.id = sp.user_id " +
                          "LEFT JOIN branches b ON sp.branch_id = b.id " +
                          "ORDER BY u.username";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
 
         } catch (Exception e) {
@@ -134,14 +131,13 @@ public class Mymodel {
 
     // ---------------- Get All Personnel ----------------
     public static ResultSet getAllPersonnel() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT u.username, u.email, b.name AS branch, sp.shift_time, sp.name AS personnel_name " +
                          "FROM users u " +
                          "JOIN security_personnel sp ON u.id = sp.user_id " +
                          "JOIN branches b ON sp.branch_id = b.id";
 
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
 
         } catch (Exception e) {
@@ -183,14 +179,11 @@ public class Mymodel {
 
     // ---------------- Dashboard Counts ----------------
     public static int getTotalPersonnel() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT COUNT(*) FROM security_personnel";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
-
-            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,14 +191,11 @@ public class Mymodel {
     }
 
     public static int getTotalBranches() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT COUNT(*) FROM branches";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
-
-            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,14 +203,11 @@ public class Mymodel {
     }
 
     public static int getTotalReports() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT COUNT(*) FROM shift_checks";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
-
-            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,26 +215,20 @@ public class Mymodel {
     }
 
     public static int getTotalIncidents() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
-
-            con.close();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
         return 0;
     }
 
     // ---------------- Chart Data ----------------
     public static ResultSet getReportsByDate() {
-        connection();
-        try {
+        try (Connection conn = DatabaseConfig.getConnection()) {
             String sql = "SELECT DATE(check_date) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_date)";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
 
         } catch (Exception e) {
@@ -258,7 +239,7 @@ public class Mymodel {
 
     // ---------------- Get Reports ----------------
     public static ResultSet getReports() {
-        connection();
+        try (Connection conn = DatabaseConfig.getConnection()) {
         try {
             String sql = "SELECT u.username, b.name AS branch, ci.item_name, " +
                          "sc.status, sc.reason, sc.check_time, sc.id " +
