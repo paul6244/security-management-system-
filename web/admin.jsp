@@ -147,11 +147,11 @@
                                 while(rs.next()){
                         %>
                         <tr class="personnel-row">
-                            <td class="username"><%= rs.getString("username") %></td>
+                            <td class="username"><%= rs.getString("name") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td class="branch"><%= rs.getString("branch_name") %></td>
                             <td class="shift-time"><%= rs.getString("shift_time") %></td>
-                            <td class="personnel-name"><%= rs.getString("name") %></td>
+                            <td class="id"><%= rs.getInt("id") %></td>
                         </tr>
                         <% 
                                 }
