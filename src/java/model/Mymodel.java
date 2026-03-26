@@ -89,7 +89,8 @@ public class Mymodel {
 
     // ---------------- Get Branches ----------------
     public static ResultSet getBranches() {
-        try (Connection conn = DatabaseConfig.getConnection()) {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
             String sql = "SELECT id, name FROM branches";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
