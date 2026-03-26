@@ -14,7 +14,10 @@ public class DatabaseConfig {
         String databaseUrl = System.getenv("DATABASE_URL");
         
         if (databaseUrl != null && !databaseUrl.isEmpty()) {
-            // Heroku PostgreSQL connection
+            // Convert postgres:// to jdbc:postgresql:// for Heroku
+            if (databaseUrl.startsWith("postgres://")) {
+                return databaseUrl.replace("postgres://", "jdbc:postgresql://");
+            }
             return databaseUrl;
         } else {
             // Local MySQL connection (fallback)
