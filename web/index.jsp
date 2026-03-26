@@ -33,9 +33,9 @@
         %>  
         <form action="Login" method="post">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br><br>
+            <input type="text" id="username" name="username" autocomplete="username" required><br><br>
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br><br>
+            <input type="password" id="password" name="password" autocomplete="current-password" required><br><br>
             <input type="submit" value="Login">
         </form>
         <p>Don't have an account? <a href="Signup.jsp">Register here</a></p>
