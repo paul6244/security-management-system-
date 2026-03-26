@@ -133,27 +133,27 @@
                 <table id="personnelTable" border="1" width="100%" cellpadding="10" style="background:white; border-radius:10px;">
                     <thead>
                         <tr style="background:#2c3e50; color:white;">
-                            <th>Username</th>
+                            <th>Name</th>
                             <th>Email</th>
                             <th>Branch</th>
                             <th>Shift Time</th>
-                            <th>Personnel Name</th>
+                            <th>ID</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <%
+                        <% 
                             ResultSet rs = Mymodel.getAllPersonnel();
                             if(rs != null) {
                                 while(rs.next()){
                         %>
                         <tr class="personnel-row">
-                            <td class="username"><%= rs.getString("name") %></td>
+                            <td class="username"><%= rs.getString("username") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td class="branch"><%= rs.getString("branch_name") %></td>
                             <td class="shift-time"><%= rs.getString("shift_time") %></td>
                             <td class="personnel-name"><%= rs.getString("name") %></td>
                         </tr>
-                        <%
+                        <% 
                                 }
                                 rs.close();
                             }
