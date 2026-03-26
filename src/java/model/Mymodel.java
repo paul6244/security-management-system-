@@ -299,4 +299,16 @@ public class Mymodel {
         }
         return null;
     }
+
+    public static ResultSet getChecklistItems() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT id, item_name FROM checklist_items ORDER BY item_name";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
