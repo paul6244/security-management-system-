@@ -117,17 +117,18 @@
             try {
                 Connection conn = DatabaseConfig.getConnection();
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT id, check_time, status, branch_id FROM shift_checks LIMIT 5");
+                ResultSet rs = stmt.executeQuery("SELECT sc.id, sc.check_time, sc.status, sc.personnel_id, b.name as branch_name FROM shift_checks sc JOIN security_personnel sp ON sc.personnel_id = sp.id JOIN branches b ON sp.branch_id = b.id LIMIT 5");
                 
                 if (rs != null && rs.isBeforeFirst()) {
                     out.println("<table>");
-                    out.println("<tr><th>ID</th><th>Check Time</th><th>Status</th><th>Branch ID</th></tr>");
+                    out.println("<tr><th>ID</th><th>Check Time</th><th>Status</th><th>Personnel ID</th><th>Branch Name</th></tr>");
                     while (rs.next()) {
                         out.println("<tr>");
                         out.println("<td>" + rs.getInt("id") + "</td>");
                         out.println("<td>" + rs.getString("check_time") + "</td>");
                         out.println("<td>" + rs.getString("status") + "</td>");
-                        out.println("<td>" + rs.getInt("branch_id") + "</td>");
+                        out.println("<td>" + rs.getInt("personnel_id") + "</td>");
+                        out.println("<td>" + rs.getString("branch_name") + "</td>");
                         out.println("</tr>");
                     }
                     out.println("</table>");
@@ -160,20 +161,18 @@
                 }
                 branchRs.close();
                 
-                // Create sample personnel
+                // Create sample personnel (without email since it doesn't exist in schema)
                 String[] sampleNames = {"John Smith", "Sarah Johnson", "Michael Brown", "Emily Davis", "Robert Wilson"};
                 String[] sampleShifts = {"Morning", "Afternoon", "Night", "Graveyard"};
-                String[] sampleEmails = {"john.smith@security.com", "sarah.j@security.com", "michael.b@security.com", "emily.d@security.com", "robert.w@security.com"};
                 
                 for (int i = 0; i < sampleNames.length; i++) {
                     int branchId = branchIds.get(i % branchIds.size());
                     String name = sampleNames[i];
                     String shift = sampleShifts[i % sampleShifts.length];
-                    String email = sampleEmails[i];
                     
                     String insertSql = String.format(
-                        "INSERT INTO security_personnel (name, email, shift_time, branch_id) VALUES ('%s', '%s', '%s', %d)",
-                        name, email, shift, branchId
+                        "INSERT INTO security_personnel (name, shift_time, branch_id) VALUES ('%s', '%s', %d)",
+                        name, shift, branchId
                     );
                     
                     try {
