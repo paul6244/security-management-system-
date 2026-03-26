@@ -88,8 +88,8 @@
                     while(rsIncidents.next()){
                         if(incidentLabels.length() > 0) incidentLabels.append(",");
                         if(incidentData.length() > 0) incidentData.append(",");
-                        incidentLabels.append("'").append(rsIncidents.getString("branch_name")).append("'");
-                        incidentData.append(rsIncidents.getInt("total"));
+                        incidentLabels.append("'").append(rsIncidents.getString("name")).append("'");
+                        incidentData.append(rsIncidents.getInt("count"));
                     }
                     rsIncidents.close();
                 }
