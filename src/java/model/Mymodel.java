@@ -433,4 +433,17 @@ public class Mymodel {
         }
         return null;
     }
+
+    // Get all branches for reports filtering
+    public static ResultSet getAllBranches() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT id, name FROM branches ORDER BY name";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

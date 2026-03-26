@@ -198,13 +198,13 @@ if(session.getAttribute("username")==null){
         ResultSet rsIncidents = Mymodel.getIncidentsByBranchForChart();
         if(rsIncidents != null) {
             while(rsIncidents.next()){
-                if(incidentLabels.length > 0) incidentLabels.push(",");
-                if(incidentData.length > 0) incidentData.push(",");
-                incidentLabels.push("'" + rsIncidents.getString("branch_name") + "'");
-                incidentData.append(rsIncidents.getInt("total"));
+    %>
+                incidentLabels.push('<%= rsIncidents.getString("branch_name") %>');
+                incidentData.push(<%= rsIncidents.getInt("total") %>);
+    <%
+            }
+            rsIncidents.close();
         }
-        rsIncidents.close();
-    }
     %>
 
     var reportLabels = [];
@@ -216,10 +216,10 @@ if(session.getAttribute("username")==null){
         new Chart(document.getElementById('incidentsChart'), {
             type: 'bar',
             data: {
-                labels: [<%= incidentLabels.length() > 0 ? incidentLabels : "''" %>],
+                labels: incidentLabels,
                 datasets: [{
                     label: 'Incidents',
-                    data: [<%= incidentData.length() > 0 ? incidentData : "0" %>],
+                    data: incidentData,
                     backgroundColor: "#e74c3c"
                 }]
             },
