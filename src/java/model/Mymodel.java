@@ -363,4 +363,74 @@ public class Mymodel {
         }
         return null;
     }
+
+    // Get incidents involving personnel and users from database
+    public static ResultSet getIncidentsByBranch() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT b.name as branch_name, COUNT(*) as total " +
+                        "FROM shift_checks sc " +
+                        "JOIN branches b ON sc.branch_id = b.id " +
+                        "WHERE sc.status = 'NOT_OK' " +
+                        "GROUP BY b.name " +
+                        "ORDER BY b.name";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Get incident reports with personnel and user details
+    public static ResultSet getIncidentReports(String dateFrom, String dateTo, String branch, String status) {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            StringBuilder sql = new StringBuilder();
+            sql.append("SELECT sc.id, sc.check_time, sc.status, sc.reason, ");
+            sql.append("sp.name as personnel_name, u.username as user_name, b.name as branch_name, ");
+            sql.append("sc.item_name ");
+            sql.append("FROM shift_checks sc ");
+            sql.append("JOIN security_personnel sp ON sc.personnel_id = sp.id ");
+            sql.append("JOIN users u ON sp.user_id = u.id ");
+            sql.append("JOIN branches b ON sp.branch_id = b.id ");
+            sql.append("WHERE 1=1 ");
+            
+            if (dateFrom != null && !dateFrom.isEmpty()) {
+                sql.append("AND DATE(sc.check_time) >= ? ");
+            }
+            if (dateTo != null && !dateTo.isEmpty()) {
+                sql.append("AND DATE(sc.check_time) <= ? ");
+            }
+            if (branch != null && !branch.isEmpty()) {
+                sql.append("AND b.name = ? ");
+            }
+            if (status != null && !status.isEmpty()) {
+                sql.append("AND sc.status = ? ");
+            }
+            
+            sql.append("ORDER BY sc.check_time DESC");
+            
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            int paramIndex = 1;
+            
+            if (dateFrom != null && !dateFrom.isEmpty()) {
+                ps.setString(paramIndex++, dateFrom);
+            }
+            if (dateTo != null && !dateTo.isEmpty()) {
+                ps.setString(paramIndex++, dateTo);
+            }
+            if (branch != null && !branch.isEmpty()) {
+                ps.setString(paramIndex++, branch);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
