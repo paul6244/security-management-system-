@@ -2,21 +2,16 @@ package model;
 
 import java.sql.*;
 import utility.universalManager;
+import config.DatabaseConfig;
 
 public class Mymodel {
 
     static Connection con;
 
-    // localhost Database Connection for local development
-    private static final String URL = "jdbc:mysql://localhost:3306/securitymanagementsystem";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
-
     // ---------------- Database Connection ----------------
     public static void connection() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            con = DatabaseConfig.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -25,7 +20,7 @@ public class Mymodel {
     // ---------------- Check if username exists ----------------
     public static boolean userExists(String username) {
         boolean exists = false;
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM users WHERE username = ?")) {
 
             ps.setString(1, username);
