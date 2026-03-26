@@ -117,4 +117,22 @@ public class Mymodel {
         }
         return null;
     }
+
+    // ---------------- Update User Password ----------------
+    public static boolean updateUserPassword(String username, String newPassword) {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String hashed = universalManager.hashPassword(newPassword);
+            String sql = "UPDATE users SET password = ? WHERE username = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, hashed);
+            ps.setString(2, username);
+
+            int result = ps.executeUpdate();
+            return result > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
