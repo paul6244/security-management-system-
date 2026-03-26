@@ -85,7 +85,13 @@
                 out.println("<td>" + username + "</td>");
                 out.println("<td>" + email + "</td>");
                 out.println("<td>" + role + "</td>");
-                out.println("<td><a href='testLogin.jsp?username=" + username + "&password=admin123' target='_blank'>Test Login</a></td>");
+                out.println("<td><a href='testLogin.jsp?username=" + username + "&password=" + 
+                    (username.equals("Pg123") ? "admin123" : 
+                    username.equals("PK") ? "PK123" : 
+                    username.equals("ok") ? "ok123" : 
+                    username.equals("Banard") ? "Banard123" : 
+                    username.equals("kumii2010") ? "kumii123" : "admin123") + 
+                    "' target='_blank'>Test Login</a></td>");
                 out.println("</tr>");
             }
             
