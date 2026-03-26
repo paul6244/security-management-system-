@@ -49,10 +49,7 @@ public class Login extends HttpServlet {
 
         }
         
-        
-
     } // This method handles both GET and POST requests for login processing
-    } // ✅ This method handles both GET and POST requests for login processing
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
