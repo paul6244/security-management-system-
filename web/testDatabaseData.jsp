@@ -117,15 +117,15 @@
             try {
                 Connection conn = DatabaseConfig.getConnection();
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT id, check_date, status, branch_id FROM shift_checks LIMIT 5");
+                ResultSet rs = stmt.executeQuery("SELECT id, check_time, status, branch_id FROM shift_checks LIMIT 5");
                 
                 if (rs != null && rs.isBeforeFirst()) {
                     out.println("<table>");
-                    out.println("<tr><th>ID</th><th>Check Date</th><th>Status</th><th>Branch ID</th></tr>");
+                    out.println("<tr><th>ID</th><th>Check Time</th><th>Status</th><th>Branch ID</th></tr>");
                     while (rs.next()) {
                         out.println("<tr>");
                         out.println("<td>" + rs.getInt("id") + "</td>");
-                        out.println("<td>" + rs.getString("check_date") + "</td>");
+                        out.println("<td>" + rs.getString("check_time") + "</td>");
                         out.println("<td>" + rs.getString("status") + "</td>");
                         out.println("<td>" + rs.getInt("branch_id") + "</td>");
                         out.println("</tr>");
@@ -135,6 +135,55 @@
                 } else {
                     out.println("<p class='empty'>❌ No shift check records found in database.</p>");
                 }
+                stmt.close();
+                conn.close();
+            } catch (Exception e) {
+                out.println("<p class='empty'>❌ Error: " + e.getMessage() + "</p>");
+            }
+        %>
+    </div>
+    
+    <br><br>
+    <div class="section">
+        <h2>🔧 Create Sample Data</h2>
+        <%
+            try {
+                // Create sample security personnel
+                Connection conn = DatabaseConfig.getConnection();
+                Statement stmt = conn.createStatement();
+                
+                // First, get branches to use valid IDs
+                ResultSet branchRs = stmt.executeQuery("SELECT id, name FROM branches LIMIT 5");
+                java.util.List<Integer> branchIds = new java.util.ArrayList<>();
+                while (branchRs.next()) {
+                    branchIds.add(branchRs.getInt("id"));
+                }
+                branchRs.close();
+                
+                // Create sample personnel
+                String[] sampleNames = {"John Smith", "Sarah Johnson", "Michael Brown", "Emily Davis", "Robert Wilson"};
+                String[] sampleShifts = {"Morning", "Afternoon", "Night", "Graveyard"};
+                String[] sampleEmails = {"john.smith@security.com", "sarah.j@security.com", "michael.b@security.com", "emily.d@security.com", "robert.w@security.com"};
+                
+                for (int i = 0; i < sampleNames.length; i++) {
+                    int branchId = branchIds.get(i % branchIds.size());
+                    String name = sampleNames[i];
+                    String shift = sampleShifts[i % sampleShifts.length];
+                    String email = sampleEmails[i];
+                    
+                    String insertSql = String.format(
+                        "INSERT INTO security_personnel (name, email, shift_time, branch_id) VALUES ('%s', '%s', '%s', %d)",
+                        name, email, shift, branchId
+                    );
+                    
+                    try {
+                        stmt.executeUpdate(insertSql);
+                        out.println("<p class='success'>✅ Created personnel: " + name + " (" + shift + ")</p>");
+                    } catch (Exception e) {
+                        out.println("<p class='empty'>❌ Error creating " + name + ": " + e.getMessage() + "</p>");
+                    }
+                }
+                
                 stmt.close();
                 conn.close();
             } catch (Exception e) {
