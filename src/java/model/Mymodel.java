@@ -311,4 +311,56 @@ public class Mymodel {
         }
         return null;
     }
+
+    // Get all users (including security personnel)
+    public static ResultSet getAllUsers() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT u.id, u.username, u.email, u.role, u.created_at, " +
+                        "sp.name as personnel_name, sp.shift_time, b.name as branch_name " +
+                        "FROM users u " +
+                        "LEFT JOIN security_personnel sp ON u.id = sp.user_id " +
+                        "LEFT JOIN branches b ON sp.branch_id = b.id " +
+                        "ORDER BY u.username";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Delete/remove personnel
+    public static boolean deletePersonnel(int personnelId) {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "DELETE FROM security_personnel WHERE id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, personnelId);
+            int result = ps.executeUpdate();
+            ps.close();
+            conn.close();
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Get all security personnel for admin view
+    public static ResultSet getAllSecurityPersonnel() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT sp.id, sp.name, sp.shift_time, sp.email, b.name as branch_name, u.username " +
+                        "FROM security_personnel sp " +
+                        "JOIN branches b ON sp.branch_id = b.id " +
+                        "JOIN users u ON sp.user_id = u.id " +
+                        "ORDER BY sp.name";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
