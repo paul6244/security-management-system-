@@ -104,31 +104,25 @@
                 <table id="personnelTable" border="1" width="100%" cellpadding="10" style="background:white; border-radius:10px;">
                     <thead>
                         <tr style="background:#2c3e50; color:white;">
-                            <th>ID</th>
                             <th>Username</th>
-                            <th>Name</th>
                             <th>Email</th>
                             <th>Branch</th>
-                            <th>Shift</th>
-                            <th>Actions</th>
+                            <th>Shift Time</th>
+                            <th>Personnel Name</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% 
-                            ResultSet rs = Mymodel.getAllSecurityPersonnel();
+                        <%
+                            ResultSet rs = Mymodel.getAllPersonnel();
                             if(rs != null) {
                                 while(rs.next()){
                         %>
                         <tr class="personnel-row">
-                            <td><%= rs.getInt("id") %></td>
-                            <td><%= rs.getString("username") %></td>
-                            <td class="username"><%= rs.getString("name") %></td>
+                            <td class="username"><%= rs.getString("username") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td class="branch"><%= rs.getString("branch_name") %></td>
-                            <td><%= rs.getString("shift_time") %></td>
-                            <td>
-                                <button class="delete-btn" onclick="deletePersonnel(<%= rs.getInt("id") %>, '<%= rs.getString("name") %>')">Delete</button>
-                            </td>
+                            <td class="shift-time"><%= rs.getString("shift_time") %></td>
+                            <td class="personnel-name"><%= rs.getString("name") %></td>
                         </tr>
                         <%
                                 }
@@ -136,7 +130,7 @@
                             } else {
                         %>
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #666;">No personnel records found.</td>
+                            <td colspan="5" style="text-align: center; color: #666;">No personnel records found.</td>
                         </tr>
                         <%
                             }
