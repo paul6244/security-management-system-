@@ -147,4 +147,113 @@ public class Mymodel {
         }
         return false;
     }
+
+    // ---------------- Dashboard Statistics Methods ----------------
+    public static int getTotalPersonnel() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM security_personnel");
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                rs.close();
+                stmt.close();
+                conn.close();
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static int getTotalBranches() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM branches");
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                rs.close();
+                stmt.close();
+                conn.close();
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static int getTotalReports() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks");
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                rs.close();
+                stmt.close();
+                conn.close();
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static int getTotalIncidents() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'");
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                rs.close();
+                stmt.close();
+                conn.close();
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static ResultSet getReportsByDate() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT DATE(check_date) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_date)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ResultSet getIncidentsByBranch() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT b.name, COUNT(*) as count FROM shift_checks sc JOIN branches b ON sc.branch_id = b.id WHERE sc.status='NOT_OK' GROUP BY b.name";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ResultSet getAllPersonnel() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT sp.id, sp.name, sp.shift_time, b.name as branch_name FROM security_personnel sp JOIN branches b ON sp.branch_id = b.id";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
