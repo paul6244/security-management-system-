@@ -236,7 +236,12 @@ public class Mymodel {
     public static ResultSet getIncidentsByBranch() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT b.name, COUNT(*) as count FROM shift_checks sc JOIN branches b ON sc.branch_id = b.id WHERE sc.status='NOT_OK' GROUP BY b.name";
+            // Modified query to include branches with 0 incidents and handle null branch_id
+            String sql = "SELECT b.name, COUNT(sc.id) as count " +
+                        "FROM branches b " +
+                        "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND sc.status='NOT_OK' " +
+                        "GROUP BY b.name " +
+                        "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
         } catch (Exception e) {
@@ -368,10 +373,10 @@ public class Mymodel {
     public static ResultSet getIncidentsByBranchForChart() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT b.name as branch_name, COUNT(*) as total " +
-                        "FROM shift_checks sc " +
-                        "JOIN branches b ON sc.branch_id = b.id " +
-                        "WHERE sc.status = 'NOT_OK' " +
+            // Modified query to include branches with 0 incidents and handle null branch_id
+            String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
+                        "FROM branches b " +
+                        "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND sc.status = 'NOT_OK' " +
                         "GROUP BY b.name " +
                         "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
