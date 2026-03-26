@@ -8,66 +8,34 @@ public class DatabaseConfig {
     
     private static Connection connection;
     
-    // Database configuration
-    private static String getDatabaseUrl() {
-        // Check for Heroku DATABASE_URL environment variable
-        String databaseUrl = System.getenv("DATABASE_URL");
-        
-        if (databaseUrl != null && !databaseUrl.isEmpty()) {
-            // Convert postgres:// to jdbc:postgresql:// for Heroku
-            if (databaseUrl.startsWith("postgres://")) {
-                return databaseUrl.replace("postgres://", "jdbc:postgresql://");
-            }
-            return databaseUrl;
-        } else {
-            // Local MySQL connection (fallback)
-            return "jdbc:mysql://localhost:3306/securitymanagementsystem";
-        }
-    }
-    
-    private static String getDatabaseUser() {
-        String databaseUrl = System.getenv("DATABASE_URL");
-        
-        if (databaseUrl != null && !databaseUrl.isEmpty()) {
-            // Extract username from Heroku DATABASE_URL
-            // Format: postgres://username:password@host:port/database
-            return databaseUrl.split("//")[1].split(":")[0];
-        } else {
-            // Local MySQL user
-            return "root";
-        }
-    }
-    
-    private static String getDatabasePassword() {
-        String databaseUrl = System.getenv("DATABASE_URL");
-        
-        if (databaseUrl != null && !databaseUrl.isEmpty()) {
-            // Extract password from Heroku DATABASE_URL
-            String[] parts = databaseUrl.split("//")[1].split("@")[0].split(":");
-            return parts.length > 1 ? parts[1] : "";
-        } else {
-            // Local MySQL password
-            return "";
-        }
-    }
-    
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
-                String url = getDatabaseUrl();
-                String user = getDatabaseUser();
-                String password = getDatabasePassword();
+                String databaseUrl = System.getenv("DATABASE_URL");
                 
-                // Handle different database types
-                if (url.startsWith("jdbc:postgresql://")) {
-                    // PostgreSQL for Heroku
-                    Class.forName("org.postgresql.Driver");
+                if (databaseUrl != null && !databaseUrl.isEmpty()) {
+                    // Parse Heroku DATABASE_URL: postgres://username:password@host:port/database
+                    if (databaseUrl.startsWith("postgres://")) {
+                        // Convert to JDBC format
+                        String jdbcUrl = databaseUrl.replace("postgres://", "jdbc:postgresql://");
+                        
+                        // Load PostgreSQL driver
+                        Class.forName("org.postgresql.Driver");
+                        
+                        // Use full connection string (JDBC will parse it)
+                        connection = DriverManager.getConnection(jdbcUrl);
+                    } else {
+                        connection = DriverManager.getConnection(databaseUrl);
+                    }
                 } else {
-                    // MySQL for local development
+                    // Local MySQL connection
                     Class.forName("com.mysql.cj.jdbc.Driver");
+                    connection = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/securitymanagementsystem", 
+                        "root", 
+                        ""
+                    );
                 }
-                
-                connection = DriverManager.getConnection(url, user, password);
             } catch (ClassNotFoundException e) {
                 throw new SQLException("Database driver not found", e);
             }
