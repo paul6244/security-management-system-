@@ -195,19 +195,18 @@ if(session.getAttribute("username")==null){
     var incidentData = [];
     
     <%
-        ResultSet rsIncidents = Mymodel.getIncidentsByBranch();
+        ResultSet rsIncidents = Mymodel.getIncidentsByBranchForChart();
         if(rsIncidents != null) {
             while(rsIncidents.next()){
                 if(incidentLabels.length > 0) incidentLabels.push(",");
                 if(incidentData.length > 0) incidentData.push(",");
-                incidentLabels.push("'").append(rsIncidents.getString("branch_name")).append("'");
+                incidentLabels.push("'" + rsIncidents.getString("branch_name") + "'");
                 incidentData.append(rsIncidents.getInt("total"));
         }
         rsIncidents.close();
     }
     %>
 
-    // Chart data variables
     var reportLabels = [];
     var reportData = [];
     

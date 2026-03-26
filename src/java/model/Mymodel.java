@@ -364,8 +364,8 @@ public class Mymodel {
         return null;
     }
 
-    // Get incidents involving personnel and users from database
-    public static ResultSet getIncidentsByBranch() {
+    // Get incidents by branch for chart
+    public static ResultSet getIncidentsByBranchForChart() {
         try {
             Connection conn = DatabaseConfig.getConnection();
             String sql = "SELECT b.name as branch_name, COUNT(*) as total " +
