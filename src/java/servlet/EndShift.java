@@ -5,6 +5,7 @@ import java.sql.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.WebServlet;
+import config.DatabaseConfig;
 
 @WebServlet("/EndShift")
 public class EndShift extends HttpServlet {
@@ -13,8 +14,7 @@ public class EndShift extends HttpServlet {
     throws ServletException, IOException {
 
         try {
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
 
             String username = (String) request.getSession().getAttribute("username");
 

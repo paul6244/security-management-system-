@@ -7,6 +7,8 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
+import config.DatabaseConfig;
+
 @WebServlet("/StaffRegistration")
 public class StaffRegistration extends HttpServlet {
 
@@ -48,8 +50,7 @@ public class StaffRegistration extends HttpServlet {
             // Save selfie image
             String selfiePath = saveSelfieImage(selfie, employeeId);
 
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
 
             // Check if email already exists
             PreparedStatement checkEmailPs = con.prepareStatement(

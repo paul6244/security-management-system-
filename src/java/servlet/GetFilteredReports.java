@@ -10,6 +10,8 @@ import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 
+import config.DatabaseConfig;
+
 @WebServlet("/GetFilteredReports")
 public class GetFilteredReports extends HttpServlet {
 
@@ -22,6 +24,10 @@ public class GetFilteredReports extends HttpServlet {
             return;
         }
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        
         String dateFrom = request.getParameter("dateFrom");
         String dateTo = request.getParameter("dateTo");
         String branch = request.getParameter("branch");

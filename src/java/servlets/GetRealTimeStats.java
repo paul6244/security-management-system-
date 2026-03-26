@@ -3,7 +3,6 @@ package servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.servlet.ServletException;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import config.DatabaseConfig;
 
 @WebServlet("/GetRealTimeStats")
 public class GetRealTimeStats extends HttpServlet {
@@ -27,8 +27,7 @@ public class GetRealTimeStats extends HttpServlet {
         JSONObject stats = new JSONObject();
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
             
             String username = request.getParameter("username");
             if (username == null) {

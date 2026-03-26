@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import config.DatabaseConfig;
 
 @WebServlet("/SaveChecklist")
 public class SaveChecklist extends HttpServlet {
@@ -14,8 +15,7 @@ public class SaveChecklist extends HttpServlet {
     throws ServletException, IOException {
 
         try {
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            Connection con = DatabaseConfig.getConnection();
 
             String username = (String) request.getSession().getAttribute("username");
 
