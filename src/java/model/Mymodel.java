@@ -257,7 +257,9 @@ public class Mymodel {
             String sql = "SELECT sp.id, sp.name, sp.shift_time, u.email, b.name as branch_name, u.username " +
                         "FROM security_personnel sp " +
                         "JOIN branches b ON sp.branch_id = b.id " +
-                        "LEFT JOIN users u ON sp.user_id = u.id";
+                        "INNER JOIN users u ON sp.user_id = u.id " +
+                        "WHERE u.username IS NOT NULL AND u.email IS NOT NULL " +
+                        "ORDER BY u.username";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
         } catch (Exception e) {
