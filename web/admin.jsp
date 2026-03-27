@@ -84,14 +84,25 @@
                 ResultSet rsIncidents = Mymodel.getIncidentsByBranch();
                 StringBuilder incidentLabels = new StringBuilder();
                 StringBuilder incidentData = new StringBuilder();
+                boolean hasIncidents = false;
+                
                 if(rsIncidents != null) {
                     while(rsIncidents.next()){
+                        hasIncidents = true;
                         if(incidentLabels.length() > 0) incidentLabels.append(",");
                         if(incidentData.length() > 0) incidentData.append(",");
-                        incidentLabels.append("'").append(rsIncidents.getString("name")).append("'");
-                        incidentData.append(rsIncidents.getInt("count"));
+                        String branchName = rsIncidents.getString("name");
+                        int count = rsIncidents.getInt("count");
+                        incidentLabels.append("'").append(branchName != null ? branchName : "Unknown").append("'");
+                        incidentData.append(count);
                     }
                     rsIncidents.close();
+                }
+                
+                // If no incidents found, show all branches with 0
+                if(!hasIncidents) {
+                    incidentLabels.append("'No Data'");
+                    incidentData.append("0");
                 }
             %>
 
