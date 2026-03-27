@@ -40,17 +40,16 @@ public class GetFilteredReports extends HttpServlet {
         ResultSet rs = null;
         
         try {
-            con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+            con = DatabaseConfig.getConnection();
 
             StringBuilder sql = new StringBuilder(
-                "SELECT u.username, b.name AS branch, i.item_name, " +
+                "SELECT u.username, b.name AS branch, ci.item_name, " +
                 "sc.status, sc.reason, sc.check_time " +
                 "FROM shift_checks sc " +
                 "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
                 "JOIN users u ON sp.user_id = u.id " +
                 "JOIN branches b ON sp.branch_id = b.id " +
-                "JOIN items i ON sc.item_id = i.id " +
+                "JOIN checklist_items ci ON sc.item_id = ci.id " +
                 "WHERE 1=1");
 
             List<Object> params = new ArrayList<>();
