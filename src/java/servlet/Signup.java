@@ -51,6 +51,13 @@ public class Signup extends HttpServlet {
             return;
         }
 
+        // Check if email exists
+        if(Mymodel.emailExists(email)){
+            session.setAttribute("signupError", "Email already exists.");
+            response.sendRedirect("Signup.jsp");
+            return;
+        }
+
         // Save user
         boolean saved = Mymodel.saveUserWithRole(
                 username, email, password, role,
