@@ -58,7 +58,7 @@ public class GetFilteredReports extends HttpServlet {
                 "JOIN users u ON sp.user_id = u.id " +
                 "JOIN branches b ON sp.branch_id = b.id " +
                 "JOIN checklist_items ci ON sc.item_id = ci.id " +
-                "WHERE 1=1");
+                "WHERE (sc.status='NOT_OK' OR sc.status='Not ok')");
 
             List<Object> params = new ArrayList<>();
 
@@ -86,9 +86,15 @@ public class GetFilteredReports extends HttpServlet {
             }
 
             if(status != null && !status.trim().isEmpty()) {
-                sql.append(" AND sc.status = ?");
-                params.add(status.trim());
-                System.out.println("Added status filter: " + status);
+                if(status.trim().equals("all")) {
+                    // Already included both NOT_OK and Not ok in base query, so no additional filter needed
+                    System.out.println("Status filter: all (including both NOT_OK and Not ok)");
+                } else {
+                    // Filter by specific status
+                    sql.append(" AND sc.status = ?");
+                    params.add(status.trim());
+                    System.out.println("Added status filter: " + status);
+                }
             }
 
             sql.append(" ORDER BY sc.check_time DESC");
