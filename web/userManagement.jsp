@@ -260,16 +260,16 @@
                     </thead>
                     <tbody id="userTableBody">
                         <%
-                            ResultSet rs = Mymodel.getAllUsers();
+                            ResultSet rs = Mymodel.getAllPersonnel();
                             if(rs != null) {
                                 while(rs.next()){
                         %>
                         <tr class="user-row">
                             <td class="username"><%= rs.getString("username") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
-                            <td><%= rs.getString("role") %></td>
-                            <td class="branch"><%= rs.getString("branch_name") != null ? rs.getString("branch_name") : "N/A" %></td>
-                            <td class="shift-time"><%= rs.getString("shift_time") != null ? rs.getString("shift_time") : "N/A" %></td>
+                            <td>Security Officer</td>
+                            <td class="branch"><%= rs.getString("branch") %></td>
+                            <td class="shift-time"><%= rs.getString("shift_time") %></td>
                             <td><span class="status-badge status-active">Active</span></td>
                             <td>
                                 <button class="action-btn remove-btn" onclick="confirmRemove('<%= rs.getString("username") %>', '<%= rs.getString("email") %>')">Remove</button>
@@ -278,12 +278,6 @@
                         <%
                                 }
                                 rs.close();
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: #666;">No users found.</td>
-                        </tr>
-                        <%
                             }
                         %>
                     </tbody>
