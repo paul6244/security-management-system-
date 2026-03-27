@@ -135,16 +135,17 @@ if(session.getAttribute("username")==null){
                             status = "all"; // Get all records
                         }
                         
-                        ResultSet rs = Mymodel.getIncidentReports(dateFrom, dateTo, branch, status);
-                        boolean hasData = false;
-                        int totalRecords = 0;
-                        
-                        if(rs != null) {
-                            while(rs.next()){
-                                hasData = true;
-                                totalRecords++;
-                                String reportStatus = rs.getString("status");
-                                boolean isIncident = "NOT_OK".equals(reportStatus);
+                        try {
+                            ResultSet rs = Mymodel.getIncidentReports(dateFrom, dateTo, branch, status);
+                            boolean hasData = false;
+                            int totalRecords = 0;
+                            
+                            if(rs != null) {
+                                while(rs.next()){
+                                    hasData = true;
+                                    totalRecords++;
+                                    String reportStatus = rs.getString("status");
+                                    boolean isIncident = "NOT_OK".equals(reportStatus);
                     %>
                     <tr>
                         <td><%= new SimpleDateFormat("MMM dd, yyyy HH:mm").format(rs.getTimestamp("check_time")) %></td>
@@ -162,10 +163,25 @@ if(session.getAttribute("username")==null){
                     <%
                             }
                             rs.close();
-                        } else {
+                            
+                            if(!hasData) {
                     %>
                     <tr>
                         <td colspan="7" style="text-align: center; color: #666;">No incident reports found matching your criteria.</td>
+                    </tr>
+                    <%
+                            }
+                        } else {
+                    %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #e74c3c;">Database query failed. Check connection.</td>
+                    </tr>
+                    <%
+                        }
+                        } catch(Exception e) {
+                    %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #e74c3c;">Error: <%= e.getMessage() %></td>
                     </tr>
                     <%
                         }
