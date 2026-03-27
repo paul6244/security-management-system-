@@ -268,7 +268,7 @@
                             <td class="username"><%= rs.getString("username") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td>Security Officer</td>
-                            <td class="branch"><%= rs.getString("branch") %></td>
+                            <td class="branch"><%= rs.getString("branch_name") %></td>
                             <td class="shift-time"><%= rs.getString("shift_time") %></td>
                             <td><span class="status-badge status-active">Active</span></td>
                             <td>
@@ -278,6 +278,12 @@
                         <%
                                 }
                                 rs.close();
+                            } else {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #666;">No personnel found.</td>
+                        </tr>
+                        <%
                             }
                         %>
                     </tbody>
