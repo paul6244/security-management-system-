@@ -548,28 +548,6 @@ public class Mymodel {
         return 0;
     }
 
-    // Simple method to// Check if username exists
-    public static boolean userExists(String username) {
-        try {
-            Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                rs.close();
-                ps.close();
-                conn.close();
-                return count > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     // Check if email exists
     public static boolean emailExists(String email) {
         try {
