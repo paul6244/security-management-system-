@@ -253,7 +253,7 @@ public class Mymodel {
     public static ResultSet getAllPersonnel() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT sp.id, sp.name, sp.shift_time, sp.email, b.name as branch_name, u.username " +
+            String sql = "SELECT sp.id, sp.name, sp.shift_time, u.email, b.name as branch_name, u.username " +
                         "FROM security_personnel sp " +
                         "JOIN branches b ON sp.branch_id = b.id " +
                         "JOIN users u ON sp.user_id = u.id";
