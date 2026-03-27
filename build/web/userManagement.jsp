@@ -260,15 +260,18 @@
                     </thead>
                     <tbody id="userTableBody">
                         <%
-                            ResultSet rs = Mymodel.getAllPersonnel();
-                            if(rs != null) {
-                                while(rs.next()){
+                            try {
+                                ResultSet rs = Mymodel.getAllPersonnel();
+                                if(rs != null) {
+                                    boolean hasData = false;
+                                    while(rs.next()){
+                                        hasData = true;
                         %>
                         <tr class="user-row">
                             <td class="username"><%= rs.getString("username") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td>Security Officer</td>
-                            <td class="branch"><%= rs.getString("branch") %></td>
+                            <td class="branch"><%= rs.getString("branch_name") %></td>
                             <td class="shift-time"><%= rs.getString("shift_time") %></td>
                             <td><span class="status-badge status-active">Active</span></td>
                             <td>
@@ -276,8 +279,29 @@
                             </td>
                         </tr>
                         <%
+                                    }
+                                    rs.close();
+                                    
+                                    if(!hasData) {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #666;">No personnel found in database.</td>
+                        </tr>
+                        <%
+                                    }
+                                } else {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #e74c3c;">Database query failed. Check connection.</td>
+                        </tr>
+                        <%
                                 }
-                                rs.close();
+                            } catch(Exception e) {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #e74c3c;">Error: <%= e.getMessage() %></td>
+                        </tr>
+                        <%
                             }
                         %>
                     </tbody>
