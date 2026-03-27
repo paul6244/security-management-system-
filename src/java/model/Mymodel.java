@@ -237,7 +237,8 @@ public class Mymodel {
         try {
             Connection conn = DatabaseConfig.getConnection();
             // Modified query to include branches with 0 incidents and handle null branch_id
-            String sql = "SELECT b.name, COUNT(sc.id) as count " +
+            // Use column names that match the reports.jsp expectations
+            String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
                         "FROM branches b " +
                         "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND sc.status='NOT_OK' " +
                         "GROUP BY b.name " +
@@ -253,7 +254,7 @@ public class Mymodel {
     public static ResultSet getAllPersonnel() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT sp.id, sp.name, sp.shift_time, u.email, b.name as branch_name, u.username " +
+            String sql = "SELECT sp.id, sp.name, sp.shift_time, sp.email, b.name as branch_name, u.username " +
                         "FROM security_personnel sp " +
                         "JOIN branches b ON sp.branch_id = b.id " +
                         "JOIN users u ON sp.user_id = u.id";
@@ -453,5 +454,24 @@ public class Mymodel {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // Simple method to check if personnel table has data
+    public static int getPersonnelCount() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            String sql = "SELECT COUNT(*) FROM security_personnel";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                rs.close();
+                ps.close();
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
