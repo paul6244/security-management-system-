@@ -56,32 +56,39 @@ public class Mymodel {
             ResultSet rs = ps.getGeneratedKeys();
             int userId = 0;
             if (rs.next()) userId = rs.getInt(1);
+            rs.close();
 
             // If security officer, save extra details
             if ("security_officer".equals(role)) {
                 if (branch_id == null || branch_id.trim().isEmpty()) {
+                    System.out.println("ERROR: Branch ID is null or empty");
                     throw new Exception("Branch is required");
                 }
 
                 if (shift_time == null || shift_time.trim().isEmpty()) {
+                    System.out.println("ERROR: Shift time is null or empty");
                     throw new Exception("Shift time is required");
                 }
 
+                System.out.println("DEBUG: Inserting into security_personnel with name=" + username + ", branch_id=" + branch_id + ", shift_time=" + shift_time + ", user_id=" + userId);
+                
                 String secSql = "INSERT INTO security_personnel(name,branch_id,shift_time,user_id) VALUES(?,?,?,?)";
                 PreparedStatement ps2 = conn.prepareStatement(secSql);
 
-                ps2.setString(1, username);
+                ps2.setString(1, username);  // Use username as name
                 ps2.setInt(2, Integer.parseInt(branch_id.trim()));
                 ps2.setString(3, shift_time.trim());
                 ps2.setInt(4, userId);
 
                 int rows = ps2.executeUpdate();
-                System.out.println("Inserted rows: " + rows);
+                System.out.println("Inserted rows into security_personnel: " + rows);
+                ps2.close();
             }
            
             return true;
 
         } catch (Exception e) {
+            System.out.println("ERROR in saveUserWithRole: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
