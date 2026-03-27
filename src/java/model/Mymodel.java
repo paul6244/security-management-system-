@@ -152,12 +152,15 @@ public class Mymodel {
     public static int getTotalPersonnel() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM security_personnel");
+            String sql = "SELECT COUNT(*) FROM security_personnel sp " +
+                         "INNER JOIN users u ON sp.user_id = u.id " +
+                         "WHERE u.username IS NOT NULL AND u.email IS NOT NULL";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int count = rs.getInt(1);
                 rs.close();
-                stmt.close();
+                ps.close();
                 conn.close();
                 return count;
             }
