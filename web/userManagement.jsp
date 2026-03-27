@@ -260,28 +260,45 @@
                     </thead>
                     <tbody id="userTableBody">
                         <%
-                            ResultSet rs = Mymodel.getAllPersonnel();
-                            if(rs != null) {
-                                while(rs.next()){
+                            try {
+                                ResultSet rs = Mymodel.getAllPersonnel();
+                                if(rs != null) {
+                                    boolean hasData = false;
+                                    while(rs.next()){
+                                        hasData = true;
                         %>
                         <tr class="user-row">
-                            <td class="username"><%= rs.getString("username") %></td>
-                            <td class="email"><%= rs.getString("email") %></td>
+                            <td class="username"><%= rs.getString("username") != null ? rs.getString("username") : "N/A" %></td>
+                            <td class="email"><%= rs.getString("email") != null ? rs.getString("email") : "N/A" %></td>
                             <td>Security Officer</td>
-                            <td class="branch"><%= rs.getString("branch_name") %></td>
-                            <td class="shift-time"><%= rs.getString("shift_time") %></td>
+                            <td class="branch"><%= rs.getString("branch_name") != null ? rs.getString("branch_name") : "N/A" %></td>
+                            <td class="shift-time"><%= rs.getString("shift_time") != null ? rs.getString("shift_time") : "N/A" %></td>
                             <td><span class="status-badge status-active">Active</span></td>
                             <td>
-                                <button class="action-btn remove-btn" onclick="confirmRemove('<%= rs.getString("username") %>', '<%= rs.getString("email") %>')">Remove</button>
+                                <button class="action-btn remove-btn" onclick="confirmRemove('<%= rs.getString("username") != null ? rs.getString("username") : "unknown" %>', '<%= rs.getString("email") != null ? rs.getString("email") : "unknown" %>')">Remove</button>
                             </td>
                         </tr>
                         <%
-                                }
-                                rs.close();
-                            } else {
+                                    }
+                                    rs.close();
+                                    if(!hasData) {
                         %>
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #666;">No personnel found.</td>
+                            <td colspan="7" style="text-align: center; color: #666;">No personnel records found in database.</td>
+                        </tr>
+                        <%
+                                    }
+                                } else {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #e74c3c;">Database query failed. Check database connection.</td>
+                        </tr>
+                        <%
+                                }
+                            } catch(Exception e) {
+                        %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #e74c3c;">Error: <%= e.getMessage() %></td>
                         </tr>
                         <%
                             }
