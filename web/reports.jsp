@@ -266,7 +266,7 @@ if(session.getAttribute("username")==null){
             <div class="reports-table">
                 <h3>Shift Reports</h3>
                 
-                <!-- Original Reports Table -->
+                <!-- Dynamic Reports Table -->
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -279,79 +279,10 @@ if(session.getAttribute("username")==null){
                                 <th>Reason</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <%
-                            // Get filter parameters
-                            String dateFrom = request.getParameter("dateFrom");
-                            String dateTo = request.getParameter("dateTo");
-                            String branch = request.getParameter("branch");
-                            String status = request.getParameter("status");
-                            
-                            // Debug: Show filter values
-                            out.println("<!-- DEBUG: Filters - dateFrom: " + dateFrom + ", dateTo: " + dateTo + ", branch: " + branch + ", status: " + status + " -->");
-                            
-                            // If no status filter is set, get all records including INCIDENT
-                            if(status == null || status.isEmpty()) {
-                                status = "all"; // Get all records
-                            }
-                            
-                            ResultSet rs = Mymodel.getFilteredReports(dateFrom, dateTo, branch, status);
-                            boolean hasData = false;
-                            int totalRecords = 0;
-                            
-                            while(rs != null && rs.next()){
-                                hasData = true;
-                                totalRecords++;
-                                String reportStatus = rs.getString("status");
-                                boolean isIncident = "NOT_OK".equals(reportStatus);
-                                
-                                // Debug: Show each record
-                                out.println("<!-- DEBUG: Record " + totalRecords + " - Status: " + reportStatus + ", isIncident: " + isIncident + " -->");
-                            %>
-                                <tr>
-                                    <td><%= new SimpleDateFormat("MMM dd, yyyy HH:mm").format(rs.getTimestamp("check_time")) %></td>
-                                    <td><%= rs.getString("username") %></td>
-                                    <td><%= rs.getString("branch") %></td>
-                                    <td><%= rs.getString("item_name") %></td>
-                                    <td>
-                                        <span class="<%= isIncident ? "status-incident" : "status-ok" %>">
-                                            <%= isIncident ? "Not ok" : "OK" %>
-                                        </span>
-                                    </td>
-                                    <td><%= rs.getString("reason") != null && !rs.getString("reason").isEmpty() ? rs.getString("reason") : "-" %></td>
-                                </tr>
-                            <%
-                            }
-                            if(rs != null) rs.close();
-                            
-                            // Debug: Show total records found
-                            out.println("<!-- DEBUG: Total records found: " + totalRecords + " -->");
-                            
-                            // Debug: Show raw shift_checks data
-                            try {
-                                Class.forName("com.mysql.cj.jdbc.Driver");
-                                Connection debugCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
-                                String debugSql = "SELECT COUNT(*) as total, COUNT(CASE WHEN status = 'NOT_OK' THEN 1 END) as not_ok_count FROM shift_checks";
-                                PreparedStatement debugPs = debugCon.prepareStatement(debugSql);
-                                ResultSet debugRs = debugPs.executeQuery();
-                                if(debugRs.next()) {
-                                    out.println("<!-- DEBUG: shift_checks table - Total: " + debugRs.getInt("total") + ", NOT_OK: " + debugRs.getInt("not_ok_count") + " -->");
-                                }
-                                debugRs.close();
-                                debugPs.close();
-                                debugCon.close();
-                            } catch(Exception e) {
-                                out.println("<!-- DEBUG: Error checking shift_checks table: " + e.getMessage() + " -->");
-                            }
-                            
-                            if(!hasData){
-                            %>
-                                <tr>
-                                    <td colspan="6" class="no-data">No reports found matching the current filters.</td>
-                                </tr>
-                            <%
-                            }
-                            %>
+                        <tbody id="reportTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 20px;">Loading reports...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -491,6 +422,108 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     if(!document.getElementById('dateTo').value) {
         document.getElementById('dateTo').value = today;
+    }
+});
+</script>
+
+<script>
+// Load filtered reports via AJAX
+function loadFilteredReports() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    const branch = document.getElementById('branch').value;
+    const status = document.getElementById('status').value;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+    if (branch) params.append('branch', branch);
+    if (status) params.append('status', status);
+    
+    // Show loading state
+    const tableBody = document.getElementById('reportTableBody');
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Loading reports...</td></tr>';
+    
+    // Fetch filtered reports
+    fetch('/GetFilteredReports?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            displayReports(data);
+        })
+        .catch(error => {
+            console.error('Error loading reports:', error);
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #e74c3c;">Error loading reports. Please try again.</td></tr>';
+        });
+}
+
+// Display reports in table
+function displayReports(reports) {
+    const tableBody = document.getElementById('reportTableBody');
+    
+    if (!reports || reports.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No reports found matching your criteria.</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    reports.forEach(report => {
+        const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
+        const statusClass = isIncident ? 'status-incident' : 'status-ok';
+        const statusText = isIncident ? 'Not ok' : 'OK';
+        const reasonText = report.reason && report.reason.trim() !== '' ? report.reason : '-';
+        
+        html += `
+            <tr>
+                <td>${formatDateTime(report.checkTime)}</td>
+                <td>${report.username}</td>
+                <td>${report.branch}</td>
+                <td>${report.itemName}</td>
+                <td>
+                    <span class="${statusClass}">${statusText}</span>
+                </td>
+                <td>${reasonText}</td>
+            </tr>
+        `;
+    });
+    
+    tableBody.innerHTML = html;
+}
+
+// Format date/time for display
+function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Auto-load reports when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial reports
+    loadFilteredReports();
+    
+    // Add event listeners to filter controls
+    ['dateFrom', 'dateTo', 'branch', 'status'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', loadFilteredReports);
+        }
+    });
+    
+    // Override form submission to use AJAX
+    const filterForm = document.querySelector('form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            loadFilteredReports();
+        });
     }
 });
 </script>
