@@ -207,7 +207,7 @@ public class Mymodel {
         try {
             Connection conn = DatabaseConfig.getConnection();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'");
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK' OR status='Not ok'");
             if (rs.next()) {
                 int count = rs.getInt(1);
                 rs.close();
@@ -236,11 +236,11 @@ public class Mymodel {
     public static ResultSet getIncidentsByBranch() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            // Modified query to include branches with 0 incidents and handle null branch_id
+            // Modified query to include both 'NOT_OK' and 'Not ok' status variations
             // Use column names that match the reports.jsp expectations
             String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
                         "FROM branches b " +
-                        "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND sc.status='NOT_OK' " +
+                        "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND (sc.status='NOT_OK' OR sc.status='Not ok') " +
                         "GROUP BY b.name " +
                         "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
