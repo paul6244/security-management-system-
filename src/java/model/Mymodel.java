@@ -37,27 +37,51 @@ public class Mymodel {
     // ---------------- Save user and assign role ----------------
     public static boolean saveUserWithRole(String username, String email, String password,
                                            String role, String branch_id, String shift_time) {
-        try (Connection conn = DatabaseConfig.getConnection()) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        PreparedStatement ps2 = null;
+        ResultSet rs = null;
+        
+        try {
+            System.out.println("DEBUG → Starting saveUserWithRole");
             System.out.println("DEBUG → Role: " + role);
             System.out.println("DEBUG → Branch ID: " + branch_id);
             System.out.println("DEBUG → Shift Time: " + shift_time);
             
+            // Hash password
             String hashed = universalManager.hashPassword(password);
+            System.out.println("DEBUG → Password hashed successfully");
+
+            // Get database connection
+            conn = DatabaseConfig.getConnection();
+            if (conn == null) {
+                System.out.println("ERROR: Database connection is null");
+                return false;
+            }
+            System.out.println("DEBUG → Database connection established");
+
+            // Start transaction
+            conn.setAutoCommit(false);
+            System.out.println("DEBUG → Transaction started");
 
             // Save user
             String sql = "INSERT INTO users(username,email,password,role) VALUES(?,?,?,?)";
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, username);
             ps.setString(2, email);
             ps.setString(3, hashed);
             ps.setString(4, role);
-            ps.executeUpdate();
+            
+            int userRows = ps.executeUpdate();
+            System.out.println("DEBUG → User insert executed, rows affected: " + userRows);
 
-            ResultSet rs = ps.getGeneratedKeys();
+            rs = ps.getGeneratedKeys();
             int userId = 0;
-            if (rs.next()) userId = rs.getInt(1);
-            rs.close();
-
+            if (rs.next()) {
+                userId = rs.getInt(1);
+                System.out.println("DEBUG → Generated user ID: " + userId);
+            }
+            
             // If security officer, save extra details
             if ("security_officer".equals(role)) {
                 if (branch_id == null || branch_id.trim().isEmpty()) {
@@ -73,25 +97,52 @@ public class Mymodel {
                 System.out.println("DEBUG: Inserting into security_personnel with name=" + username + ", branch_id=" + branch_id + ", shift_time=" + shift_time + ", user_id=" + userId);
                 
                 String secSql = "INSERT INTO security_personnel(name,branch_id,shift_time,user_id) VALUES(?,?,?,?)";
-                PreparedStatement ps2 = conn.prepareStatement(secSql);
+                ps2 = conn.prepareStatement(secSql);
 
                 ps2.setString(1, username);  // Use username as name
                 ps2.setInt(2, Integer.parseInt(branch_id.trim()));
                 ps2.setString(3, shift_time.trim());
                 ps2.setInt(4, userId);
 
-                int rows = ps2.executeUpdate();
-                System.out.println("Inserted rows into security_personnel: " + rows);
-                ps2.close();
+                int secRows = ps2.executeUpdate();
+                System.out.println("DEBUG → Security personnel insert executed, rows affected: " + secRows);
             }
            
+            // Commit transaction
+            conn.commit();
+            System.out.println("DEBUG → Transaction committed successfully");
             return true;
 
         } catch (Exception e) {
             System.out.println("ERROR in saveUserWithRole: " + e.getMessage());
             e.printStackTrace();
+            
+            // Rollback transaction if error
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                    System.out.println("DEBUG → Transaction rolled back");
+                }
+            } catch (Exception rollbackEx) {
+                System.out.println("ERROR during rollback: " + rollbackEx.getMessage());
+            }
+            
+            return false;
+        } finally {
+            // Clean up resources
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (ps2 != null) ps2.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("DEBUG → Connection closed");
+                }
+            } catch (Exception cleanupEx) {
+                System.out.println("ERROR during cleanup: " + cleanupEx.getMessage());
+            }
         }
-        return false;
     }
 
     // ---------------- Get Branches ----------------
