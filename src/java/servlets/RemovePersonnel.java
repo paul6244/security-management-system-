@@ -53,9 +53,11 @@ public class RemovePersonnel extends HttpServlet {
             // Get database connection
             conn = DatabaseConfig.getConnection();
             
-            // First, get the user ID from username
-            String getUserIdSql = "SELECT id FROM users WHERE username = ? AND email = ?";
-            ps = conn.prepareStatement(getUserIdSql);
+            // First, get the user ID and personnel ID
+            String getUserInfoSql = "SELECT u.id as user_id, sp.id as personnel_id FROM users u " +
+                                   "LEFT JOIN security_personnel sp ON u.id = sp.user_id " +
+                                   "WHERE u.username = ? AND u.email = ?";
+            ps = conn.prepareStatement(getUserInfoSql);
             ps.setString(1, username);
             ps.setString(2, email);
             rs = ps.executeQuery();
@@ -64,16 +66,26 @@ public class RemovePersonnel extends HttpServlet {
                 return false; // User not found
             }
             
-            int userId = rs.getInt("id");
+            int userId = rs.getInt("user_id");
+            int personnelId = rs.getInt("personnel_id");
             rs.close();
             ps.close();
             
-            // Delete from security_personnel table first (foreign key constraint)
-            String deletePersonnelSql = "DELETE FROM security_personnel WHERE user_id = ?";
-            ps = conn.prepareStatement(deletePersonnelSql);
-            ps.setInt(1, userId);
-            int personnelDeleted = ps.executeUpdate();
-            ps.close();
+            // Delete from shift_checks first (if personnel_id exists)
+            if (personnelId > 0) {
+                String deleteShiftChecksSql = "DELETE FROM shift_checks WHERE personnel_id = ?";
+                ps = conn.prepareStatement(deleteShiftChecksSql);
+                ps.setInt(1, personnelId);
+                ps.executeUpdate();
+                ps.close();
+                
+                // Delete from security_personnel table
+                String deletePersonnelSql = "DELETE FROM security_personnel WHERE id = ?";
+                ps = conn.prepareStatement(deletePersonnelSql);
+                ps.setInt(1, personnelId);
+                ps.executeUpdate();
+                ps.close();
+            }
             
             // Delete from users table
             String deleteUserSql = "DELETE FROM users WHERE id = ?";
@@ -82,14 +94,7 @@ public class RemovePersonnel extends HttpServlet {
             int userDeleted = ps.executeUpdate();
             ps.close();
             
-            // Delete related shift_checks if any
-            String deleteShiftChecksSql = "DELETE FROM shift_checks WHERE personnel_id IN (SELECT id FROM security_personnel WHERE user_id = ?)";
-            ps = conn.prepareStatement(deleteShiftChecksSql);
-            ps.setInt(1, userId);
-            ps.executeUpdate();
-            ps.close();
-            
-            return (personnelDeleted > 0 && userDeleted > 0);
+            return userDeleted > 0;
             
         } catch (Exception e) {
             e.printStackTrace();

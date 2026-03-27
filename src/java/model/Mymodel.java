@@ -269,22 +269,32 @@ public class Mymodel {
     public static ResultSet getFilteredReports(String dateFrom, String dateTo, String branch, String status) {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT sc.*, b.name as branch_name FROM shift_checks sc JOIN branches b ON sc.branch_id = b.id WHERE 1=1");
+            StringBuilder sql = new StringBuilder("SELECT sc.check_time, u.username, b.name as branch, ci.item_name, sc.status, sc.reason " +
+                        "FROM shift_checks sc " +
+                        "JOIN branches b ON sc.branch_id = b.id " +
+                        "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
+                        "JOIN users u ON sp.user_id = u.id " +
+                        "JOIN checklist_items ci ON sc.item_id = ci.id " +
+                        "WHERE 1=1");
             
             if (dateFrom != null && !dateFrom.isEmpty()) {
-                sql.append(" AND sc.check_date >= ?");
+                sql.append(" AND DATE(sc.check_time) >= ?");
             }
             if (dateTo != null && !dateTo.isEmpty()) {
-                sql.append(" AND sc.check_date <= ?");
+                sql.append(" AND DATE(sc.check_time) <= ?");
             }
             if (branch != null && !branch.isEmpty()) {
                 sql.append(" AND b.name = ?");
             }
             if (status != null && !status.isEmpty()) {
-                sql.append(" AND sc.status = ?");
+                if (status.equals("all")) {
+                    // Get all records including incidents
+                } else {
+                    sql.append(" AND sc.status = ?");
+                }
             }
             
-            sql.append(" ORDER BY sc.check_date DESC");
+            sql.append(" ORDER BY sc.check_time DESC");
             
             PreparedStatement ps = conn.prepareStatement(sql.toString());
             int paramIndex = 1;
@@ -298,7 +308,7 @@ public class Mymodel {
             if (branch != null && !branch.isEmpty()) {
                 ps.setString(paramIndex++, branch);
             }
-            if (status != null && !status.isEmpty()) {
+            if (status != null && !status.isEmpty() && !status.equals("all")) {
                 ps.setString(paramIndex++, status);
             }
             
