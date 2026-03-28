@@ -457,6 +457,20 @@ function loadFilteredReports() {
         });
 }
 
+// Format date/time for display
+function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 // Display reports in table
 function displayReports(reports) {
     const tableBody = document.getElementById('reportTableBody');
@@ -471,7 +485,7 @@ function displayReports(reports) {
         const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
         const statusClass = isIncident ? 'status-incident' : 'status-ok';
         const statusText = isIncident ? 'Not ok' : 'OK';
-        const reasonText = report.reason && report.reason.trim() !== '' ? report.reason : '-';
+        const reasonText = report.reason || 'N/A';
         
         html += `
             <tr>
@@ -488,20 +502,6 @@ function displayReports(reports) {
     });
     
     tableBody.innerHTML = html;
-}
-
-// Format date/time for display
-function formatDateTime(dateTimeStr) {
-    if (!dateTimeStr) return '';
-    
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
 }
 
 // Auto-load reports when page loads
