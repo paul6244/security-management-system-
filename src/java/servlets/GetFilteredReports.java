@@ -63,13 +63,13 @@ public class GetFilteredReports extends HttpServlet {
             List<Object> params = new ArrayList<>();
 
             if(dateFrom != null && !dateFrom.trim().isEmpty()) {
-                sql.append(" AND DATE(sc.check_time) >= ?");
+                sql.append(" AND DATE(sc.check_time) >= CAST(? AS DATE)");
                 params.add(dateFrom.trim());
                 System.out.println("Added dateFrom filter: " + dateFrom);
             }
 
             if(dateTo != null && !dateTo.trim().isEmpty()) {
-                sql.append(" AND DATE(sc.check_time) <= ?");
+                sql.append(" AND DATE(sc.check_time) <= CAST(? AS DATE)");
                 params.add(dateTo.trim());
                 System.out.println("Added dateTo filter: " + dateTo);
             }
