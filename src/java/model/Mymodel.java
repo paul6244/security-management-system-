@@ -160,32 +160,48 @@ public class Mymodel {
 
     // ---------------- Login ----------------
     public static String getUserRole(String username, String password) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
         try {
-            Connection conn = DatabaseConfig.getConnection();
+            conn = DatabaseConfig.getConnection();
+            if (conn == null) {
+                System.out.println("ERROR: Database connection is null in getUserRole");
+                return null;
+            }
+            
             String hash = universalManager.hashPassword(password);
+            System.out.println("DEBUG: Attempting login for user: " + username);
 
             String sql = "SELECT role FROM users WHERE username=? AND password=?";
-            PreparedStatement ps = conn.prepareStatement(sql);
+            ps = conn.prepareStatement(sql);
             ps.setString(1, username);
             ps.setString(2, hash);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 String role = rs.getString("role");
-                rs.close();
-                ps.close();
-                conn.close();
+                System.out.println("DEBUG: Login successful for user: " + username + ", role: " + role);
                 return role;
+            } else {
+                System.out.println("DEBUG: Login failed for user: " + username + " - no matching record");
+                return null;
             }
             
-            rs.close();
-            ps.close();
-            conn.close();
-
         } catch (Exception e) {
+            System.out.println("ERROR in getUserRole: " + e.getMessage());
             e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                System.out.println("ERROR closing resources in getUserRole: " + e.getMessage());
+            }
         }
-        return null;
     }
 
     // ---------------- Update User Password ----------------
