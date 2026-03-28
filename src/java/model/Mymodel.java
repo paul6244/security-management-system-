@@ -285,7 +285,7 @@ public class Mymodel {
     public static ResultSet getReportsByDate() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            String sql = "SELECT DATE(check_date) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_date)";
+            String sql = "SELECT DATE(check_time) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_time) ORDER BY DATE(check_time)";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
         } catch (Exception e) {
@@ -297,11 +297,12 @@ public class Mymodel {
     public static ResultSet getIncidentsByBranch() {
         try {
             Connection conn = DatabaseConfig.getConnection();
-            // Modified query to include both 'NOT_OK' and 'Not ok' status variations
-            // Use column names that match the reports.jsp expectations
+            // Fixed query to use correct joins and include both 'NOT_OK' and 'Not ok' status variations
             String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
-                        "FROM branches b " +
-                        "LEFT JOIN shift_checks sc ON b.id = sc.branch_id AND (sc.status='NOT_OK' OR sc.status='Not ok') " +
+                        "FROM shift_checks sc " +
+                        "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
+                        "JOIN branches b ON sp.branch_id = b.id " +
+                        "WHERE (sc.status='NOT_OK' OR sc.status='Not ok') " +
                         "GROUP BY b.name " +
                         "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
