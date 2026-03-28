@@ -36,6 +36,12 @@ public class UpdateSecuritySettings extends HttpServlet {
         try {
             con = DatabaseConfig.getConnection();
             
+            if (con == null) {
+                response.setContentType("application/json");
+                response.getWriter().write("{\"success\": false, \"message\": \"Database connection failed. Please try again.\"}");
+                return;
+            }
+            
             // Verify current password
             String verifySql = "SELECT password FROM users WHERE username = ?";
             PreparedStatement verifyPs = con.prepareStatement(verifySql);

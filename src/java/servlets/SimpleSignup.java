@@ -41,6 +41,7 @@ public class SimpleSignup extends HttpServlet {
             Connection conn = DatabaseConfig.getConnection();
             if (conn == null) {
                 out.println("<p style='color: red;'>ERROR: Database connection is null</p>");
+                return;
             } else {
                 out.println("<p style='color: green;'>SUCCESS: Database connection established</p>");
                 
