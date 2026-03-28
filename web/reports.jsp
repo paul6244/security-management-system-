@@ -457,12 +457,50 @@ function loadFilteredReports() {
         })
         .then(data => {
             console.log('Data received:', data);
-            displayReports(data);
+            console.log('Data length:', data ? data.length : 'null/undefined');
+            displayReportsSimple(data);
         })
         .catch(error => {
             console.error('Error loading reports:', error);
             tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #e74c3c;">Error loading reports. Please try again.</td></tr>';
         });
+}
+
+// Simple display function that works
+function displayReportsSimple(reports) {
+    const tableBody = document.getElementById('reportTableBody');
+    
+    console.log('DisplayReportsSimple called with:', reports);
+    
+    if (!reports || reports.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No reports found matching your criteria.</td></tr>';
+        return;
+    }
+    
+    let html = '<table border="1" style="width: 100%; border-collapse: collapse;"><tr><th>Date/Time</th><th>Officer</th><th>Branch</th><th>Item</th><th>Status</th><th>Reason</th></tr>';
+    
+    reports.forEach(report => {
+        console.log('Processing report:', report);
+        
+        const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
+        const statusClass = isIncident ? 'status-incident' : 'status-ok';
+        const statusText = isIncident ? 'Not ok' : 'OK';
+        const reasonText = report.reason || 'N/A';
+        const formattedTime = formatDateTime(report.checkTime);
+        
+        html += '<tr>';
+        html += '<td>' + formattedTime + '</td>';
+        html += '<td>' + report.username + '</td>';
+        html += '<td>' + report.branch + '</td>';
+        html += '<td>' + report.itemName + '</td>';
+        html += '<td><span class="' + statusClass + '">' + statusText + '</span></td>';
+        html += '<td>' + reasonText + '</td>';
+        html += '</tr>';
+    });
+    
+    html += '</table>';
+    console.log('Final HTML:', html);
+    tableBody.innerHTML = html;
 }
 
 // Format date/time for display
