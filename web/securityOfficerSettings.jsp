@@ -7,7 +7,7 @@
         response.sendRedirect("index.jsp");
     }
     
-    String username = session.getAttribute("username").toString();
+    String username = session.getAttribute("username") != null ? session.getAttribute("username").toString() : "";
     
     // Simple role check - for security officers, we'll assume they have the right role
     // In a real app, you'd store the role in session during login
