@@ -432,21 +432,31 @@ function loadFilteredReports() {
     const branch = document.getElementById('branch').value;
     const status = document.getElementById('status').value;
     
-    // Build query parameters
+    // Build query parameters - always include status=all to get all records
     const params = new URLSearchParams();
     if (dateFrom) params.append('dateFrom', dateFrom);
     if (dateTo) params.append('dateTo', dateTo);
     if (branch) params.append('branch', branch);
     if (status) params.append('status', status);
+    else params.append('status', 'all'); // Default to all status
     
     // Show loading state
     const tableBody = document.getElementById('reportTableBody');
     tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Loading reports...</td></tr>';
     
+    console.log('Fetching reports with params:', params.toString());
+    
     // Fetch filtered reports
-    fetch('/GetFilteredReports?' + params.toString())
-        .then(response => response.json())
+    fetch('GetFilteredReports?' + params.toString())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Data received:', data);
             displayReports(data);
         })
         .catch(error => {
