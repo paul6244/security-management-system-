@@ -289,7 +289,7 @@ if(rs != null) rs.close();
                         todayPs.close();
                         
                         // Get this month's attendance
-                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND MONTH(start_time) = MONTH(CURRENT_DATE) AND YEAR(start_time) = YEAR(CURRENT_DATE)";
+                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
                         PreparedStatement monthPs = con.prepareStatement(monthSql);
                         monthPs.setInt(1, userId);
                         ResultSet monthRs = monthPs.executeQuery();
@@ -462,7 +462,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Calculate performance based on shift_checks
-                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
+                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= CURRENT_DATE - INTERVAL '7 days'";
                         PreparedStatement performancePs = con.prepareStatement(performanceSql);
                         performancePs.setInt(1, personnelId);
                         ResultSet performanceRs = performancePs.executeQuery();
