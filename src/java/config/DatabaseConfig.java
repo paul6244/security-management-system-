@@ -30,9 +30,9 @@ public class DatabaseConfig {
                         int port = uri.getPort();
                         String database = uri.getPath().substring(1); // Remove leading slash
                         
-                        // Enhanced connection string with simplified parameters
+                        // Enhanced connection string with SSL for Heroku
                         String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
-                        System.out.println("DEBUG: Simplified JDBC URL: " + jdbcUrl);
+                        System.out.println("DEBUG: JDBC URL: " + jdbcUrl);
                         System.out.println("DEBUG: Username: " + username);
                         System.out.println("DEBUG: Host: " + host);
                         System.out.println("DEBUG: Port: " + port);
@@ -43,50 +43,46 @@ public class DatabaseConfig {
                             Class.forName("org.postgresql.Driver");
                             System.out.println("DEBUG: PostgreSQL driver loaded successfully");
                             
-                            // Try connection with retry logic
+                            // Try connection with enhanced retry logic
                             for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
                                 try {
-                                    connection = DriverManager.getConnection(jdbcUrl, username, password);
+                                    // Set connection properties for Heroku
+                                    java.util.Properties props = new java.util.Properties();
+                                    props.setProperty("user", username);
+                                    props.setProperty("password", password);
+                                    props.setProperty("ssl", "true");
+                                    props.setProperty("sslmode", "require");
+                                    props.setProperty("connectTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
+                                    props.setProperty("socketTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
+                                    
+                                    connection = DriverManager.getConnection(jdbcUrl, props);
                                     System.out.println("DEBUG: Database connection established successfully (attempt " + attempt + ")");
                                     break; // Success, exit retry loop
                                 } catch (SQLException e) {
                                     System.out.println("ERROR: Connection attempt " + attempt + " failed: " + e.getMessage());
                                     if (attempt == MAX_RETRIES) {
-                                        throw new SQLException("Failed to connect to database after " + MAX_RETRIES + " attempts", e);
+                                        throw e; // Re-throw after final attempt
                                     }
                                     // Wait before retry
-                                    if (attempt < MAX_RETRIES) {
-                                        try {
-                                            Thread.sleep(1000); // Wait 1 second
-                                        } catch (InterruptedException ie) {
-                                            Thread.currentThread().interrupt();
-                                        }
+                                    try {
+                                        Thread.sleep(2000); // 2 seconds
+                                    } catch (InterruptedException ie) {
+                                        Thread.currentThread().interrupt();
+                                        throw new SQLException("Connection retry interrupted", ie);
                                     }
                                 }
                             }
                         } catch (ClassNotFoundException e) {
-                            System.out.println("ERROR: PostgreSQL driver not found: " + e.getMessage());
                             throw new SQLException("PostgreSQL driver not found", e);
                         }
                     } else {
-                        System.out.println("DEBUG: No DATABASE_URL found, using local MySQL");
-                        // Local MySQL connection with timeout
-                        Class.forName("com.mysql.cj.jdbc.Driver");
-                        String localJdbcUrl = "jdbc:mysql://localhost:3306/securitymanagementsystem?connectTimeout=" + CONNECTION_TIMEOUT;
-                        connection = DriverManager.getConnection(localJdbcUrl, "root", "");
+                        throw new SQLException("DATABASE_URL format not supported");
                     }
                 } else {
-                    throw new SQLException("DATABASE_URL environment variable not set");
+                    throw new SQLException("DATABASE_URL environment variable not found or empty");
                 }
-            } catch (ClassNotFoundException e) {
-                System.out.println("ERROR: Database driver not found: " + e.getMessage());
-                throw new SQLException("Database driver not found", e);
-            } catch (SQLException e) {
-                System.out.println("ERROR: SQL Exception: " + e.getMessage());
-                throw e;
             } catch (Exception e) {
-                System.out.println("ERROR: General Exception: " + e.getMessage());
-                throw new SQLException("Database connection failed", e);
+                throw new SQLException("Failed to connect to database: " + e.getMessage(), e);
             }
         }
         return connection;
@@ -96,8 +92,9 @@ public class DatabaseConfig {
         if (connection != null) {
             try {
                 connection.close();
+                System.out.println("DEBUG: Database connection closed");
             } catch (SQLException e) {
-                e.printStackTrace();
+                System.out.println("ERROR: Failed to close database connection: " + e.getMessage());
             }
         }
     }
