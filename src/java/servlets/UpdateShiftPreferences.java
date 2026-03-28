@@ -25,6 +25,8 @@ public class UpdateShiftPreferences extends HttpServlet {
             response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
             return;
         }
+        
+        String username = (String) request.getSession().getAttribute("username");
         String preferredBranch = request.getParameter("preferredBranch");
         String preferredShift = request.getParameter("preferredShift");
         String autoCheckin = request.getParameter("autoCheckin");
