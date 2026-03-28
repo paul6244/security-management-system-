@@ -489,7 +489,7 @@ function displayReports(reports) {
         
         html += `
             <tr>
-                <td>${formatDateTime(report.checkTime)}</td>
+                <td>${report.checkTime}</td>
                 <td>${report.username}</td>
                 <td>${report.branch}</td>
                 <td>${report.itemName}</td>
@@ -499,6 +499,15 @@ function displayReports(reports) {
                 <td>${reasonText}</td>
             </tr>
         `;
+        
+        // Format the date after the HTML is created
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const dateTd = tempDiv.querySelector('td:first-child');
+        if (dateTd && report.checkTime) {
+            dateTd.textContent = formatDateTime(report.checkTime);
+        }
+        html = tempDiv.innerHTML;
     });
     
     tableBody.innerHTML = html;
