@@ -92,13 +92,22 @@ try {
         </div>
         <%
         
-        if(personnelInfo != null && personnelInfo.next()) {
-            personnelName = personnelInfo.getString("name");
-            personnelEmail = personnelInfo.getString("user_email");
-            personnelBranch = personnelInfo.getString("branch_name");
-            personnelShift = personnelInfo.getString("shift_time");
-            personnelId = personnelInfo.getInt("id");
-            personnelBranchId = personnelInfo.getInt("branch_id");
+        try {
+            if(personnelInfo != null && personnelInfo.next()) {
+                personnelName = personnelInfo.getString("name");
+                personnelEmail = personnelInfo.getString("user_email");
+                personnelBranch = personnelInfo.getString("branch_name");
+                personnelShift = personnelInfo.getString("shift_time");
+                personnelId = personnelInfo.getInt("id");
+                personnelBranchId = personnelInfo.getInt("branch_id");
+            }
+        } catch (SQLException e) {
+            %>
+            <div class="diagnostic-section error">
+                <h3>❌ Error Retrieving Personnel Data</h3>
+                <p><strong>Error:</strong> <%= e.getMessage() %></p>
+            </div>
+            <%
         }
         
         personnelPs.close();
