@@ -8,6 +8,8 @@ import java.net.URI;
 public class DatabaseConfig {
     
     private static Connection connection;
+    private static final int MAX_RETRIES = 3;
+    private static final int CONNECTION_TIMEOUT = 30; // 30 seconds timeout
     
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
@@ -19,7 +21,7 @@ public class DatabaseConfig {
                     
                     // Parse Heroku DATABASE_URL: postgres://username:password@host:port/database
                     if (databaseUrl.startsWith("postgres://")) {
-                        // Properly parse the DATABASE_URL
+                        // Properly parse DATABASE_URL
                         URI uri = new URI(databaseUrl);
                         
                         String username = uri.getUserInfo().split(":")[0];
@@ -28,8 +30,9 @@ public class DatabaseConfig {
                         int port = uri.getPort();
                         String database = uri.getPath().substring(1); // Remove leading slash
                         
-                        String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
-                        System.out.println("DEBUG: Converted to JDBC URL: " + jdbcUrl);
+                        // Enhanced connection string with timeout and SSL
+                        String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s?ssl=true&connectTimeout=%d", host, port, database, CONNECTION_TIMEOUT);
+                        System.out.println("DEBUG: Enhanced JDBC URL: " + jdbcUrl);
                         System.out.println("DEBUG: Username: " + username);
                         System.out.println("DEBUG: Host: " + host);
                         System.out.println("DEBUG: Port: " + port);
@@ -39,31 +42,41 @@ public class DatabaseConfig {
                         try {
                             Class.forName("org.postgresql.Driver");
                             System.out.println("DEBUG: PostgreSQL driver loaded successfully");
+                            
+                            // Try connection with retry logic
+                            for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                                try {
+                                    connection = DriverManager.getConnection(jdbcUrl, username, password);
+                                    System.out.println("DEBUG: Database connection established successfully (attempt " + attempt + ")");
+                                    break; // Success, exit retry loop
+                                } catch (SQLException e) {
+                                    System.out.println("ERROR: Connection attempt " + attempt + " failed: " + e.getMessage());
+                                    if (attempt == MAX_RETRIES) {
+                                        throw new SQLException("Failed to connect to database after " + MAX_RETRIES + " attempts", e);
+                                    }
+                                    // Wait before retry
+                                    if (attempt < MAX_RETRIES) {
+                                        try {
+                                            Thread.sleep(2000); // Wait 2 seconds
+                                        } catch (InterruptedException ie) {
+                                            Thread.currentThread().interrupt();
+                                        }
+                                    }
+                                }
+                            }
                         } catch (ClassNotFoundException e) {
                             System.out.println("ERROR: PostgreSQL driver not found: " + e.getMessage());
                             throw new SQLException("PostgreSQL driver not found", e);
                         }
-                        
-                        // Use parsed connection details
-                        try {
-                            connection = DriverManager.getConnection(jdbcUrl, username, password);
-                            System.out.println("DEBUG: Database connection established successfully");
-                        } catch (SQLException e) {
-                            System.out.println("ERROR: Failed to connect to database: " + e.getMessage());
-                            throw e;
-                        }
                     } else {
-                        connection = DriverManager.getConnection(databaseUrl);
+                        System.out.println("DEBUG: No DATABASE_URL found, using local MySQL");
+                        // Local MySQL connection with timeout
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        String localJdbcUrl = "jdbc:mysql://localhost:3306/securitymanagementsystem?connectTimeout=" + CONNECTION_TIMEOUT;
+                        connection = DriverManager.getConnection(localJdbcUrl, "root", "");
                     }
                 } else {
-                    System.out.println("DEBUG: No DATABASE_URL found, using local MySQL");
-                    // Local MySQL connection
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    connection = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/securitymanagementsystem", 
-                        "root", 
-                        ""
-                    );
+                    throw new SQLException("DATABASE_URL environment variable not set");
                 }
             } catch (ClassNotFoundException e) {
                 System.out.println("ERROR: Database driver not found: " + e.getMessage());
