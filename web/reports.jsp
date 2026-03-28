@@ -477,10 +477,11 @@ function displayReportsSimple(reports) {
         return;
     }
     
-    let html = '<table border="1" style="width: 100%; border-collapse: collapse;"><tr><th>Date/Time</th><th>Officer</th><th>Branch</th><th>Item</th><th>Status</th><th>Reason</th></tr>';
+    let html = '';
     
     reports.forEach(report => {
         console.log('Processing report:', report);
+        console.log('Item name:', report.itemName);
         
         const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
         const statusClass = isIncident ? 'status-incident' : 'status-ok';
@@ -498,7 +499,6 @@ function displayReportsSimple(reports) {
         html += '</tr>';
     });
     
-    html += '</table>';
     console.log('Final HTML:', html);
     tableBody.innerHTML = html;
 }
