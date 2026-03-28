@@ -483,6 +483,8 @@ function formatDateTime(dateTimeStr) {
 function displayReports(reports) {
     const tableBody = document.getElementById('reportTableBody');
     
+    console.log('DisplayReports called with:', reports);
+    
     if (!reports || reports.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No reports found matching your criteria.</td></tr>';
         return;
@@ -490,14 +492,17 @@ function displayReports(reports) {
     
     let html = '';
     reports.forEach(report => {
+        console.log('Processing report:', report);
+        
         const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
         const statusClass = isIncident ? 'status-incident' : 'status-ok';
         const statusText = isIncident ? 'Not ok' : 'OK';
         const reasonText = report.reason || 'N/A';
+        const formattedTime = formatDateTime(report.checkTime);
         
         html += `
             <tr>
-                <td>${report.checkTime}</td>
+                <td>${formattedTime}</td>
                 <td>${report.username}</td>
                 <td>${report.branch}</td>
                 <td>${report.itemName}</td>
@@ -507,17 +512,9 @@ function displayReports(reports) {
                 <td>${reasonText}</td>
             </tr>
         `;
-        
-        // Format the date after the HTML is created
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        const dateTd = tempDiv.querySelector('td:first-child');
-        if (dateTd && report.checkTime) {
-            dateTd.textContent = formatDateTime(report.checkTime);
-        }
-        html = tempDiv.innerHTML;
     });
     
+    console.log('Final HTML:', html);
     tableBody.innerHTML = html;
 }
 
