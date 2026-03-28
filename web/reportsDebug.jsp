@@ -87,7 +87,9 @@ try {
     
 } catch (Exception e) {
     out.println("<p class='error'>ERROR: " + e.getMessage() + "</p>");
-    e.printStackTrace(out);
+    out.println("<pre>");
+    e.printStackTrace(new java.io.PrintWriter(out));
+    out.println("</pre>");
 }
 %>
 
