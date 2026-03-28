@@ -19,6 +19,7 @@ body {
     background:#f4f6f9;
 }
 
+/* Mobile-First Responsive Design */
 .navbar {
     background:#1e2a38;
     color:white;
@@ -36,6 +37,8 @@ body {
     width:220px;
     background:#2c3e50;
     color:white;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar a {
@@ -52,6 +55,8 @@ body {
 .main-content {
     flex:1;
     padding:20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background:white;
 }
 

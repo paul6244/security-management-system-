@@ -98,6 +98,129 @@ body{
 
 /* GRADIENT COLORS */
 
+/* Mobile-First Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+        min-height: auto;
+    }
+    
+    .logo {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .nav a {
+        padding: 10px 15px;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 5px;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .header {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+    
+    .header h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+    
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .card h3 {
+        font-size: 12px;
+    }
+    
+    .card h2 {
+        font-size: 20px;
+    }
+    
+    .logout a {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 10px;
+    }
+    
+    .logo {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    
+    .nav a {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .main-content {
+        padding: 10px;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .analytics-grid {
+        gap: 10px;
+    }
+    
+    .card {
+        padding: 10px;
+    }
+    
+    .card h3 {
+        font-size: 11px;
+    }
+    
+    .card h2 {
+        font-size: 18px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .logout a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .card {
+        margin: 10px 0;
+    }
+}
+
 .card1{
     background:linear-gradient(135deg,#667eea,#764ba2);
 }
