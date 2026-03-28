@@ -17,7 +17,14 @@ public class UpdateShiftPreferences extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        String username = (String) request.getSession().getAttribute("username");
+        // Validate CSRF token
+        String sessionToken = (String) request.getSession().getAttribute("csrfToken");
+        String requestToken = request.getParameter("csrfToken");
+        
+        if (sessionToken == null || !sessionToken.equals(requestToken)) {
+            response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
+            return;
+        }
         String preferredBranch = request.getParameter("preferredBranch");
         String preferredShift = request.getParameter("preferredShift");
         String autoCheckin = request.getParameter("autoCheckin");

@@ -280,6 +280,7 @@
             <div class="settings-section">
                 <h2>Security Settings</h2>
                 <form action="UpdateSecuritySettings" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="form-group">
                         <label for="currentPassword">Current Password</label>
                         <input type="password" id="currentPassword" name="currentPassword" required>
@@ -312,6 +313,7 @@
             <div class="settings-section">
                 <h2>Shift Preferences</h2>
                 <form action="UpdateShiftPreferences" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="form-group">
                         <label for="preferredBranch">Preferred Branch</label>
                         <select id="preferredBranch" name="preferredBranch">
@@ -363,6 +365,7 @@
             <div class="settings-section">
                 <h2>Notification Settings</h2>
                 <form action="UpdateNotificationSettings" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="form-group">
                         <label>
                             <input type="checkbox" name="emailAlerts" checked> Email Alerts for Incidents
@@ -404,6 +407,7 @@
             <div class="settings-section">
                 <h2>Dashboard Preferences</h2>
                 <form action="UpdateDashboardSettings" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="form-group">
                         <label for="dashboardTheme">Dashboard Theme</label>
                         <select id="dashboardTheme" name="dashboardTheme">
