@@ -23,21 +23,31 @@ public class UpdateSystemSettings extends HttpServlet {
             return;
         }
         
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        // Validate CSRF token
+        String sessionToken = (String) session.getAttribute("csrfToken");
+        String requestToken = request.getParameter("csrfToken");
+        
+        if (sessionToken == null || !sessionToken.equals(requestToken)) {
+            response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
+            return;
+        }
         
         String systemName = request.getParameter("systemName");
         String sessionTimeout = request.getParameter("sessionTimeout");
         String maxAttempts = request.getParameter("maxLoginAttempts");
+        String emailNotifications = request.getParameter("emailNotifications");
         
-        try {
-            // In a real application, these would be stored in a database or config file
-            // For now, we'll just show success message
-            out.println("<script>alert('System settings updated successfully!'); window.location.href='settings.jsp';</script>");
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.println("<script>alert('Error updating system settings: " + e.getMessage() + "'); window.location.href='settings.jsp';</script>");
-        }
+        // For demonstration, we'll just show success message
+        // In a real application, you'd store these in a system settings table
+        
+        boolean emailNotifsEnabled = (emailNotifications != null);
+        
+        System.out.println("Updated system settings:");
+        System.out.println("System Name: " + systemName);
+        System.out.println("Session Timeout: " + sessionTimeout);
+        System.out.println("Max Login Attempts: " + maxAttempts);
+        System.out.println("Email Notifications: " + emailNotifsEnabled);
+        
+        response.sendRedirect("securityOfficerSettings.jsp?success=1&message=System settings updated successfully!");
     }
 }
