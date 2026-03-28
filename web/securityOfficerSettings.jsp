@@ -46,62 +46,174 @@ try {
     <title>Settings - Security Management System</title>
     <link rel="stylesheet" href="css/dashboard.css">
     <style>
+        /* Mobile-First Responsive Design */
         .settings-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
+        
         .settings-section {
             background: white;
-            padding: 25px;
+            padding: 20px;
             margin-bottom: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+        
         .settings-section h3 {
             color: #2c3e50;
             margin-bottom: 20px;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
+            font-size: 18px;
         }
+        
         .form-group {
             margin-bottom: 15px;
         }
+        
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
             color: #555;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
             font-size: 14px;
         }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
         .form-group textarea {
             height: 80px;
             resize: vertical;
         }
+        
         .btn {
             background: #3498db;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
+        
         .btn:hover {
             background: #2980b9;
         }
-        .btn-danger {
-            background: #dc3545;
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .btn-danger:hover {
-            background: #c82333;
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 120px;
         }
+        
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+        
+        .tab-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* User Info Section */
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .user-info h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .user-info p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .user-info strong {
+            color: #2c3e50;
+        }
+        
+        /* Two-column layout for forms */
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .form-col {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        /* Success/Error Messages */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            font-size: 14px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            font-size: 14px;
+        }
+        
         .success-msg {
             color: #27ae60;
             padding: 10px;
@@ -110,6 +222,7 @@ try {
             border-radius: 5px;
             margin-bottom: 15px;
         }
+        
         .error-msg {
             color: #e74c3c;
             padding: 10px;
@@ -118,42 +231,89 @@ try {
             border-radius: 5px;
             margin-bottom: 15px;
         }
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 10px;
+            }
+            
+            .settings-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .tab-nav {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .tab-btn {
+                flex: 1;
+                min-width: 100px;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            .user-info {
+                padding: 15px;
+            }
+            
+            .form-group input, .form-group select, .form-group textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
         }
-        .user-info p {
-            margin: 5px 0;
-            color: #666;
+        
+        @media (max-width: 480px) {
+            .settings-container {
+                padding: 5px;
+            }
+            
+            .settings-section {
+                padding: 10px;
+            }
+            
+            .settings-section h3 {
+                font-size: 16px;
+            }
+            
+            .tab-btn {
+                font-size: 12px;
+                padding: 8px 12px;
+                min-width: 80px;
+            }
+            
+            .user-info h4 {
+                font-size: 14px;
+            }
+            
+            .user-info p {
+                font-size: 13px;
+            }
         }
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            background: #f8f9fa;
-            border-bottom: 2px solid transparent;
-        }
-        .tab.active {
-            border-bottom: 2px solid #3498db;
-            background: #e9ecef;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn, .tab-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .form-group input, .form-group select, .form-group textarea {
+                min-height: 44px;
+            }
         }
     </style>
 </head>
