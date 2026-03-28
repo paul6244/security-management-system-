@@ -30,9 +30,9 @@ public class DatabaseConfig {
                         int port = uri.getPort();
                         String database = uri.getPath().substring(1); // Remove leading slash
                         
-                        // Enhanced connection string with timeout and SSL
-                        String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s?ssl=true&connectTimeout=%d", host, port, database, CONNECTION_TIMEOUT);
-                        System.out.println("DEBUG: Enhanced JDBC URL: " + jdbcUrl);
+                        // Enhanced connection string with simplified parameters
+                        String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
+                        System.out.println("DEBUG: Simplified JDBC URL: " + jdbcUrl);
                         System.out.println("DEBUG: Username: " + username);
                         System.out.println("DEBUG: Host: " + host);
                         System.out.println("DEBUG: Port: " + port);
@@ -57,7 +57,7 @@ public class DatabaseConfig {
                                     // Wait before retry
                                     if (attempt < MAX_RETRIES) {
                                         try {
-                                            Thread.sleep(2000); // Wait 2 seconds
+                                            Thread.sleep(1000); // Wait 1 second
                                         } catch (InterruptedException ie) {
                                             Thread.currentThread().interrupt();
                                         }
