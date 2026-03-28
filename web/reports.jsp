@@ -417,12 +417,10 @@ function exportReports() {
     window.URL.revokeObjectURL(url);
 }
 
-// Set today's date as default for date filters
+// Load filtered reports without default date filters
 document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    if(!document.getElementById('dateTo').value) {
-        document.getElementById('dateTo').value = today;
-    }
+    // Don't set default dates - let users choose filters
+    // This will show all incidents initially
 });
 </script>
 
