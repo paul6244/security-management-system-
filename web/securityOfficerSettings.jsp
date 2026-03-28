@@ -1,5 +1,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
+<%@ page import="config.DatabaseConfig" %>
 
 <%
     if(session.getAttribute("username") == null){
