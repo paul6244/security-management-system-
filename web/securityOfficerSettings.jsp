@@ -191,8 +191,7 @@
             int personnelBranchId = 0;
             
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                con = DatabaseConfig.getConnection();
                 
                 String personnelSql = "SELECT sp.*, b.name as branch_name, u.email as user_email FROM security_personnel sp " +
                                    "JOIN users u ON sp.user_id = u.id " +
@@ -219,7 +218,7 @@
             <!-- PROFILE INFORMATION -->
             <div class="settings-section">
                 <h2>Profile Information</h2>
-                <% if(!personnelName.isEmpty()) { %>
+                <% if(personnelName.isEmpty()) { %>
                 <div class="profile-info">
                     <strong>Name:</strong> <%= personnelName %><br>
                     <strong>Email:</strong> <%= personnelEmail %><br>
@@ -312,7 +311,7 @@
                         <select id="preferredBranch" name="preferredBranch">
                             <% 
                             try {
-                                Connection branchCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                                Connection branchCon = DatabaseConfig.getConnection();
                                 String branchSql = "SELECT id, name FROM branches";
                                 PreparedStatement branchPs = branchCon.prepareStatement(branchSql);
                                 ResultSet branches = branchPs.executeQuery();

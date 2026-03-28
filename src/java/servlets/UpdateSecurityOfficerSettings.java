@@ -28,12 +28,21 @@ public class UpdateSecurityOfficerSettings extends HttpServlet {
         try {
             con = DatabaseConfig.getConnection();
             
+            // Update users table for email
+            String updateUser = "UPDATE users SET email = ? WHERE username = ?";
+            PreparedStatement userPs = con.prepareStatement(updateUser);
+            userPs.setString(1, email);
+            userPs.setString(2, username);
+            userPs.executeUpdate();
+            userPs.close();
+            
             // Update security_personnel table
-            String updatePersonnel = "UPDATE security_personnel SET name = ?, email = ? WHERE user_id = (SELECT id FROM users WHERE username = ?)";
+            String updatePersonnel = "UPDATE security_personnel SET name = ?, phone = ?, emergency_contact = ? WHERE user_id = (SELECT id FROM users WHERE username = ?)";
             PreparedStatement ps = con.prepareStatement(updatePersonnel);
             ps.setString(1, fullName);
-            ps.setString(2, email);
-            ps.setString(3, username);
+            ps.setString(2, phone);
+            ps.setString(3, emergencyContact);
+            ps.setString(4, username);
             
             int rowsUpdated = ps.executeUpdate();
             
