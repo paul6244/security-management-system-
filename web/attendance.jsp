@@ -554,7 +554,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             String sql = "SELECT a.id, a.staff_id, a.employee_id, a.first_name, a.last_name, " +
                                         "a.check_in_time, a.face_verified, a.selfie_path " +
                                         "FROM attendance a " +
-                                        "WHERE DATE(a.check_in_time) = CURDATE() " +
+                                        "WHERE DATE(a.check_in_time) = CURRENT_DATE " +
                                         "ORDER BY a.check_in_time DESC";
                             
                             PreparedStatement ps = con.prepareStatement(sql);
@@ -564,7 +564,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             boolean hasData = false;
                             
                             // Count total records with separate query
-                            String countSql = "SELECT COUNT(*) as total FROM attendance a WHERE DATE(a.check_in_time) = CURDATE()";
+                            String countSql = "SELECT COUNT(*) as total FROM attendance a WHERE DATE(a.check_in_time) = CURRENT_DATE";
                             PreparedStatement countPs = con.prepareStatement(countSql);
                             ResultSet countRs = countPs.executeQuery();
                             int totalCount = 0;

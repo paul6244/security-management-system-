@@ -276,7 +276,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Get today's attendance from shifts table
-                        String todaySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND DATE(start_time) = CURDATE()";
+                        String todaySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND DATE(start_time) = CURRENT_DATE";
                         PreparedStatement todayPs = con.prepareStatement(todaySql);
                         todayPs.setInt(1, userId);
                         ResultSet todayRs = todayPs.executeQuery();
@@ -289,7 +289,7 @@ if(rs != null) rs.close();
                         todayPs.close();
                         
                         // Get this month's attendance
-                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND MONTH(start_time) = MONTH(CURDATE()) AND YEAR(start_time) = YEAR(CURDATE())";
+                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND MONTH(start_time) = MONTH(CURRENT_DATE) AND YEAR(start_time) = YEAR(CURRENT_DATE)";
                         PreparedStatement monthPs = con.prepareStatement(monthSql);
                         monthPs.setInt(1, userId);
                         ResultSet monthRs = monthPs.executeQuery();
@@ -394,7 +394,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Check shift_checks for today's checklist status
-                        String checklistSql = "SELECT status FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) = CURDATE() ORDER BY check_time DESC LIMIT 1";
+                        String checklistSql = "SELECT status FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) = CURRENT_DATE ORDER BY check_time DESC LIMIT 1";
                         PreparedStatement checklistPs = con.prepareStatement(checklistSql);
                         checklistPs.setInt(1, personnelId);
                         ResultSet checklistRs = checklistPs.executeQuery();
@@ -462,7 +462,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Calculate performance based on shift_checks
-                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
                         PreparedStatement performancePs = con.prepareStatement(performanceSql);
                         performancePs.setInt(1, personnelId);
                         ResultSet performanceRs = performancePs.executeQuery();
