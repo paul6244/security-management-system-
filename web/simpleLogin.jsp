@@ -23,12 +23,13 @@
         padding: 40px; 
         border-radius: 10px; 
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        width: 90%;
     }
     h1 { 
         color: #333; 
         text-align: center; 
         margin-bottom: 30px;
-        font-size: 28px;
+        font-size: 24px;
     }
     .form-group { 
         margin-bottom: 20px; 
@@ -38,6 +39,7 @@
         margin-bottom: 8px; 
         font-weight: bold; 
         color: #555;
+        font-size: 14px;
     }
     input { 
         width: 100%; 
@@ -47,6 +49,7 @@
         box-sizing: border-box; 
         font-size: 16px;
         transition: border-color 0.3s;
+        min-height: 44px;
     }
     input:focus {
         outline: none;
@@ -63,6 +66,8 @@
         font-weight: bold;
         margin-top: 10px;
         transition: transform 0.2s;
+        min-height: 44px;
+        min-width: 44px;
     }
     input[type="submit"]:hover { 
         transform: translateY(-2px);
@@ -75,6 +80,7 @@
         background: #fdf2f2;
         border-radius: 5px;
         border: 1px solid #e74c3c;
+        font-size: 14px;
     }
     .success { 
         color: #27ae60; 
@@ -84,6 +90,7 @@
         background: #f2fdf5;
         border-radius: 5px;
         border: 1px solid #27ae60;
+        font-size: 14px;
     }
     .back-link { 
         text-align: center; 
@@ -93,6 +100,7 @@
         color: #667eea; 
         text-decoration: none; 
         font-weight: bold;
+        font-size: 14px;
     }
     .back-link a:hover { 
         text-decoration: underline; 
@@ -108,9 +116,129 @@
         margin: 10px 0;
         color: #667eea;
         text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
     }
     .links a:hover {
         text-decoration: underline;
+    }
+    
+    /* Mobile Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            width: 95%;
+            padding: 30px;
+            margin: 10px auto;
+        }
+        
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+        
+        input {
+            font-size: 16px;
+            padding: 12px;
+        }
+        
+        input[type="submit"] {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        
+        .error, .success {
+            font-size: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            margin-top: 15px;
+        }
+        
+        .links {
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+        
+        .links a {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            width: 98%;
+            padding: 20px;
+            margin: 5px auto;
+        }
+        
+        h1 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        input {
+            font-size: 16px;
+            padding: 12px;
+        }
+        
+        input[type="submit"] {
+            padding: 15px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .error, .success {
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .links a {
+            font-size: 14px;
+            margin: 6px 0;
+        }
+    }
+    
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+        input {
+            min-height: 44px;
+        }
+        
+        input[type="submit"] {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .links a {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
 </style>
 </head>
