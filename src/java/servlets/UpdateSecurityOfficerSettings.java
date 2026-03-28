@@ -17,6 +17,15 @@ public class UpdateSecurityOfficerSettings extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        // Validate CSRF token
+        String sessionToken = (String) request.getSession().getAttribute("csrfToken");
+        String requestToken = request.getParameter("csrfToken");
+        
+        if (sessionToken == null || !sessionToken.equals(requestToken)) {
+            response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
+            return;
+        }
+        
         String username = (String) request.getSession().getAttribute("username");
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");

@@ -9,6 +9,10 @@
     
     String username = session.getAttribute("username") != null ? session.getAttribute("username").toString() : "";
     
+    // Generate CSRF token
+    String csrfToken = session.getId() + System.currentTimeMillis();
+    session.setAttribute("csrfToken", csrfToken);
+    
     // Simple role check - for security officers, we'll assume they have the right role
     // In a real app, you'd store the role in session during login
     String userRole = "security_officer"; // Simplified for now
@@ -238,6 +242,7 @@
             <div class="settings-section">
                 <h2>Personal Settings</h2>
                 <form action="UpdateSecurityOfficerSettings" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
                         <input type="text" id="fullName" name="fullName" value="<%= personnelName %>" required>
