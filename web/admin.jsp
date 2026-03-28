@@ -92,7 +92,7 @@
                         if(incidentLabels.length() > 0) incidentLabels.append(",");
                         if(incidentData.length() > 0) incidentData.append(",");
                         String branchName = rsIncidents.getString("branch_name");
-                        int count = rsIncidents.getInt("count");
+                        int count = rsIncidents.getInt("total");
                         incidentLabels.append("'").append(branchName != null ? branchName : "Unknown").append("'");
                         incidentData.append(count);
                     }
