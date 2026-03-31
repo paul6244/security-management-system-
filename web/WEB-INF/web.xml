@@ -18,4 +18,85 @@
         <session-timeout>30</session-timeout>
     </session-config>
     
+    <!-- Servlet Mappings -->
+    <servlet>
+        <servlet-name>SystemDiagnostics</servlet-name>
+        <servlet-class>servlets.SystemDiagnostics</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SystemDiagnostics</servlet-name>
+        <url-pattern>/SystemDiagnostics</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CreateSelfieFolder</servlet-name>
+        <servlet-class>servlets.CreateSelfieFolder</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CreateSelfieFolder</servlet-name>
+        <url-pattern>/CreateSelfieFolder</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DatabaseTest</servlet-name>
+        <servlet-class>servlets.DatabaseTest</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DatabaseTest</servlet-name>
+        <url-pattern>/DatabaseTest</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>EnvCheck</servlet-name>
+        <servlet-class>servlets.EnvCheck</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>EnvCheck</servlet-name>
+        <url-pattern>/EnvCheck</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DirectConnectionTest</servlet-name>
+        <servlet-class>servlets.DirectConnectionTest</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DirectConnectionTest</servlet-name>
+        <url-pattern>/DirectConnectionTest</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SimpleConnectionTest</servlet-name>
+        <servlet-class>servlets.SimpleConnectionTest</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SimpleConnectionTest</servlet-name>
+        <url-pattern>/SimpleConnectionTest</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>AttendanceDatabaseCheck</servlet-name>
+        <servlet-class>servlets.AttendanceDatabaseCheck</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>AttendanceDatabaseCheck</servlet-name>
+        <url-pattern>/AttendanceDatabaseCheck</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DatabaseSetup</servlet-name>
+        <servlet-class>servlets.DatabaseSetup</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DatabaseSetup</servlet-name>
+        <url-pattern>/DatabaseSetup</url-pattern>
+    </servlet-mapping>
+    
 </web-app>
