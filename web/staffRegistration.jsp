@@ -381,11 +381,12 @@ try {
 <div style="text-align:center; padding:40px; background:#f8f9fa; border-radius:10px; margin:20px 0;">
     <h3 style="color:#6c757d; margin-bottom:10px;">No Staff Members Registered</h3>
     <p style="color:#6c757d;">Please register staff members using the form above to see them here.</p>
+    <button class="btn btn-success" onclick="location.href='staffRegistration.jsp'">Register Staff</button>
 </div>
 
 <%
     }
-} catch(ClassNotFoundException e) {
+} catch(SQLException e) {
 %>
 
 <div style="text-align:center; padding:40px; background:#f8d7da; border-radius:10px; margin:20px 0;">
