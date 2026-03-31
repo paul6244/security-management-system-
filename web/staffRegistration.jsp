@@ -1,6 +1,5 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.sql.Timestamp" %>
-<%@ page import="model.Mymodel" %>
 <%@ page import="config.SimpleDatabaseConfig" %>
 
 <%
@@ -182,7 +181,6 @@ textarea {
 
 </style>
 </head>
-
 <body>
 
 <div class="navbar">
@@ -196,7 +194,6 @@ textarea {
     <a href="personnelDashboard.jsp">Dashboard</a>
     <a href="attendance.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
-
     <a href="Logout">Logout</a>
 </div>
 
@@ -307,8 +304,6 @@ textarea {
     </div>
 </div>
 
-</div>
-
 <div style="text-align:center;">
     <button type="submit" class="btn btn-success">Register Staff</button>
     <button type="reset" class="btn">Clear Form</button>
@@ -326,9 +321,9 @@ textarea {
 <div id="staffListContainer">
 
 <%
-// Load registered staff from database using PostgreSQL
+Connection con = null;
 try {
-    Connection con = SimpleDatabaseConfig.getSimpleConnection();
+    con = SimpleDatabaseConfig.getSimpleConnection();
     String sql = "SELECT * FROM staff_registration ORDER BY created_at DESC";
     PreparedStatement ps = con.prepareStatement(sql);
     ResultSet rs = ps.executeQuery();
@@ -373,8 +368,6 @@ try {
     }
     rs.close();
     ps.close();
-    con.close();
-    }
     
     if(!hasStaff) {
 %>
@@ -382,7 +375,6 @@ try {
 <div style="text-align:center; padding:40px; background:#f8f9fa; border-radius:10px; margin:20px 0;">
     <h3 style="color:#6c757d; margin-bottom:10px;">No Staff Members Registered</h3>
     <p style="color:#6c757d;">Please register staff members using the form above to see them here.</p>
-    <button class="btn btn-success" onclick="location.href='staffRegistration.jsp'">Register Staff</button>
 </div>
 
 <%
@@ -394,18 +386,8 @@ try {
     <h3 style="color:#721c24; margin-bottom:10px;">Database Error</h3>
     <p style="color:#721c24;">Unable to connect to database: <%= e.getMessage() %></p>
     <p style="color:#721c24;">Please check database configuration and try again.</p>
-    <p style="color:#721c24;">Error details: <%= e.getStackTrace() %></p>
 </div>
-<%
-} catch(SQLException e) {
-%>
 
-<div style="text-align:center; padding:40px; background:#f8d7da; border-radius:10px; margin:20px 0;">
-    <h3 style="color:#721c24; margin-bottom:10px;">Database Error</h3>
-    <p style="color:#721c24;">Unable to connect to database: <%= e.getMessage() %></p>
-    <p style="color:#721c24;">Please check database configuration and try again.</p>
-    <p style="color:#721c24;">Error details: <%= e.getStackTrace() %></p>
-</div>
 <%
 } catch(Exception e) {
 %>
@@ -414,7 +396,16 @@ try {
     <h3 style="color:#721c24; margin-bottom:10px;">System Error</h3>
     <p style="color:#721c24;">An unexpected error occurred: <%= e.getMessage() %></p>
 </div>
+
 <%
+} finally {
+    if(con != null) {
+        try {
+            con.close();
+        } catch(Exception e) {
+            // Ignore connection close error
+        }
+    }
 }
 %>
 
