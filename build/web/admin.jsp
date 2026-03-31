@@ -10,6 +10,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,7 +26,7 @@
         <div class="nav">
             <a href="#dashboard">Dashboard</a>
             <a href="#personnel">Personnel</a>
-            <a href="#users">Users</a>
+            <a href="userManagement.jsp">Users</a>
             <a href="reports.jsp">Reports</a>
             <a href="settings.jsp">Settings</a>
         </div>
@@ -57,24 +59,64 @@
                     <h2><%= Mymodel.getTotalBranches() %></h2>
                 </div>
                 <div class="card card3">
-                    <h3>Total Reports</h3>
+                    <h3>Shift Reports</h3>
                     <h2><%= Mymodel.getTotalReports() %></h2>
                 </div>
                 <div class="card card4">
-                    <h3>Total Incidents</h3>
+                    <h3>Incidents</h3>
                     <h2><%= Mymodel.getTotalIncidents() %></h2>
                 </div>
             </div>
 
+            <!-- GET CHART DATA -->
+            <%
+                ResultSet rsReports = Mymodel.getReportsByDate();
+                StringBuilder reportLabels = new StringBuilder();
+                StringBuilder reportData = new StringBuilder();
+                if(rsReports != null) {
+                    while(rsReports.next()){
+                        if(reportLabels.length() > 0) reportLabels.append(",");
+                        if(reportData.length() > 0) reportData.append(",");
+                        reportLabels.append("'").append(rsReports.getString("date")).append("'");
+                        reportData.append(rsReports.getInt("total"));
+                    }
+                    rsReports.close();
+                }
+
+                ResultSet rsIncidents = Mymodel.getIncidentsByBranch();
+                StringBuilder incidentLabels = new StringBuilder();
+                StringBuilder incidentData = new StringBuilder();
+                boolean hasIncidents = false;
+                
+                if(rsIncidents != null) {
+                    while(rsIncidents.next()){
+                        hasIncidents = true;
+                        if(incidentLabels.length() > 0) incidentLabels.append(",");
+                        if(incidentData.length() > 0) incidentData.append(",");
+                        String branchName = rsIncidents.getString("branch_name");
+                        int count = rsIncidents.getInt("total");
+                        incidentLabels.append("'").append(branchName != null ? branchName : "Unknown").append("'");
+                        incidentData.append(count);
+                    }
+                    rsIncidents.close();
+                }
+                
+                // If no incidents found, show all branches with 0
+                if(!hasIncidents) {
+                    incidentLabels.append("'No Data'");
+                    incidentData.append("0");
+                }
+            %>
+
             <!-- CHARTS -->
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h3>Personnel by Branch</h3>
-                    <canvas id="branchChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>Reports Trend</h3>
+            <div class="charts">
+                <div class="chart-box">
+                    <h3>Security Reports</h3>
                     <canvas id="reportChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Incidents by Branch</h3>
+                    <canvas id="incidentChart"></canvas>
                 </div>
             </div>
         </div>
@@ -84,7 +126,7 @@
             <div class="header">
                 <div>
                     <h1>Security Personnel Management</h1>
-                    <p>View, search, and manage all security personnel</p>
+                    <p>View and search all security personnel</p>
                 </div>
             </div>
 
@@ -104,106 +146,29 @@
                 <table id="personnelTable" border="1" width="100%" cellpadding="10" style="background:white; border-radius:10px;">
                     <thead>
                         <tr style="background:#2c3e50; color:white;">
-                            <th>ID</th>
-                            <th>Username</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Branch</th>
-                            <th>Shift</th>
-                            <th>Actions</th>
+                            <th>Shift Time</th>
+                            <th>ID</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% 
-                            ResultSet rs = Mymodel.getAllSecurityPersonnel();
+                            ResultSet rs = Mymodel.getAllPersonnel();
                             if(rs != null) {
                                 while(rs.next()){
                         %>
                         <tr class="personnel-row">
-                            <td><%= rs.getInt("id") %></td>
-                            <td><%= rs.getString("username") %></td>
                             <td class="username"><%= rs.getString("name") %></td>
                             <td class="email"><%= rs.getString("email") %></td>
                             <td class="branch"><%= rs.getString("branch_name") %></td>
-                            <td><%= rs.getString("shift_time") %></td>
-                            <td>
-                                <button class="delete-btn" onclick="deletePersonnel(<%= rs.getInt("id") %>, '<%= rs.getString("name") %>')">Delete</button>
-                            </td>
+                            <td class="shift-time"><%= rs.getString("shift_time") %></td>
+                            <td class="id"><%= rs.getInt("id") %></td>
                         </tr>
-                        <%
+                        <% 
                                 }
                                 rs.close();
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: #666;">No personnel records found.</td>
-                        </tr>
-                        <%
-                            }
-                        %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- USERS SECTION -->
-        <div id="users" class="section" style="display: none;">
-            <div class="header">
-                <div>
-                    <h1>User Management</h1>
-                    <p>View and manage all system users (including personnel)</p>
-                </div>
-            </div>
-
-            <!-- SEARCH BAR -->
-            <div class="search-section">
-                <div class="search-container">
-                    <input type="text" id="searchUsersInput" placeholder="Search users by name, email, or role..." onkeyup="searchUsers()">
-                    <button class="search-btn" onclick="searchUsers()">Search</button>
-                    <button class="clear-btn" onclick="clearUsersSearch()">Clear</button>
-                </div>
-            </div>
-
-            <!-- USERS TABLE -->
-            <div class="table-section">
-                <h2>All System Users</h2>
-
-                <table id="usersTable" border="1" width="100%" cellpadding="10" style="background:white; border-radius:10px;">
-                    <thead>
-                        <tr style="background:#2c3e50; color:white;">
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Personnel Name</th>
-                            <th>Branch</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% 
-                            ResultSet userRs = Mymodel.getAllUsers();
-                            if(userRs != null) {
-                                while(userRs.next()){
-                        %>
-                        <tr class="user-row">
-                            <td><%= userRs.getInt("id") %></td>
-                            <td><%= userRs.getString("username") %></td>
-                            <td><%= userRs.getString("email") %></td>
-                            <td><%= userRs.getString("role") %></td>
-                            <td><%= userRs.getString("personnel_name") != null ? userRs.getString("personnel_name") : "N/A" %></td>
-                            <td><%= userRs.getString("branch_name") != null ? userRs.getString("branch_name") : "N/A" %></td>
-                            <td><%= userRs.getTimestamp("created_at") %></td>
-                        </tr>
-                        <%
-                                }
-                                userRs.close();
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: #666;">No users found.</td>
-                        </tr>
-                        <%
                             }
                         %>
                     </tbody>
@@ -215,27 +180,33 @@
 </div>
 
 <script>
-    // Navigation
+    // Navigation functionality
     function showSection(sectionId) {
+        // Hide all sections
         const sections = document.querySelectorAll('.section');
-        sections.forEach(section => section.style.display = 'none');
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
         
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.style.display = 'block';
+        // Show selected section
+        const selectedSection = document.getElementById(sectionId);
+        if (selectedSection) {
+            selectedSection.style.display = 'block';
+        }
+        
+        // Update active nav link
+        const navLinks = document.querySelectorAll('.nav a');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        const activeLink = document.querySelector(`.nav a[href="#${sectionId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
         }
     }
 
-    // Navigation click handlers
-    document.querySelectorAll('.nav a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            showSection(targetId);
-        });
-    });
-
-    // Search functionality for personnel
+    // Search functionality
     function searchPersonnel() {
         const input = document.getElementById('searchInput');
         const filter = input.value.toLowerCase();
@@ -243,11 +214,24 @@
         const rows = table.getElementsByTagName('tr');
         
         let visibleCount = 0;
+        
+        // Loop through all table rows (except the header)
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            const text = row.textContent.toLowerCase();
+            const cells = row.getElementsByTagName('td');
+            let found = false;
             
-            if (text.includes(filter)) {
+            // Search through all cells in the row
+            for (let j = 0; j < cells.length; j++) {
+                const cellText = cells[j].textContent || cells[j].innerText;
+                if (cellText.toLowerCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Show or hide the row
+            if (found) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -255,30 +239,8 @@
             }
         }
         
+        // Show message if no results found
         showSearchResults(visibleCount);
-    }
-
-    // Search functionality for users
-    function searchUsers() {
-        const input = document.getElementById('searchUsersInput');
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById('usersTable');
-        const rows = table.getElementsByTagName('tr');
-        
-        let visibleCount = 0;
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const text = row.textContent.toLowerCase();
-            
-            if (text.includes(filter)) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        }
-        
-        showUsersSearchResults(visibleCount);
     }
 
     function clearSearch() {
@@ -286,15 +248,11 @@
         searchPersonnel();
     }
 
-    function clearUsersSearch() {
-        document.getElementById('searchUsersInput').value = '';
-        searchUsers();
-    }
-
     function showSearchResults(count) {
-        const existingMessage = document.getElementById('searchMessage');
-        if (existingMessage) {
-            existingMessage.remove();
+        // Remove existing message if any
+        const existingMsg = document.getElementById('searchMessage');
+        if (existingMsg) {
+            existingMsg.remove();
         }
         
         // Show message if no results
@@ -310,133 +268,148 @@
         }
     }
 
-    function showUsersSearchResults(count) {
-        const existingMessage = document.getElementById('usersSearchMessage');
-        if (existingMessage) {
-            existingMessage.remove();
-        }
+    // Handle navigation clicks
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.nav a');
         
-        // Show message if no results
-        if (count === 0) {
-            const table = document.getElementById('usersTable');
-            const message = document.createElement('div');
-            message.id = 'usersSearchMessage';
-            message.style.textAlign = 'center';
-            message.style.padding = '20px';
-            message.style.color = '#666';
-            message.innerHTML = 'No users found matching your search criteria.';
-            table.parentNode.insertBefore(message, table);
-        }
-    }
-
-    // Delete personnel functionality
-    function deletePersonnel(personnelId, personnelName) {
-        if (confirm(`Are you sure you want to delete ${personnelName}? This action cannot be undone.`)) {
-            // Create a form to submit the delete request
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'DeletePersonnel';
-            
-            const personnelIdInput = document.createElement('input');
-            personnelIdInput.type = 'hidden';
-            personnelIdInput.name = 'personnelId';
-            personnelIdInput.value = personnelId;
-            
-            form.appendChild(personnelIdInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-
-    // Initialize charts
-    window.onload = function() {
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                if (href.startsWith('#')) {
+                    const sectionId = href.substring(1);
+                    showSection(sectionId);
+                } else {
+                    // For external links, navigate normally
+                    window.location.href = href;
+                }
+            });
+        });
+        
+        // Show dashboard by default
         showSection('dashboard');
         
-        // Branch distribution chart
-        const branchCtx = document.getElementById('branchChart').getContext('2d');
-        new Chart(branchCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Main Branch', 'North Branch', 'South Branch', 'East Branch'],
-                datasets: [{
-                    data: [12, 8, 6, 4],
-                    backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#2ecc71']
-                }]
+        // Add search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPersonnel();
             }
         });
+    });
 
-        // Reports trend chart
-        const reportCtx = document.getElementById('reportChart').getContext('2d');
-        new Chart(reportCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Reports',
-                    data: [12, 19, 15, 25, 22, 30],
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)'
-                }]
+    // REPORT CHART
+    new Chart(document.getElementById("reportChart"), {
+        type: "line",
+        data: {
+            labels: [<%= (reportLabels.length() > 0 ? reportLabels.toString() : "") %>],
+            datasets: [{
+                label: "Reports",
+                data: [<%= (reportData.length() > 0 ? reportData.toString() : "0") %>],
+                borderWidth: 2,
+                fill: false,
+                borderColor: "#3498db",
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
             }
-        });
-    };
-
-    // Add search on Enter key
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchPersonnel();
         }
     });
 
-    document.getElementById('searchUsersInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchUsers();
+    // INCIDENT CHART
+    new Chart(document.getElementById("incidentChart"), {
+        type: "bar",
+        data: {
+            labels: [<%= (incidentLabels != null && incidentLabels.length() > 0) ? incidentLabels.toString() : "" %>],
+            datasets: [{
+                label: "Incidents",
+                data: [<%= (incidentData != null && incidentData.length() > 0) ? incidentData.toString() : "0" %>],
+                backgroundColor: "#e74c3c"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
         }
     });
 </script>
 
 <style>
-    .delete-btn {
-        background-color: #e74c3c;
+    .section {
+        display: none;
+    }
+    
+    .nav a.active {
+        background-color: #3498db;
         color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 12px;
     }
     
-    .delete-btn:hover {
-        background-color: #c0392b;
+    .search-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
     }
     
-    .user-row:hover {
-        background-color: #f5f5f5;
+    .search-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto;
     }
     
-    #usersTable {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    #usersTable th, #usersTable td {
+    #searchInput {
+        flex: 1;
         padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
     }
     
-    #usersTable th {
-        background-color: #2c3e50;
+    .search-btn, .clear-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+    
+    .search-btn {
+        background-color: #3498db;
         color: white;
-        font-weight: bold;
     }
     
-    #usersTable tr:hover {
-        background-color: #f5f5f5;
+    .search-btn:hover {
+        background-color: #2980b9;
+    }
+    
+    .clear-btn {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .clear-btn:hover {
+        background-color: #7f8c8d;
     }
     
     .personnel-row:hover {
         background-color: #f5f5f5;
+    }
+    
+    .table-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     #personnelTable {
@@ -460,5 +433,6 @@
         background-color: #f5f5f5;
     }
 </style>
+
 </body>
 </html>

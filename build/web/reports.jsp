@@ -417,12 +417,10 @@ function exportReports() {
     window.URL.revokeObjectURL(url);
 }
 
-// Set today's date as default for date filters
+// Load filtered reports without default date filters
 document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    if(!document.getElementById('dateTo').value) {
-        document.getElementById('dateTo').value = today;
-    }
+    // Don't set default dates - let users choose filters
+    // This will show all incidents initially
 });
 </script>
 
@@ -434,22 +432,33 @@ function loadFilteredReports() {
     const branch = document.getElementById('branch').value;
     const status = document.getElementById('status').value;
     
-    // Build query parameters
+    // Build query parameters - always include status=all to get all records
     const params = new URLSearchParams();
     if (dateFrom) params.append('dateFrom', dateFrom);
     if (dateTo) params.append('dateTo', dateTo);
     if (branch) params.append('branch', branch);
     if (status) params.append('status', status);
+    else params.append('status', 'all'); // Default to all status
     
     // Show loading state
     const tableBody = document.getElementById('reportTableBody');
     tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Loading reports...</td></tr>';
     
+    console.log('Fetching reports with params:', params.toString());
+    
     // Fetch filtered reports
-    fetch('/GetFilteredReports?' + params.toString())
-        .then(response => response.json())
+    fetch('GetFilteredReports?' + params.toString())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            displayReports(data);
+            console.log('Data received:', data);
+            console.log('Data length:', data ? data.length : 'null/undefined');
+            displayReportsSimple(data);
         })
         .catch(error => {
             console.error('Error loading reports:', error);
@@ -457,9 +466,11 @@ function loadFilteredReports() {
         });
 }
 
-// Display reports in table
-function displayReports(reports) {
+// Simple display function that works
+function displayReportsSimple(reports) {
     const tableBody = document.getElementById('reportTableBody');
+    
+    console.log('DisplayReportsSimple called with:', reports);
     
     if (!reports || reports.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No reports found matching your criteria.</td></tr>';
@@ -467,26 +478,28 @@ function displayReports(reports) {
     }
     
     let html = '';
+    
     reports.forEach(report => {
+        console.log('Processing report:', report);
+        console.log('Item name:', report.itemName);
+        
         const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
         const statusClass = isIncident ? 'status-incident' : 'status-ok';
         const statusText = isIncident ? 'Not ok' : 'OK';
-        const reasonText = report.reason && report.reason.trim() !== '' ? report.reason : '-';
+        const reasonText = report.reason || 'N/A';
+        const formattedTime = formatDateTime(report.checkTime);
         
-        html += `
-            <tr>
-                <td>${formatDateTime(report.checkTime)}</td>
-                <td>${report.username}</td>
-                <td>${report.branch}</td>
-                <td>${report.itemName}</td>
-                <td>
-                    <span class="${statusClass}">${statusText}</span>
-                </td>
-                <td>${reasonText}</td>
-            </tr>
-        `;
+        html += '<tr>';
+        html += '<td>' + formattedTime + '</td>';
+        html += '<td>' + report.username + '</td>';
+        html += '<td>' + report.branch + '</td>';
+        html += '<td>' + report.itemName + '</td>';
+        html += '<td><span class="' + statusClass + '">' + statusText + '</span></td>';
+        html += '<td>' + reasonText + '</td>';
+        html += '</tr>';
     });
     
+    console.log('Final HTML:', html);
     tableBody.innerHTML = html;
 }
 
@@ -502,6 +515,45 @@ function formatDateTime(dateTimeStr) {
         hour: '2-digit',
         minute: '2-digit'
     });
+}
+
+// Display reports in table
+function displayReports(reports) {
+    const tableBody = document.getElementById('reportTableBody');
+    
+    console.log('DisplayReports called with:', reports);
+    
+    if (!reports || reports.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No reports found matching your criteria.</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    reports.forEach(report => {
+        console.log('Processing report:', report);
+        
+        const isIncident = report.status === 'NOT_OK' || report.status === 'Not ok';
+        const statusClass = isIncident ? 'status-incident' : 'status-ok';
+        const statusText = isIncident ? 'Not ok' : 'OK';
+        const reasonText = report.reason || 'N/A';
+        const formattedTime = formatDateTime(report.checkTime);
+        
+        html += `
+            <tr>
+                <td>${formattedTime}</td>
+                <td>${report.username}</td>
+                <td>${report.branch}</td>
+                <td>${report.itemName}</td>
+                <td>
+                    <span class="${statusClass}">${statusText}</span>
+                </td>
+                <td>${reasonText}</td>
+            </tr>
+        `;
+    });
+    
+    console.log('Final HTML:', html);
+    tableBody.innerHTML = html;
 }
 
 // Auto-load reports when page loads

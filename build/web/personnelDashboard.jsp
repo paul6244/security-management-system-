@@ -12,6 +12,8 @@ if(session.getAttribute("username")==null){
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Security Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
@@ -20,25 +22,25 @@ if(session.getAttribute("username")==null){
 body {
     font-family: 'Poppins', sans-serif;
     margin:0;
-    background:#f4f6f9;
-}
-
-.navbar {
-    background:#1e2a38;
+    padding:0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height:100vh;
     color:white;
-    padding:15px;
-    font-size:20px;
 }
 
+/* Mobile-First Responsive Design */
 .container {
     display:flex;
+    min-height:100vh;
 }
 
 .sidebar {
-    width:220px;
-    background:#2c3e50;
+    width:250px;
+    background:#34495e;
+    padding:20px;
     min-height:100vh;
-    color:white;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar a {
@@ -46,6 +48,8 @@ body {
     padding:15px;
     color:white;
     text-decoration:none;
+    font-size: 14px;
+    transition: background 0.3s ease;
 }
 
 .sidebar a:hover {
@@ -55,6 +59,8 @@ body {
 .main {
     flex:1;
     padding:20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .card {
@@ -63,15 +69,166 @@ body {
     margin-bottom:20px;
     border-radius:10px;
     box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    color: #333;
+}
+
+.card h3 {
+    margin-top:0;
+    margin-bottom:15px;
+    color: #2c3e50;
+    font-size: 18px;
 }
 
 .btn {
     padding:10px 15px;
-    border:none;
     background:#3498db;
     color:white;
+    border:none;
     border-radius:5px;
     cursor:pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.btn:hover {
+    background:#2980b9;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.stat-card {
+    background: white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    color: #333;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3498db;
+    margin:10px 0;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+        min-height: auto;
+    }
+    
+    .sidebar a {
+        padding: 12px 15px;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .main {
+        padding: 15px;
+    }
+    
+    .card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .card h3 {
+        font-size: 16px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin: 5px 0;
+        padding: 15px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 10px;
+    }
+    
+    .sidebar a {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .main {
+        padding: 10px;
+    }
+    
+    .card {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .card h3 {
+        font-size: 14px;
+    }
+    
+    .stat-card {
+        padding: 10px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+    }
+    
+    .btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .sidebar a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .card {
+        margin: 10px 0;
+    }
 }
 
 .btn-danger {
@@ -276,7 +433,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Get today's attendance from shifts table
-                        String todaySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND DATE(start_time) = CURDATE()";
+                        String todaySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND DATE(start_time) = CURRENT_DATE";
                         PreparedStatement todayPs = con.prepareStatement(todaySql);
                         todayPs.setInt(1, userId);
                         ResultSet todayRs = todayPs.executeQuery();
@@ -289,7 +446,7 @@ if(rs != null) rs.close();
                         todayPs.close();
                         
                         // Get this month's attendance
-                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND MONTH(start_time) = MONTH(CURDATE()) AND YEAR(start_time) = YEAR(CURDATE())";
+                        String monthSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
                         PreparedStatement monthPs = con.prepareStatement(monthSql);
                         monthPs.setInt(1, userId);
                         ResultSet monthRs = monthPs.executeQuery();
@@ -394,7 +551,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Check shift_checks for today's checklist status
-                        String checklistSql = "SELECT status FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) = CURDATE() ORDER BY check_time DESC LIMIT 1";
+                        String checklistSql = "SELECT status FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) = CURRENT_DATE ORDER BY check_time DESC LIMIT 1";
                         PreparedStatement checklistPs = con.prepareStatement(checklistSql);
                         checklistPs.setInt(1, personnelId);
                         ResultSet checklistRs = checklistPs.executeQuery();
@@ -462,7 +619,7 @@ if(rs != null) rs.close();
                         int personnelId = personnelRs.getInt("id");
                         
                         // Calculate performance based on shift_checks
-                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                        String performanceSql = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'OK' THEN 1 ELSE 0 END) as ok_checks FROM shift_checks WHERE personnel_id = ? AND DATE(check_time) >= CURRENT_DATE - INTERVAL '7 days'";
                         PreparedStatement performancePs = con.prepareStatement(performanceSql);
                         performancePs.setInt(1, personnelId);
                         ResultSet performanceRs = performancePs.executeQuery();

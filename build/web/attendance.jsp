@@ -10,6 +10,8 @@ if(session.getAttribute("username")==null){
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Face Recognition Attendance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 <style>
@@ -19,6 +21,7 @@ body {
     background:#f4f6f9;
 }
 
+/* Mobile-First Responsive Design */
 .navbar {
     background:#1e2a38;
     color:white;
@@ -36,6 +39,8 @@ body {
     width:220px;
     background:#2c3e50;
     color:white;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar a {
@@ -52,6 +57,8 @@ body {
 .main-content {
     flex:1;
     padding:20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background:white;
 }
 
@@ -554,7 +561,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             String sql = "SELECT a.id, a.staff_id, a.employee_id, a.first_name, a.last_name, " +
                                         "a.check_in_time, a.face_verified, a.selfie_path " +
                                         "FROM attendance a " +
-                                        "WHERE DATE(a.check_in_time) = CURDATE() " +
+                                        "WHERE DATE(a.check_in_time) = CURRENT_DATE " +
                                         "ORDER BY a.check_in_time DESC";
                             
                             PreparedStatement ps = con.prepareStatement(sql);
@@ -564,7 +571,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             boolean hasData = false;
                             
                             // Count total records with separate query
-                            String countSql = "SELECT COUNT(*) as total FROM attendance a WHERE DATE(a.check_in_time) = CURDATE()";
+                            String countSql = "SELECT COUNT(*) as total FROM attendance a WHERE DATE(a.check_in_time) = CURRENT_DATE";
                             PreparedStatement countPs = con.prepareStatement(countSql);
                             ResultSet countRs = countPs.executeQuery();
                             int totalCount = 0;
