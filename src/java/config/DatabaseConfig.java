@@ -37,6 +37,7 @@ public class DatabaseConfig {
                         System.out.println("DEBUG: Host: " + host);
                         System.out.println("DEBUG: Port: " + port);
                         System.out.println("DEBUG: Database: " + database);
+                        System.out.println("DEBUG: Full DATABASE_URL: " + databaseUrl);
                         
                         // Load PostgreSQL driver
                         try {
@@ -56,6 +57,9 @@ public class DatabaseConfig {
                                     props.setProperty("socketTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
                                     props.setProperty("tcpKeepAlive", "true");
                                     props.setProperty("reWriteBatchedInserts", "true");
+                                    props.setProperty("prepareThreshold", "0");
+                                    props.setProperty("preparedStatementCacheQueries", "0");
+                                    props.setProperty("preparedStatementCacheSizeMiB", "5");
                                     
                                     connection = DriverManager.getConnection(jdbcUrl, props);
                                     System.out.println("DEBUG: Database connection established successfully (attempt " + attempt + ")");
@@ -74,6 +78,7 @@ public class DatabaseConfig {
                                             props2.setProperty("ssl", "false");
                                             props2.setProperty("connectTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
                                             props2.setProperty("socketTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
+                                            props2.setProperty("tcpKeepAlive", "true");
                                             
                                             connection = DriverManager.getConnection(jdbcUrl, props2);
                                             System.out.println("DEBUG: Database connection established without SSL (attempt " + attempt + ")");
@@ -83,12 +88,24 @@ public class DatabaseConfig {
                                         }
                                     }
                                     
+                                    // Try URL-based connection on third attempt
+                                    if (attempt == 3) {
+                                        try {
+                                            String urlWithParams = jdbcUrl + "?user=" + username + "&password=" + password + "&ssl=false";
+                                            connection = DriverManager.getConnection(urlWithParams);
+                                            System.out.println("DEBUG: Database connection established via URL (attempt " + attempt + ")");
+                                            break;
+                                        } catch (SQLException e3) {
+                                            System.out.println("ERROR: URL-based connection also failed: " + e3.getMessage());
+                                        }
+                                    }
+                                    
                                     if (attempt == MAX_RETRIES) {
                                         throw e; // Re-throw after final attempt
                                     }
                                     // Wait before retry
                                     try {
-                                        Thread.sleep(3000); // 3 seconds
+                                        Thread.sleep(5000); // 5 seconds
                                     } catch (InterruptedException ie) {
                                         Thread.currentThread().interrupt();
                                         throw new SQLException("Connection retry interrupted", ie);
