@@ -453,9 +453,15 @@ CREATE TABLE attendance (
     attendance_type VARCHAR(20) DEFAULT 'qr'
 );
 
--- Add sample staff if needed
-INSERT INTO staff_registration (first_name, last_name, email, phone, department, position, employee_id, office_location, address, selfie_path) VALUES
-('John', 'Doe', 'john@university.edu', '+233-24-123-4567', 'Computer Science', 'Lecturer', 'EMP001', 'Room 201, Building A', '123 University Avenue, Kumasi, Ghana', 'staff_photos/EMP001_1640000000000.png');
+-- Add sample staff if needed (for testing)
+INSERT INTO staff_registration (first_name, last_name, email, phone, department, position, employee_id, office_location, address) VALUES
+('John', 'Doe', 'john@university.edu', '+233-24-123-4567', 'Computer Science', 'Lecturer', 'EMP001', 'Room 201, Building A', '123 University Avenue, Kumasi, Ghana');
+
+INSERT INTO staff_registration (first_name, last_name, email, phone, department, position, employee_id, office_location, address) VALUES
+('Jane', 'Smith', 'jane@university.edu', '+233-24-123-4568', 'Mathematics', 'Professor', 'EMP002', 'Room 305, Building B', '456 University Avenue, Kumasi, Ghana');
+
+INSERT INTO staff_registration (first_name, last_name, email, phone, department, position, employee_id, office_location, address) VALUES
+('Michael', 'Johnson', 'michael@university.edu', '+233-24-123-4569', 'Physics', 'Assistant Professor', 'EMP003', 'Room 102, Building C', '789 University Avenue, Kumasi, Ghana');
                 </pre>
             </div>
             
