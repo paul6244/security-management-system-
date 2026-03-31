@@ -374,9 +374,8 @@ body {
             String diagnosticStatus = "";
             String diagnosticType = "info";
             try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
-                diagnosticStatus = "✅ Database connection successful!";
+                Connection con = SimpleDatabaseConfig.getSimpleConnection();
+                diagnosticStatus = "✅ PostgreSQL database connection successful!";
                 diagnosticType = "success";
                 
                 // Check tables
@@ -657,11 +656,11 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                     con.close();
                     
                 } catch(ClassNotFoundException e) {
-                    // MySQL driver not found
+                    // PostgreSQL driver not found
                 %>
                     <div class="error-state">
                         <div class="icon">❌</div>
-                        <div>MySQL Driver not found!</div>
+                        <div>PostgreSQL Driver not found!</div>
                         <small><%= e.getMessage() %></small>
                     </div>
                 <%
