@@ -1,5 +1,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="config.DatabaseConfig" %>
 
 <%
 if(session.getAttribute("username")==null){
