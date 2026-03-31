@@ -397,41 +397,14 @@ try {
 
 <%
 } catch(SQLException e) {
-    if(e.getMessage().contains("doesn't exist")) {
-%>
-
-<div style="text-align:center; padding:40px; background:#fff3cd; border-radius:10px; margin:20px 0;">
-    <h3 style="color:#856404; margin-bottom:10px;">Staff Table Not Found</h3>
-    <p style="color:#856404;">The 'staff_registration' table doesn't exist. Please create it first.</p>
-    <p style="color:#856404;">Run this SQL in your database:</p>
-    <pre style="background:#f8f9fa; padding:10px; border-radius:5px; text-align:left; font-size:12px;">
-CREATE TABLE IF NOT EXISTS staff_registration (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    phone VARCHAR(20) NOT NULL,
-    department VARCHAR(100) NOT NULL,
-    position VARCHAR(100) NOT NULL,
-    employee_id VARCHAR(50) NOT NULL UNIQUE,
-    office_location VARCHAR(200),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-    </pre>
-</div>
-
-<%
-    } else {
 %>
 
 <div style="text-align:center; padding:40px; background:#f8d7da; border-radius:10px; margin:20px 0;">
     <h3 style="color:#721c24; margin-bottom:10px;">Database Error</h3>
     <p style="color:#721c24;">Unable to connect to database: <%= e.getMessage() %></p>
+    <p style="color:#721c24;">Please check database configuration and try again.</p>
 </div>
-
 <%
-    }
 } catch(Exception e) {
 %>
 
@@ -439,7 +412,6 @@ CREATE TABLE IF NOT EXISTS staff_registration (
     <h3 style="color:#721c24; margin-bottom:10px;">System Error</h3>
     <p style="color:#721c24;">An unexpected error occurred: <%= e.getMessage() %></p>
 </div>
-
 <%
 }
 %>
