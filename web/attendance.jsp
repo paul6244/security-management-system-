@@ -429,7 +429,7 @@ body {
             <h5>🔧 Quick Fixes:</h5>
             <div class="button-group">
                 <button class="btn btn-small" onclick="showFixSQL()">Show Fix SQL</button>
-                <button class="btn btn-small" onclick="createAttendanceFolder()">Create Selfie Folder</button>
+                <button class="btn btn-small" onclick="checkSelfieFolder()">Check Selfie Folder</button>
                 <button class="btn btn-small" onclick="reloadPage()">Reload Page</button>
             </div>
             
@@ -459,8 +459,9 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 </pre>
             </div>
             
-            <h6>📁 Create Selfie Folder:</h6>
-            <p>Create this folder: <code>C:/xampp/tomcat/webapps/SecurityManagementSystem/attendance_selfies/</code></p>
+            <h6>📁 Selfie Folder:</h6>
+            <p><strong>Heroku Deployment:</strong> Selfie folder is automatically created in Heroku temporary storage</p>
+            <p>No manual folder creation needed - the system handles this automatically.</p>
         </div>
         <% } %>
 
@@ -734,8 +735,22 @@ function showFixSQL() {
     fixDiv.style.display = fixDiv.style.display === 'none' ? 'block' : 'none';
 }
 
-function createAttendanceFolder() {
-    showStatus('Please create folder: C:/xampp/tomcat/webapps/SecurityManagementSystem/attendance_selfies/', 'info');
+function checkSelfieFolder() {
+    // Check selfie folder status for Heroku deployment
+    showStatus('Checking selfie folder status for Heroku deployment...', 'info');
+    
+    fetch('CreateSelfieFolder')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showStatus('✅ Selfie folder status: ' + data.message, 'success');
+            } else {
+                showStatus('❌ Selfie folder issue: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus('Error checking selfie folder: ' + error.message, 'error');
+        });
 }
 
 function reloadPage() {
