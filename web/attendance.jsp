@@ -992,7 +992,7 @@ function verifyFace(currentSelfieDataURL, registrationPhotoPath, staffName) {
             const threshold = 0.7;
             
             if (similarity >= threshold) {
-                showStatus(`✅ Face verified for ${staffName}! Similarity: ${(similarity * 100).toFixed(1)}%`, 'success');
+                showStatus('✅ Face verified for ' + staffName + '! Similarity: ' + (similarity * 100) + '%', 'success');
                 
                 // Submit form after successful verification
                 setTimeout(() => {
@@ -1002,7 +1002,7 @@ function verifyFace(currentSelfieDataURL, registrationPhotoPath, staffName) {
                     document.getElementById("attendanceForm").submit();
                 }, 1000);
             } else {
-                showStatus(`❌ Face verification failed for ${staffName}. Similarity: ${(similarity * 100).toFixed(1)}% (Required: 70%)`, 'error');
+                showStatus('❌ Face verification failed for ' + staffName + '. Similarity: ' + (similarity * 100) + '% (Required: 70%)', 'error');
                 
                 // Allow retry or proceed without verification
                 setTimeout(() => {
