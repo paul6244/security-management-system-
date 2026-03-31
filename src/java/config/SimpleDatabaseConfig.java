@@ -34,8 +34,8 @@ public class SimpleDatabaseConfig {
             // Load driver
             Class.forName("org.postgresql.Driver");
             
-            // Try the simplest possible connection
-            String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + database;
+            // Try connection with SSL parameters for AWS RDS
+            String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + database + "?ssl=true&sslmode=require";
             System.out.println("SIMPLE DEBUG: JDBC URL = " + jdbcUrl);
             
             Connection conn = DriverManager.getConnection(jdbcUrl, username, password);
