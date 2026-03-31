@@ -485,8 +485,8 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                     <option value="">-- Select Staff --</option>
                     <%
                     try {
-                        Class.forName("com.mysql.cj.jdbc.Driver");
-                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                        Class.forName("org.postgresql.Driver");
+                        Connection con = config.DatabaseConfig.getConnection();
                         String sql = "SELECT id, first_name, last_name, employee_id, selfie_path FROM staff_registration ORDER BY first_name, last_name";
                         PreparedStatement ps = con.prepareStatement(sql);
                         ResultSet rs = ps.executeQuery();
@@ -542,8 +542,8 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
             <div class="attendance-list" id="todayAttendance">
                 <%
                 try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                    Class.forName("org.postgresql.Driver");
+                    Connection con = config.DatabaseConfig.getConnection();
                     
                     // Test basic connection first
                     Statement testStmt = con.createStatement();
