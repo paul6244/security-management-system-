@@ -374,6 +374,7 @@ try {
     rs.close();
     ps.close();
     con.close();
+    }
     
     if(!hasStaff) {
 %>
