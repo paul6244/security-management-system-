@@ -109,8 +109,8 @@ public class SystemDiagnostics extends HttpServlet {
             String errorResponse = "{";
             errorResponse += "\"success\": false,";
             errorResponse += "\"message\": \"System diagnostics failed: " + e.getMessage().replace("\"", "\\\"") + "\",";
-            errorResponse += "\"error_type\": \"");
-            errorResponse +=(e.getClass().getSimpleName());
+            errorResponse += "\"error_type\": \"";
+            errorResponse += e.getClass().getSimpleName();
             errorResponse += "\"}";
             
             response.getWriter().write(errorResponse);
