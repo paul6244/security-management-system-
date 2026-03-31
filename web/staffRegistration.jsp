@@ -1,6 +1,7 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="model.Mymodel" %>
+<%@ page import="config.SimpleDatabaseConfig" %>
 
 <%
 if(session.getAttribute("username")==null){
@@ -325,10 +326,9 @@ textarea {
 <div id="staffListContainer">
 
 <%
-// Load registered staff from database using same connection as Mymodel
+// Load registered staff from database using PostgreSQL
 try {
-    Class.forName("com.mysql.cj.jdbc.Driver");
-    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+    Connection con = SimpleDatabaseConfig.getSimpleConnection();
     String sql = "SELECT * FROM staff_registration ORDER BY created_at DESC";
     PreparedStatement ps = con.prepareStatement(sql);
     ResultSet rs = ps.executeQuery();
