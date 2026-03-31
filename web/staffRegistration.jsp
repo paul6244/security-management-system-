@@ -391,11 +391,11 @@ try {
 %>
 
 <div style="text-align:center; padding:40px; background:#f8d7da; border-radius:10px; margin:20px 0;">
-    <h3 style="color:#721c24; margin-bottom:10px;">MySQL Driver Not Found</h3>
-    <p style="color:#721c24;">The MySQL JDBC driver is not available. Please add the MySQL connector JAR to your project.</p>
-    <p style="color:#721c24;">Download from: https://dev.mysql.com/downloads/connector/j/</p>
+    <h3 style="color:#721c24; margin-bottom:10px;">Database Error</h3>
+    <p style="color:#721c24;">Unable to connect to database: <%= e.getMessage() %></p>
+    <p style="color:#721c24;">Please check database configuration and try again.</p>
+    <p style="color:#721c24;">Error details: <%= e.getStackTrace() %></p>
 </div>
-
 <%
 } catch(SQLException e) {
 %>
@@ -404,6 +404,7 @@ try {
     <h3 style="color:#721c24; margin-bottom:10px;">Database Error</h3>
     <p style="color:#721c24;">Unable to connect to database: <%= e.getMessage() %></p>
     <p style="color:#721c24;">Please check database configuration and try again.</p>
+    <p style="color:#721c24;">Error details: <%= e.getStackTrace() %></p>
 </div>
 <%
 } catch(Exception e) {
