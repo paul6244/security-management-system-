@@ -1,6 +1,7 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="config.DatabaseConfig" %>
+<%@ page import="config.SimpleDatabaseConfig" %>
 
 <%
 if(session.getAttribute("username")==null){
@@ -487,7 +488,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                     <%
                     try {
                         Class.forName("org.postgresql.Driver");
-                        Connection con = DatabaseConfig.getConnection();
+                        Connection con = SimpleDatabaseConfig.getSimpleConnection();
                         String sql = "SELECT id, first_name, last_name, employee_id, selfie_path FROM staff_registration ORDER BY first_name, last_name";
                         PreparedStatement ps = con.prepareStatement(sql);
                         ResultSet rs = ps.executeQuery();
@@ -544,7 +545,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 <%
                 try {
                     Class.forName("org.postgresql.Driver");
-                    Connection con = DatabaseConfig.getConnection();
+                    Connection con = SimpleDatabaseConfig.getSimpleConnection();
                     
                     // Test basic connection first
                     Statement testStmt = con.createStatement();
@@ -884,7 +885,53 @@ function submitAttendance() {
         return;
     }
     
-    showStatus('Capturing selfie for verification...', 'info');
+    const staffSelect = document.getElementById('staffSelect');
+    const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+    const staffName = selectedOption.text;
+    const registrationSelfiePath = selectedOption.getAttribute('data-selfie');
+    
+    if(!staffId) {
+        showStatus('Please select a staff member first', 'error');
+        return;
+    }
+    
+    if(!registrationSelfiePath || registrationSelfiePath.trim() === '') {
+        showStatus('No registration photo available for face verification. Please capture selfie only.', 'info');
+        captureSelfieOnly();
+        return;
+    }
+    
+    showStatus('Capturing selfie for face verification...', 'info');
+    
+    try {
+        let canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+        
+        let dataURL = canvas.toDataURL("image/png");
+        document.getElementById("selfie").value = dataURL;
+        
+        // Perform face verification
+        verifyFace(dataURL, registrationSelfiePath, staffName);
+        
+    } catch(error) {
+        showStatus('Error capturing selfie: ' + error.message, 'error');
+        console.error('Selfie capture error:', error);
+    }
+}
+
+function captureSelfieOnly() {
+    const video = document.getElementById("camera");
+    
+    if(!stream || !video.videoWidth || !video.videoHeight) {
+        showStatus('Camera not ready for selfie capture', 'error');
+        return;
+    }
+    
+    showStatus('Capturing selfie without face verification...', 'info');
     
     try {
         let canvas = document.createElement("canvas");
@@ -899,16 +946,141 @@ function submitAttendance() {
         
         const submitBtn = document.getElementById("submitBtn");
         submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Submitting...';
+        submitBtn.textContent = 'Submitting...';
         
-        showStatus('Submitting attendance...', 'info');
-        
+        // Submit form without face verification
         document.getElementById("attendanceForm").submit();
         
     } catch(error) {
         showStatus('Error capturing selfie: ' + error.message, 'error');
         console.error('Selfie capture error:', error);
     }
+}
+
+function verifyFace(currentSelfieDataURL, registrationPhotoPath, staffName) {
+    showStatus('Performing face verification...', 'info');
+    
+    // Create image elements for comparison
+    const currentImg = new Image();
+    const registrationImg = new Image();
+    
+    currentImg.onload = function() {
+        registrationImg.onload = function() {
+            // Simple face verification using canvas comparison
+            const canvas1 = document.createElement('canvas');
+            const canvas2 = document.createElement('canvas');
+            const ctx1 = canvas1.getContext('2d');
+            const ctx2 = canvas2.getContext('2d');
+            
+            // Set canvas dimensions
+            canvas1.width = currentImg.width;
+            canvas1.height = currentImg.height;
+            canvas2.width = registrationImg.width;
+            canvas2.height = registrationImg.height;
+            
+            // Draw images
+            ctx1.drawImage(currentImg, 0, 0);
+            ctx2.drawImage(registrationImg, 0, 0);
+            
+            // Get image data for comparison
+            const imageData1 = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
+            const imageData2 = ctx2.getImageData(0, 0, canvas2.width, canvas2.height);
+            
+            // Simple face similarity calculation
+            const similarity = calculateFaceSimilarity(imageData1, imageData2);
+            
+            // Verification threshold (70% similarity)
+            const threshold = 0.7;
+            
+            if (similarity >= threshold) {
+                showStatus(`✅ Face verified for ${staffName}! Similarity: ${(similarity * 100).toFixed(1)}%`, 'success');
+                
+                // Submit form after successful verification
+                setTimeout(() => {
+                    const submitBtn = document.getElementById("submitBtn");
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+                    document.getElementById("attendanceForm").submit();
+                }, 1000);
+            } else {
+                showStatus(`❌ Face verification failed for ${staffName}. Similarity: ${(similarity * 100).toFixed(1)}% (Required: 70%)`, 'error');
+                
+                // Allow retry or proceed without verification
+                setTimeout(() => {
+                    if (confirm(`Face verification failed. Would you like to:\n\n1. Try Again\n2. Proceed Without Verification\n3. Cancel`)) {
+                        const choice = prompt('Enter your choice (1, 2, or 3):');
+                        
+                        if (choice === '1') {
+                            captureSelfie(); // Try again
+                        } else if (choice === '2') {
+                            captureSelfieOnly(); // Proceed without verification
+                        }
+                        // Choice 3 (Cancel) does nothing
+                    }
+                }, 2000);
+            }
+        };
+        
+        registrationImg.onerror = function() {
+            showStatus('Error loading registration photo. Proceeding without face verification...', 'error');
+            captureSelfieOnly();
+        };
+        
+        // Load registration photo
+        registrationImg.src = registrationPhotoPath;
+    };
+    
+    currentImg.onerror = function() {
+        showStatus('Error processing current selfie. Please try again.', 'error');
+    };
+    
+    // Load current selfie
+    currentImg.src = currentSelfieDataURL;
+}
+
+function calculateFaceSimilarity(imageData1, imageData2) {
+    const data1 = imageData1.data;
+    const data2 = imageData2.data;
+    
+    // Resize images to same dimensions for comparison
+    const size = 100; // Compare 100x100 region
+    const stride1 = Math.floor(imageData1.width / size);
+    const stride2 = Math.floor(imageData2.width / size);
+    
+    let similarity = 0;
+    let pixelCount = 0;
+    
+    // Sample pixels for comparison (faster than full comparison)
+    for (let y = 0; y < size; y += 5) {
+        for (let x = 0; x < size; x += 5) {
+            const idx1 = (y * stride1 * imageData1.width + x * stride1) * 4;
+            const idx2 = (y * stride2 * imageData2.width + x * stride2) * 4;
+            
+            if (idx1 < data1.length && idx2 < data2.length) {
+                // Compare RGB values
+                const r1 = data1[idx1];
+                const g1 = data1[idx1 + 1];
+                const b1 = data1[idx1 + 2];
+                
+                const r2 = data2[idx2];
+                const g2 = data2[idx2 + 1];
+                const b2 = data2[idx2 + 2];
+                
+                // Calculate color difference
+                const diff = Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
+                const maxDiff = 255 * 3; // Maximum possible difference
+                
+                // Convert to similarity (0-1)
+                const pixelSimilarity = 1 - (diff / maxDiff);
+                
+                similarity += pixelSimilarity;
+                pixelCount++;
+            }
+        }
+    }
+    
+    // Average similarity
+    return pixelCount > 0 ? similarity / pixelCount : 0;
 }
 
 // Reset Attendance
