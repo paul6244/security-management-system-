@@ -70,16 +70,6 @@
     </servlet-mapping>
     
     <servlet>
-        <servlet-name>SimpleConnectionTest</servlet-name>
-        <servlet-class>servlets.SimpleConnectionTest</servlet-class>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>SimpleConnectionTest</servlet-name>
-        <url-pattern>/SimpleConnectionTest</url-pattern>
-    </servlet-mapping>
-    
-    <servlet>
         <servlet-name>AttendanceDatabaseCheck</servlet-name>
         <servlet-class>servlets.AttendanceDatabaseCheck</servlet-class>
     </servlet>
