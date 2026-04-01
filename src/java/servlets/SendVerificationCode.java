@@ -52,7 +52,9 @@ public class SendVerificationCode extends HttpServlet {
                 boolean smsSent = simulateSMSSending(phoneNumber, verificationCode, fullName, action);
                 
                 if (smsSent) {
-                    out.println("{\"success\": true, \"message\": \"Verification code sent to " + maskPhoneNumber(phoneNumber) + "\", \"code\": \"" + verificationCode + "\"}");
+                    String maskedPhone = maskPhoneNumber(phoneNumber);
+                    String message = "Verification code sent to " + maskedPhone;
+                    out.println("{\"success\": true, \"message\": \"" + message.replace("\"", "\\\"") + "\", \"code\": \"" + verificationCode + "\"}");
                 } else {
                     out.println("{\"success\": false, \"message\": \"Failed to send verification code\"}");
                 }
@@ -65,7 +67,8 @@ public class SendVerificationCode extends HttpServlet {
             con.close();
             
         } catch (Exception e) {
-            out.println("{\"success\": false, \"message\": \"Error: " + e.getMessage() + "\"}");
+            String errorMessage = e.getMessage().replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+            out.println("{\"success\": false, \"message\": \"Error: " + errorMessage + "\"}");
         }
     }
     
