@@ -525,6 +525,50 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 </select>
             </div>
 
+            <!-- SMS Verification Section -->
+            <div class="card" id="verificationSection" style="display:none;">
+                <h3>SMS Verification</h3>
+                <div class="form-group">
+                    <label>Verification Code:</label>
+                    <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6">
+                    <small>Verification code sent to registered phone number</small>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="verifyCode()">Verify Code</button>
+                    <button class="btn btn-small" onclick="resendCode()">Resend Code</button>
+                </div>
+            </div>
+
+            <!-- Face Capture Section -->
+            <div class="card" id="faceCaptureSection" style="display:none;">
+                <h3>Face Verification</h3>
+                <div class="form-group">
+                    <label>Face Capture:</label>
+                    <video id="attendanceCamera" autoplay style="width:100%; max-width:400px; border:2px solid #ddd; border-radius:8px;"></video>
+                    <canvas id="attendanceCanvas" style="display:none;"></canvas>
+                    <input type="hidden" id="attendanceSelfie">
+                    
+                    <div class="button-group" style="margin-top:10px;">
+                        <button class="btn" onclick="startAttendanceCamera()">Start Camera</button>
+                        <button class="btn btn-success" onclick="captureAttendanceSelfie()">Capture Photo</button>
+                        <button class="btn" onclick="retakeAttendanceSelfie()">Retake</button>
+                    </div>
+                </div>
+                
+                <div id="attendancePreview" style="margin-top:10px;">
+                    <div style="color:#666;">No photo captured yet</div>
+                </div>
+            </div>
+
+            <!-- Attendance Action Section -->
+            <div class="card" id="attendanceActionSection" style="display:none;">
+                <h3>Complete Attendance</h3>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="startVerificationProcess('checkin')">Check In</button>
+                    <button class="btn btn-warning" onclick="startVerificationProcess('checkout')">Check Out</button>
+                </div>
+            </div>
+
             <div class="photo-display" id="registrationPhotoDisplay" style="display:none;">
                 <h4>Registration Photo</h4>
                 <img id="registrationPhoto" alt="Registration Photo">
@@ -772,6 +816,12 @@ function loadStaffPhoto() {
         document.getElementById('registrationPhotoDisplay').style.display = 'none';
         document.getElementById('userInfo').textContent = 'No staff selected yet';
         document.getElementById('staff_id').value = '';
+        
+        // Hide all sections
+        document.getElementById('verificationSection').style.display = 'none';
+        document.getElementById('faceCaptureSection').style.display = 'none';
+        document.getElementById('attendanceActionSection').style.display = 'none';
+        
         checkFormReady();
         return;
     }
@@ -786,14 +836,17 @@ function loadStaffPhoto() {
     if(selfiePath && selfiePath.trim() !== '') {
         photoImg.src = selfiePath;
         photoDisplay.style.display = 'block';
-        showStatus('Loaded registration photo for ' + staffName, 'success');
+        showStatus('Loaded registration photo for ' + staffName + '. Please select Check In or Check Out to begin verification.', 'success');
     } else {
         photoDisplay.style.display = 'none';
-        showStatus('No registration photo found for ' + staffName, 'error');
+        showStatus('No registration photo found for ' + staffName + '. First check-in will capture face photo.', 'info');
     }
     
     document.getElementById('staff_id').value = staffId;
     document.getElementById('userInfo').innerHTML = '<strong>Selected:</strong><br>' + staffName;
+    
+    // Show attendance action buttons
+    document.getElementById('attendanceActionSection').style.display = 'block';
     
     checkFormReady();
 }
@@ -1113,6 +1166,205 @@ function resetAttendance() {
     document.getElementById("staffSelect").selectedIndex = 0;
     document.getElementById("registrationPhotoDisplay").style.display = 'none';
     showStatus('Attendance reset', 'info');
+}
+
+// SMS Verification Functions
+let currentEmployeeId = null;
+let currentAction = null;
+
+function startVerificationProcess(action) {
+    // Hide action buttons and show verification
+    document.getElementById('attendanceActionSection').style.display = 'none';
+    sendVerificationCode(action);
+}
+
+function sendVerificationCode(action) {
+    const staffSelect = document.getElementById('staffSelect');
+    const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+    currentEmployeeId = selectedOption.getAttribute('data-employee-id');
+    currentAction = action;
+    
+    if (!currentEmployeeId) {
+        showStatus('Please select a staff member first', 'error');
+        return;
+    }
+    
+    // Show verification section
+    document.getElementById('verificationSection').style.display = 'block';
+    
+    // Send verification code
+    fetch('SendVerificationCode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'employeeId=' + encodeURIComponent(currentEmployeeId) + '&action=' + action
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showStatus(data.message, 'success');
+        } else {
+            showStatus(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showStatus('Error sending verification code: ' + error.message, 'error');
+    });
+}
+
+function verifyCode() {
+    const code = document.getElementById('verificationCode').value.trim();
+    
+    if (!code) {
+        showStatus('Please enter verification code', 'error');
+        return;
+    }
+    
+    fetch('VerifyCode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'verificationCode=' + encodeURIComponent(code)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showStatus(data.message, 'success');
+            document.getElementById('verificationSection').style.display = 'none';
+            document.getElementById('faceCaptureSection').style.display = 'block';
+            document.getElementById('attendanceActionSection').style.display = 'block';
+            document.getElementById('verificationCode').value = '';
+        } else {
+            showStatus(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showStatus('Error verifying code: ' + error.message, 'error');
+    });
+}
+
+function resendCode() {
+    if (currentEmployeeId && currentAction) {
+        sendVerificationCode(currentAction);
+    } else {
+        showStatus('Please select staff member first', 'error');
+    }
+}
+
+// Face Capture Functions for Attendance
+let attendanceStream = null;
+let attendanceSelfieCaptured = false;
+
+function startAttendanceCamera() {
+    const video = document.getElementById('attendanceCamera');
+    
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(mediaStream) {
+            attendanceStream = mediaStream;
+            video.srcObject = mediaStream;
+            showStatus('Camera ready for face verification', 'success');
+        })
+        .catch(function(error) {
+            showStatus('Unable to access camera: ' + error.message, 'error');
+        });
+    } else {
+        showStatus('Camera not supported by browser', 'error');
+    }
+}
+
+function captureAttendanceSelfie() {
+    const video = document.getElementById('attendanceCamera');
+    const canvas = document.getElementById('attendanceCanvas');
+    const preview = document.getElementById('attendancePreview');
+    
+    if(!attendanceStream) {
+        showStatus('Please start camera first', 'error');
+        return;
+    }
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+    
+    let dataURL = canvas.toDataURL("image/png");
+    document.getElementById('attendanceSelfie').value = dataURL;
+    
+    // Show preview
+    preview.innerHTML = '<img src="' + dataURL + '" alt="Attendance Photo" style="max-width:100%; max-height:200px; border-radius:8px;">';
+    
+    attendanceSelfieCaptured = true;
+    showStatus('Face captured successfully!', 'success');
+    
+    // Stop camera after capture
+    if(attendanceStream) {
+        attendanceStream.getTracks().forEach(track => track.stop());
+        attendanceStream = null;
+    }
+}
+
+function retakeAttendanceSelfie() {
+    attendanceSelfieCaptured = false;
+    document.getElementById('attendanceSelfie').value = '';
+    document.getElementById('attendancePreview').innerHTML = '<div style="color:#666;">No photo captured yet</div>';
+    showStatus('Photo cleared. You can capture a new one.', 'info');
+    startAttendanceCamera();
+}
+
+function submitAttendance(action) {
+    const staffId = document.getElementById('staff_id').value;
+    const lat = document.getElementById("latitude").value;
+    const lng = document.getElementById("longitude").value;
+    const selfie = document.getElementById('attendanceSelfie').value;
+    
+    if(!staffId || !lat || !lng) {
+        showStatus('Please select staff and ensure location is captured', 'error');
+        return;
+    }
+    
+    if(!attendanceSelfieCaptured || !selfie) {
+        showStatus('Please capture face photo for verification', 'error');
+        return;
+    }
+    
+    // Check if verified for this action
+    const verificationKey = 'verifiedFor' + action;
+    if (!sessionStorage.getItem(verificationKey) || sessionStorage.getItem(verificationKey) !== currentEmployeeId) {
+        showStatus('Please complete SMS verification first', 'error');
+        return;
+    }
+    
+    // Submit attendance with face verification
+    const formData = new FormData();
+    formData.append('staff_id', staffId);
+    formData.append('latitude', lat);
+    formData.append('longitude', lng);
+    formData.append('selfie', selfie);
+    formData.append('action', action);
+    
+    fetch('ScanQR', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        // Reset verification
+        sessionStorage.removeItem(verificationKey);
+        
+        // Reset form
+        resetAttendance();
+        showStatus('Attendance submitted successfully!', 'success');
+        
+        // Reload page to show updated attendance
+        setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+        showStatus('Error submitting attendance: ' + error.message, 'error');
+    });
 }
 
 // Initialize on page load

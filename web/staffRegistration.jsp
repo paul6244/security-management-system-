@@ -278,29 +278,18 @@ textarea {
     <textarea id="address" name="address" placeholder="Full address"></textarea>
 </div>
 
+<div class="form-group full-width">
+    <label for="phone">Phone Number (Required for SMS Verification)</label>
+    <input type="tel" id="phone" name="phone" required placeholder="Enter phone number (e.g., +1234567890)" pattern="[+][0-9]{10,15}" title="Please enter phone number with country code (e.g., +1234567890)">
+    <small style="color:#666;">This number will receive SMS verification codes for attendance check-in.</small>
+</div>
+
 <!-- Selfie Capture Section -->
 <div class="form-group full-width">
-    <label>Staff Photo (Required)</label>
-    <div style="display:flex; gap:20px; align-items:flex-start;">
-        <div style="flex:1;">
-            <video id="registrationCamera" autoplay style="width:100%; max-width:300px; border:2px solid #ddd; border-radius:8px;"></video>
-            <canvas id="registrationCanvas" style="display:none;"></canvas>
-            <input type="hidden" name="selfie" id="registrationSelfie">
-            
-            <div style="margin-top:10px;">
-                <button type="button" class="btn" onclick="startRegistrationCamera()">Start Camera</button>
-                <button type="button" class="btn btn-success" onclick="captureRegistrationSelfie()">Capture Photo</button>
-                <button type="button" class="btn" onclick="retakeRegistrationSelfie()">Retake</button>
-            </div>
-        </div>
-        <div style="flex:1;">
-            <div id="selfiePreview" style="text-align:center; padding:20px; border:2px dashed #ddd; border-radius:8px; min-height:200px;">
-                <div style="color:#666;">No photo captured yet</div>
-            </div>
-            <small style="color:#666; display:block; margin-top:10px;">
-                This photo will be used for face verification during attendance check-in.
-            </small>
-        </div>
+    <label>Staff Photo (Optional)</label>
+    <div style="color:#666; padding:10px; background:#f9f9f9; border-radius:5px;">
+        <strong>Face capture moved to attendance page</strong><br>
+        Staff photo will be captured during first attendance check-in for face verification setup.
     </div>
 </div>
 
@@ -434,68 +423,9 @@ function showStatus(message, type) {
     }, 5000);
 }
 
-// Registration Camera Functions
-let registrationStream = null;
-let registrationSelfieCaptured = false;
+// Face capture moved to attendance page - no camera functions needed here
 
-function startRegistrationCamera() {
-    const video = document.getElementById('registrationCamera');
-    
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(mediaStream) {
-            registrationStream = mediaStream;
-            video.srcObject = mediaStream;
-            showStatus('Camera ready for photo capture', 'success');
-        })
-        .catch(function(error) {
-            showStatus('Unable to access camera: ' + error.message, 'error');
-        });
-    } else {
-        showStatus('Camera not supported by browser', 'error');
-    }
-}
-
-function captureRegistrationSelfie() {
-    const video = document.getElementById('registrationCamera');
-    const canvas = document.getElementById('registrationCanvas');
-    const preview = document.getElementById('selfiePreview');
-    
-    if(!registrationStream) {
-        showStatus('Please start camera first', 'error');
-        return;
-    }
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    
-    let dataURL = canvas.toDataURL("image/png");
-    document.getElementById('registrationSelfie').value = dataURL;
-    
-    // Show preview
-    preview.innerHTML = '<img src="' + dataURL + '" alt="Staff Photo" style="max-width:100%; max-height:200px; border-radius:8px;">';
-    
-    registrationSelfieCaptured = true;
-    showStatus('Photo captured successfully!', 'success');
-    
-    // Stop camera after capture
-    if(registrationStream) {
-        registrationStream.getTracks().forEach(track => track.stop());
-        registrationStream = null;
-    }
-}
-
-function retakeRegistrationSelfie() {
-    registrationSelfieCaptured = false;
-    document.getElementById('registrationSelfie').value = '';
-    document.getElementById('selfiePreview').innerHTML = '<div style="color:#666;">No photo captured yet</div>';
-    showStatus('Photo cleared. You can capture a new one.', 'info');
-}
-
-// Validate selfie before form submission
+// Validate form before submission
 function validateRegistrationForm() {
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
@@ -504,34 +434,23 @@ function validateRegistrationForm() {
     const department = document.getElementById('department').value;
     const position = document.getElementById('position').value.trim();
     const employeeId = document.getElementById('employeeId').value.trim();
-    const selfie = document.getElementById('registrationSelfie').value;
     
     if(!firstName || !lastName || !email || !phone || !department || !position || !employeeId) {
         showStatus('Please fill in all required fields', 'error');
         return false;
     }
     
-    if(!registrationSelfieCaptured || !selfie) {
-        showStatus('Please capture a staff photo', 'error');
-        return false;
-    }
-    
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!emailRegex.test(email)) {
-        showStatus('Please enter a valid email address', 'error');
-        return false;
-    }
-    
     // Phone validation
-    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-    if(!phoneRegex.test(phone.replace(/\s/g, ''))) {
-        showStatus('Please enter a valid phone number', 'error');
+    const phonePattern = /^[+][0-9]{10,15}$/;
+    if(!phonePattern.test(phone)) {
+        showStatus('Please enter a valid phone number with country code (e.g., +1234567890)', 'error');
         return false;
     }
     
     return true;
 }
+
+</script>
 
 // Override form submission to validate first
 document.addEventListener('DOMContentLoaded', function() {
