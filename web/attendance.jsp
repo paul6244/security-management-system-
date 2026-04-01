@@ -521,6 +521,12 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 </select>
             </div>
 
+            <!-- SMS Verification System Info -->
+            <div style="color:#666; padding:10px; background:#f9f9f9; border-radius:5px; margin-bottom:15px;">
+                <strong>SMS Verification System</strong><br>
+                Staff will receive SMS verification codes for attendance check-in. Select a staff member to automatically send the verification code.
+            </div>
+
             <!-- SMS Verification Section -->
             <div class="card" id="verificationSection" style="display:none;">
                 <h3>SMS Verification</h3>

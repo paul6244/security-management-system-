@@ -284,15 +284,6 @@ textarea {
     <small style="color:#666;">This number will receive SMS verification codes for attendance check-in.</small>
 </div>
 
-<!-- Staff Photo Section -->
-<div class="form-group full-width">
-    <label>Staff Photo (Optional)</label>
-    <div style="color:#666; padding:10px; background:#f9f9f9; border-radius:5px;">
-        <strong>SMS Verification System</strong><br>
-        Staff will use SMS verification codes for attendance check-in.
-    </div>
-</div>
-
 <div style="text-align:center;">
     <button type="submit" class="btn btn-success">Register Staff</button>
     <button type="reset" class="btn">Clear Form</button>
