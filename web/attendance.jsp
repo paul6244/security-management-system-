@@ -564,8 +564,8 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
             <div class="card" id="attendanceActionSection" style="display:none;">
                 <h3>Complete Attendance</h3>
                 <div class="button-group">
-                    <button class="btn btn-success" onclick="startVerificationProcess('checkin')">Check In</button>
-                    <button class="btn btn-warning" onclick="startVerificationProcess('checkout')">Check Out</button>
+                    <button class="btn btn-success" onclick="submitAttendance('checkin')">Check In</button>
+                    <button class="btn btn-warning" onclick="submitAttendance('checkout')">Check Out</button>
                 </div>
             </div>
 
@@ -836,19 +836,55 @@ function loadStaffPhoto() {
     if(selfiePath && selfiePath.trim() !== '') {
         photoImg.src = selfiePath;
         photoDisplay.style.display = 'block';
-        showStatus('Loaded registration photo for ' + staffName + '. Please select Check In or Check Out to begin verification.', 'success');
+        showStatus('Loaded registration photo for ' + staffName + '. Sending verification code...', 'success');
     } else {
         photoDisplay.style.display = 'none';
-        showStatus('No registration photo found for ' + staffName + '. First check-in will capture face photo.', 'info');
+        showStatus('No registration photo found for ' + staffName + '. First check-in will capture face photo. Sending verification code...', 'info');
     }
     
     document.getElementById('staff_id').value = staffId;
     document.getElementById('userInfo').innerHTML = '<strong>Selected:</strong><br>' + staffName;
     
-    // Show attendance action buttons
-    document.getElementById('attendanceActionSection').style.display = 'block';
+    // Automatically send verification code when staff is selected
+    sendVerificationCodeOnSelection();
     
     checkFormReady();
+}
+
+// Send verification code automatically when staff is selected
+function sendVerificationCodeOnSelection() {
+    const staffSelect = document.getElementById('staffSelect');
+    const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+    const employeeId = selectedOption.getAttribute('data-employee-id');
+    
+    if (!employeeId) {
+        showStatus('No employee ID found for selected staff', 'error');
+        return;
+    }
+    
+    // Send verification code for general attendance (no specific action yet)
+    fetch('SendVerificationCode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'employeeId=' + encodeURIComponent(employeeId) + '&action=attendance'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showStatus(data.message + ' Please enter the code to proceed.', 'success');
+            // Show verification section
+            document.getElementById('verificationSection').style.display = 'block';
+            // Show attendance action buttons
+            document.getElementById('attendanceActionSection').style.display = 'block';
+        } else {
+            showStatus(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showStatus('Error sending verification code: ' + error.message, 'error');
+    });
 }
 
 // Manual staff entry functions
@@ -1172,12 +1208,6 @@ function resetAttendance() {
 let currentEmployeeId = null;
 let currentAction = null;
 
-function startVerificationProcess(action) {
-    // Hide action buttons and show verification
-    document.getElementById('attendanceActionSection').style.display = 'none';
-    sendVerificationCode(action);
-}
-
 function sendVerificationCode(action) {
     const staffSelect = document.getElementById('staffSelect');
     const selectedOption = staffSelect.options[staffSelect.selectedIndex];
@@ -1231,11 +1261,14 @@ function verifyCode() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showStatus(data.message, 'success');
+            showStatus(data.message + ' You can now capture your face and complete attendance.', 'success');
             document.getElementById('verificationSection').style.display = 'none';
             document.getElementById('faceCaptureSection').style.display = 'block';
             document.getElementById('attendanceActionSection').style.display = 'block';
             document.getElementById('verificationCode').value = '';
+            
+            // Store verification for later use
+            currentEmployeeId = data.employeeId;
         } else {
             showStatus(data.message, 'error');
         }
@@ -1331,9 +1364,9 @@ function submitAttendance(action) {
         return;
     }
     
-    // Check if verified for this action
-    const verificationKey = 'verifiedFor' + action;
-    if (!sessionStorage.getItem(verificationKey) || sessionStorage.getItem(verificationKey) !== currentEmployeeId) {
+    // Check if verification code was entered (session verification)
+    const verificationKey = 'verifiedForattendance';
+    if (!sessionStorage.getItem(verificationKey)) {
         showStatus('Please complete SMS verification first', 'error');
         return;
     }

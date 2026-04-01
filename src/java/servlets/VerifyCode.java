@@ -37,10 +37,10 @@ public class VerifyCode extends HttpServlet {
             // Clear verification code from session
             request.getSession().removeAttribute("verificationCode");
             
-            // Mark as verified for this session
-            request.getSession().setAttribute("verifiedFor" + action, verifiedEmployeeId);
+            // Mark as verified for attendance (general verification)
+            request.getSession().setAttribute("verifiedForattendance", verifiedEmployeeId);
             
-            out.println("{\"success\": true, \"message\": \"Verification successful! You can now proceed with " + action + "\", \"employeeId\": \"" + verifiedEmployeeId + "\"}");
+            out.println("{\"success\": true, \"message\": \"Verification successful! You can now proceed with attendance\", \"employeeId\": \"" + verifiedEmployeeId + "\"}");
         } else {
             out.println("{\"success\": false, \"message\": \"Invalid verification code. Please try again.\"}");
         }
