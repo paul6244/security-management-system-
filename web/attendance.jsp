@@ -539,27 +539,6 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 </div>
             </div>
 
-            <!-- Face Capture Section -->
-            <div class="card" id="faceCaptureSection" style="display:none;">
-                <h3>Face Verification</h3>
-                <div class="form-group">
-                    <label>Face Capture:</label>
-                    <video id="attendanceCamera" autoplay style="width:100%; max-width:400px; border:2px solid #ddd; border-radius:8px;"></video>
-                    <canvas id="attendanceCanvas" style="display:none;"></canvas>
-                    <input type="hidden" id="attendanceSelfie">
-                    
-                    <div class="button-group" style="margin-top:10px;">
-                        <button class="btn" onclick="startAttendanceCamera()">Start Camera</button>
-                        <button class="btn btn-success" onclick="captureAttendanceSelfie()">Capture Photo</button>
-                        <button class="btn" onclick="retakeAttendanceSelfie()">Retake</button>
-                    </div>
-                </div>
-                
-                <div id="attendancePreview" style="margin-top:10px;">
-                    <div style="color:#666;">No photo captured yet</div>
-                </div>
-            </div>
-
             <!-- Attendance Action Section -->
             <div class="card" id="attendanceActionSection" style="display:none;">
                 <h3>Complete Attendance</h3>
@@ -1261,9 +1240,8 @@ function verifyCode() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showStatus(data.message + ' You can now capture your face and complete attendance.', 'success');
+            showStatus(data.message + ' You can now complete your attendance.', 'success');
             document.getElementById('verificationSection').style.display = 'none';
-            document.getElementById('faceCaptureSection').style.display = 'block';
             document.getElementById('attendanceActionSection').style.display = 'block';
             document.getElementById('verificationCode').value = '';
             
@@ -1286,124 +1264,9 @@ function resendCode() {
     }
 }
 
-// Face Capture Functions for Attendance
-let attendanceStream = null;
-let attendanceSelfieCaptured = false;
-
-function startAttendanceCamera() {
-    const video = document.getElementById('attendanceCamera');
-    
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(mediaStream) {
-            attendanceStream = mediaStream;
-            video.srcObject = mediaStream;
-            showStatus('Camera ready for face verification', 'success');
-        })
-        .catch(function(error) {
-            showStatus('Unable to access camera: ' + error.message, 'error');
-        });
-    } else {
-        showStatus('Camera not supported by browser', 'error');
-    }
-}
-
-function captureAttendanceSelfie() {
-    const video = document.getElementById('attendanceCamera');
-    const canvas = document.getElementById('attendanceCanvas');
-    const preview = document.getElementById('attendancePreview');
-    
-    if(!attendanceStream) {
-        showStatus('Please start camera first', 'error');
-        return;
-    }
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    
-    let dataURL = canvas.toDataURL("image/png");
-    document.getElementById('attendanceSelfie').value = dataURL;
-    
-    // Show preview
-    preview.innerHTML = '<img src="' + dataURL + '" alt="Attendance Photo" style="max-width:100%; max-height:200px; border-radius:8px;">';
-    
-    attendanceSelfieCaptured = true;
-    showStatus('Face captured successfully!', 'success');
-    
-    // Stop camera after capture
-    if(attendanceStream) {
-        attendanceStream.getTracks().forEach(track => track.stop());
-        attendanceStream = null;
-    }
-}
-
-function retakeAttendanceSelfie() {
-    attendanceSelfieCaptured = false;
-    document.getElementById('attendanceSelfie').value = '';
-    document.getElementById('attendancePreview').innerHTML = '<div style="color:#666;">No photo captured yet</div>';
-    showStatus('Photo cleared. You can capture a new one.', 'info');
-    startAttendanceCamera();
-}
-
-function submitAttendance(action) {
-    const staffId = document.getElementById('staff_id').value;
-    const lat = document.getElementById("latitude").value;
-    const lng = document.getElementById("longitude").value;
-    const selfie = document.getElementById('attendanceSelfie').value;
-    
-    if(!staffId || !lat || !lng) {
-        showStatus('Please select staff and ensure location is captured', 'error');
-        return;
-    }
-    
-    if(!attendanceSelfieCaptured || !selfie) {
-        showStatus('Please capture face photo for verification', 'error');
-        return;
-    }
-    
-    // Check if verification code was entered (session verification)
-    const verificationKey = 'verifiedForattendance';
-    if (!sessionStorage.getItem(verificationKey)) {
-        showStatus('Please complete SMS verification first', 'error');
-        return;
-    }
-    
-    // Submit attendance with face verification
-    const formData = new FormData();
-    formData.append('staff_id', staffId);
-    formData.append('latitude', lat);
-    formData.append('longitude', lng);
-    formData.append('selfie', selfie);
-    formData.append('action', action);
-    
-    fetch('ScanQR', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        // Reset verification
-        sessionStorage.removeItem(verificationKey);
-        
-        // Reset form
-        resetAttendance();
-        showStatus('Attendance submitted successfully!', 'success');
-        
-        // Reload page to show updated attendance
-        setTimeout(() => location.reload(), 2000);
-    })
-    .catch(error => {
-        showStatus('Error submitting attendance: ' + error.message, 'error');
-    });
-}
-
 // Initialize on page load
 window.onload = function() {
     getLocation();
-    startCamera();
 };
 </script>
 
