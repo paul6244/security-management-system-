@@ -284,12 +284,12 @@ textarea {
     <small style="color:#666;">This number will receive SMS verification codes for attendance check-in.</small>
 </div>
 
-<!-- Selfie Capture Section -->
+<!-- Staff Photo Section -->
 <div class="form-group full-width">
     <label>Staff Photo (Optional)</label>
     <div style="color:#666; padding:10px; background:#f9f9f9; border-radius:5px;">
-        <strong>Face capture moved to attendance page</strong><br>
-        Staff photo will be captured during first attendance check-in for face verification setup.
+        <strong>SMS Verification System</strong><br>
+        Staff will use SMS verification codes for attendance check-in.
     </div>
 </div>
 
@@ -423,8 +423,6 @@ function showStatus(message, type) {
     }, 5000);
 }
 
-// Face capture moved to attendance page - no camera functions needed here
-
 // Validate form before submission
 function validateRegistrationForm() {
     const firstName = document.getElementById('firstName').value.trim();
@@ -449,8 +447,6 @@ function validateRegistrationForm() {
     
     return true;
 }
-
-</script>
 
 // Override form submission to validate first
 document.addEventListener('DOMContentLoaded', function() {

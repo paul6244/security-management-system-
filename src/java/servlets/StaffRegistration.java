@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import config.DatabaseConfig;
+import config.SimpleDatabaseConfig;
 
 @WebServlet("/StaffRegistration")
 public class StaffRegistration extends HttpServlet {
@@ -30,7 +30,7 @@ public class StaffRegistration extends HttpServlet {
         String employeeId = request.getParameter("employeeId");
         
         try {
-            Connection con = DatabaseConfig.getConnection();
+            Connection con = SimpleDatabaseConfig.getSimpleConnection();
             
             // Check if email already exists
             String checkSql = "SELECT COUNT(*) FROM staff_registration WHERE email = ?";
