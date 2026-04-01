@@ -429,7 +429,6 @@ body {
             <h5>🔧 Quick Fixes:</h5>
             <div class="button-group">
                 <button class="btn btn-small" onclick="showFixSQL()">Show Fix SQL</button>
-                <button class="btn btn-small" onclick="checkSelfieFolder()">Check Selfie Folder</button>
                 <button class="btn btn-small" onclick="reloadPage()">Reload Page</button>
             </div>
             
@@ -448,9 +447,7 @@ CREATE TABLE attendance (
     latitude DECIMAL(10, 6),
     longitude DECIMAL(10, 6),
     check_in_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    selfie_path VARCHAR(255),
-    face_verified BOOLEAN DEFAULT FALSE,
-    attendance_type VARCHAR(20) DEFAULT 'qr'
+    attendance_type VARCHAR(20) DEFAULT 'sms'
 );
 
 -- Add sample staff if needed (for testing)
@@ -465,9 +462,9 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                 </pre>
             </div>
             
-            <h6>📁 Selfie Folder:</h6>
-            <p><strong>Heroku Deployment:</strong> Selfie folder is automatically created in Heroku temporary storage</p>
-            <p>No manual folder creation needed - the system handles this automatically.</p>
+            <h6>� SMS Verification:</h6>
+            <p><strong>System Status:</strong> SMS verification system is active and ready</p>
+            <p>Staff members receive verification codes automatically when selected.</p>
         </div>
         <% } %>
 
@@ -495,7 +492,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                     try {
                         Class.forName("org.postgresql.Driver");
                         Connection con = SimpleDatabaseConfig.getSimpleConnection();
-                        String sql = "SELECT id, first_name, last_name, employee_id, selfie_path FROM staff_registration ORDER BY first_name, last_name";
+                        String sql = "SELECT id, first_name, last_name, employee_id FROM staff_registration ORDER BY first_name, last_name";
                         PreparedStatement ps = con.prepareStatement(sql);
                         ResultSet rs = ps.executeQuery();
                         
@@ -504,10 +501,9 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             String firstName = rs.getString("first_name");
                             String lastName = rs.getString("last_name");
                             String employeeId = rs.getString("employee_id");
-                            String selfiePath = rs.getString("selfie_path");
                             String fullName = firstName + " " + lastName;
                     %>
-                            <option value="<%= id %>" data-employee-id="<%= employeeId %>" data-selfie="<%= selfiePath != null ? selfiePath : "" %>">
+                            <option value="<%= id %>" data-employee-id="<%= employeeId %>">
                                 <%= fullName %> (<%= employeeId %>)
                             </option>
                     <%
@@ -590,7 +586,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                         if(tables.next()) {
                             // Table exists, now try to load data
                             String sql = "SELECT a.id, a.staff_id, a.employee_id, a.first_name, a.last_name, " +
-                                        "a.check_in_time, a.face_verified, a.selfie_path " +
+                                        "a.check_in_time " +
                                         "FROM attendance a " +
                                         "WHERE DATE(a.check_in_time) = CURRENT_DATE " +
                                         "ORDER BY a.check_in_time DESC";
@@ -628,21 +624,16 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                                 String firstName = rs.getString("first_name");
                                 String lastName = rs.getString("last_name");
                                 Timestamp checkInTime = rs.getTimestamp("check_in_time");
-                                boolean faceVerified = rs.getBoolean("face_verified");
-                                String selfiePath = rs.getString("selfie_path");
                                 
                                 String fullName = firstName + " " + lastName;
                                 String formattedTime = timeFormat.format(checkInTime);
-                        %>
+                    %>
                             <div class="attendance-item">
-                                <div class="info">
-                                    <div style="font-weight:600; color:#2c3e50;"><%= fullName %></div>
+                                <div>
+                                    <strong><%= fullName %></strong>
                                     <div style="font-size:12px; color:#666;"><%= employeeId %> • <%= formattedTime %></div>
-                                    <div style="font-size:11px; color:#27ae60;">✅ Face Verified</div>
+                                    <div style="font-size:11px; color:#27ae60;">✅ SMS Verified</div>
                                 </div>
-                                <% if(selfiePath != null && !selfiePath.isEmpty()) { %>
-                                    <img src="<%= selfiePath %>" class="photo" alt="Attendance Selfie">
-                                <% } %>
                             </div>
                         <%
                             }
@@ -717,14 +708,6 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
             </div>
         </div>
 
-        <!-- Camera Section -->
-        <div class="card">
-            <h3>Take Selfie</h3>
-            <div class="camera-section">
-                <video id="camera" autoplay></video>
-            </div>
-        </div>
-
         <!-- Action Buttons -->
         <div class="button-group">
             <button class="btn" onclick="submitAttendance()" id="submitBtn" disabled>
@@ -742,7 +725,6 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
     <input type="hidden" name="staff_id" id="staff_id">
     <input type="hidden" name="latitude" id="latitude">
     <input type="hidden" name="longitude" id="longitude">
-    <input type="hidden" name="selfie" id="selfie">
 </form>
 
 <script>
@@ -762,24 +744,6 @@ function showStatus(message, type) {
 function showFixSQL() {
     const fixDiv = document.getElementById('fixSQL');
     fixDiv.style.display = fixDiv.style.display === 'none' ? 'block' : 'none';
-}
-
-function checkSelfieFolder() {
-    // Check selfie folder status for Heroku deployment
-    showStatus('Checking selfie folder status for Heroku deployment...', 'info');
-    
-    fetch('CreateSelfieFolder')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showStatus('✅ Selfie folder status: ' + data.message, 'success');
-            } else {
-                showStatus('❌ Selfie folder issue: ' + data.message, 'error');
-            }
-        })
-        .catch(error => {
-            showStatus('Error checking selfie folder: ' + error.message, 'error');
-        });
 }
 
 function reloadPage() {
@@ -807,19 +771,6 @@ function loadStaffPhoto() {
     
     const selectedOption = staffSelect.options[staffSelect.selectedIndex];
     const staffName = selectedOption.text;
-    const selfiePath = selectedOption.getAttribute('data-selfie');
-    
-    const photoDisplay = document.getElementById('registrationPhotoDisplay');
-    const photoImg = document.getElementById('registrationPhoto');
-    
-    if(selfiePath && selfiePath.trim() !== '') {
-        photoImg.src = selfiePath;
-        photoDisplay.style.display = 'block';
-        showStatus('Loaded registration photo for ' + staffName + '. Sending verification code...', 'success');
-    } else {
-        photoDisplay.style.display = 'none';
-        showStatus('No registration photo found for ' + staffName + '. First check-in will capture face photo. Sending verification code...', 'info');
-    }
     
     document.getElementById('staff_id').value = staffId;
     document.getElementById('userInfo').innerHTML = '<strong>Selected:</strong><br>' + staffName;
@@ -919,25 +870,7 @@ function getLocation() {
     }
 }
 
-// Camera for Selfie
-let video = document.getElementById("camera");
-let stream = null;
-
-function startCamera() {
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(mediaStream) {
-            stream = mediaStream;
-            video.srcObject = stream;
-            showStatus('Camera ready', 'success');
-        })
-        .catch(function(error) {
-            showStatus('Unable to access camera', 'error');
-        });
-    } else {
-        showStatus('Camera not supported', 'error');
-    }
-}
+// Initialize on page load
 
 // Check if form is ready to submit
 function checkFormReady() {
