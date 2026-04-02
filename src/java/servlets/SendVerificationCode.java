@@ -39,6 +39,11 @@ public class SendVerificationCode extends HttpServlet {
                 String phoneNumber = rs.getString("phone");
                 String fullName = rs.getString("full_name");
                 
+                // Ensure phone number has country code for SMS
+                if (!phoneNumber.startsWith("+")) {
+                    phoneNumber = "+233" + phoneNumber; // Add Ghana country code
+                }
+                
                 // Generate 6-digit verification code
                 Random random = new Random();
                 String verificationCode = String.format("%06d", random.nextInt(999999));
