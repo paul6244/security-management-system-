@@ -280,7 +280,7 @@ textarea {
 
 <div class="form-group full-width">
     <label for="phone">Phone Number (Required for SMS Verification)</label>
-    <input type="tel" id="phone" name="phone" required placeholder="Enter phone number (e.g., +1234567890)" pattern="[+][0-9]{10,15}" title="Please enter phone number with country code (e.g., +1234567890)">
+    <input type="tel" id="phone" name="phone" required placeholder="Enter phone number (e.g., +233596244927)" pattern="^\+[0-9]{10,15}$" title="Please enter phone number with country code (e.g., +233596244927)">
     <small style="color:#666;">This number will receive SMS verification codes for attendance check-in.</small>
 </div>
 
@@ -430,9 +430,9 @@ function validateRegistrationForm() {
     }
     
     // Phone validation
-    const phonePattern = /^[+][0-9]{10,15}$/;
+    const phonePattern = /^\+[0-9]{10,15}$/;
     if(!phonePattern.test(phone)) {
-        showStatus('Please enter a valid phone number with country code (e.g., +1234567890)', 'error');
+        showStatus('Please enter a valid phone number with country code (e.g., +233596244927)', 'error');
         return false;
     }
     
