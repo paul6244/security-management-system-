@@ -1,6 +1,5 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="config.DatabaseConfig" %>
 <%@ page import="config.SimpleDatabaseConfig" %>
 
 <%
@@ -14,7 +13,7 @@ if(session.getAttribute("username")==null){
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Face Recognition Attendance System</title>
+<title>SMS Verification Attendance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 <style>
 body {
@@ -210,18 +209,6 @@ body {
     border-radius:8px;
 }
 
-.camera-section {
-    text-align:center;
-    margin:20px 0;
-}
-
-.camera-section video {
-    width:100%;
-    max-width:400px;
-    border:2px solid #ddd;
-    border-radius:8px;
-}
-
 .attendance-list {
     max-height:300px;
     overflow-y:auto;
@@ -316,7 +303,7 @@ body {
 </head>
 <body>
 <div class="navbar">
-    Security Management System - Face Recognition Attendance
+    Security Management System - SMS Verification Attendance
 </div>
 
 <div class="container">
@@ -480,9 +467,9 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
             </div>
         </div>
 
-        <!-- Face Recognition Section -->
+        <!-- SMS Verification Attendance Section -->
         <div class="card">
-            <h3>Face Recognition Attendance</h3>
+            <h3>SMS Verification Attendance</h3>
             
             <div class="form-group">
                 <label for="staffSelect">Select Staff Member:</label>
@@ -768,7 +755,6 @@ function loadStaffPhoto() {
         
         // Hide all sections
         document.getElementById('verificationSection').style.display = 'none';
-        document.getElementById('faceCaptureSection').style.display = 'none';
         document.getElementById('attendanceActionSection').style.display = 'none';
         
         checkFormReady();
@@ -896,8 +882,8 @@ function checkFormReady() {
     }
 }
 
-// Submit Attendance
-function submitAttendance() {
+// Submit Attendance (SMS Verification Only)
+function submitAttendance(action) {
     const staffId = document.getElementById("staff_id").value;
     const lat = document.getElementById("latitude").value;
     const lng = document.getElementById("longitude").value;
@@ -907,219 +893,45 @@ function submitAttendance() {
         return;
     }
     
-    if(!stream || !video.videoWidth || !video.videoHeight) {
-        showStatus('Camera not ready for selfie capture', 'error');
+    // Check if SMS verification is complete
+    if(!sessionStorage.getItem('verifiedForattendance') || sessionStorage.getItem('verifiedForattendance') !== staffId) {
+        showStatus('Please complete SMS verification first', 'error');
         return;
     }
     
-    const staffSelect = document.getElementById('staffSelect');
-    const selectedOption = staffSelect.options[staffSelect.selectedIndex];
-    const staffName = selectedOption.text;
-    const registrationSelfiePath = selectedOption.getAttribute('data-selfie');
+    // Create form data for submission
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'ScanQR';
     
-    if(!staffId) {
-        showStatus('Please select a staff member first', 'error');
-        return;
-    }
+    // Add hidden fields
+    const staffIdField = document.createElement('input');
+    staffIdField.type = 'hidden';
+    staffIdField.name = 'employeeId';
+    staffIdField.value = staffId;
+    form.appendChild(staffIdField);
     
-    if(!registrationSelfiePath || registrationSelfiePath.trim() === '') {
-        showStatus('No registration photo available for face verification. Please capture selfie only.', 'info');
-        captureSelfieOnly();
-        return;
-    }
+    const actionField = document.createElement('input');
+    actionField.type = 'hidden';
+    actionField.name = 'action';
+    actionField.value = action;
+    form.appendChild(actionField);
     
-    showStatus('Capturing selfie for face verification...', 'info');
+    const latField = document.createElement('input');
+    latField.type = 'hidden';
+    latField.name = 'latitude';
+    latField.value = lat;
+    form.appendChild(latField);
     
-    try {
-        let canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        
-        let ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-        
-        let dataURL = canvas.toDataURL("image/png");
-        document.getElementById("selfie").value = dataURL;
-        
-        // Perform face verification
-        verifyFace(dataURL, registrationSelfiePath, staffName);
-        
-    } catch(error) {
-        showStatus('Error capturing selfie: ' + error.message, 'error');
-        console.error('Selfie capture error:', error);
-    }
-}
-
-function captureSelfieOnly() {
-    const video = document.getElementById("camera");
+    const lngField = document.createElement('input');
+    lngField.type = 'hidden';
+    lngField.name = 'longitude';
+    lngField.value = lng;
+    form.appendChild(lngField);
     
-    if(!stream || !video.videoWidth || !video.videoHeight) {
-        showStatus('Camera not ready for selfie capture', 'error');
-        return;
-    }
-    
-    showStatus('Capturing selfie without face verification...', 'info');
-    
-    try {
-        let canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        
-        let ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-        
-        let dataURL = canvas.toDataURL("image/png");
-        document.getElementById("selfie").value = dataURL;
-        
-        const submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-        
-        // Submit form without face verification
-        document.getElementById("attendanceForm").submit();
-        
-    } catch(error) {
-        showStatus('Error capturing selfie: ' + error.message, 'error');
-        console.error('Selfie capture error:', error);
-    }
-}
-
-function verifyFace(currentSelfieDataURL, registrationPhotoPath, staffName) {
-    showStatus('Performing face verification...', 'info');
-    
-    // Create image elements for comparison
-    const currentImg = new Image();
-    const registrationImg = new Image();
-    
-    currentImg.onload = function() {
-        registrationImg.onload = function() {
-            // Simple face verification using canvas comparison
-            const canvas1 = document.createElement('canvas');
-            const canvas2 = document.createElement('canvas');
-            const ctx1 = canvas1.getContext('2d');
-            const ctx2 = canvas2.getContext('2d');
-            
-            // Set canvas dimensions
-            canvas1.width = currentImg.width;
-            canvas1.height = currentImg.height;
-            canvas2.width = registrationImg.width;
-            canvas2.height = registrationImg.height;
-            
-            // Draw images
-            ctx1.drawImage(currentImg, 0, 0);
-            ctx2.drawImage(registrationImg, 0, 0);
-            
-            // Get image data for comparison
-            const imageData1 = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
-            const imageData2 = ctx2.getImageData(0, 0, canvas2.width, canvas2.height);
-            
-            // Simple face similarity calculation
-            const similarity = calculateFaceSimilarity(imageData1, imageData2);
-            
-            // Verification threshold (70% similarity)
-            const threshold = 0.7;
-            
-            if (similarity >= threshold) {
-                showStatus('✅ Face verified for ' + staffName + '! Similarity: ' + (similarity * 100) + '%', 'success');
-                
-                // Submit form after successful verification
-                setTimeout(() => {
-                    const submitBtn = document.getElementById("submitBtn");
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Submitting...';
-                    document.getElementById("attendanceForm").submit();
-                }, 1000);
-            } else {
-                showStatus('❌ Face verification failed for ' + staffName + '. Similarity: ' + (similarity * 100) + '% (Required: 70%)', 'error');
-                
-                // Allow retry or proceed without verification
-                setTimeout(() => {
-                    if (confirm(`Face verification failed. Would you like to:\n\n1. Try Again\n2. Proceed Without Verification\n3. Cancel`)) {
-                        const choice = prompt('Enter your choice (1, 2, or 3):');
-                        
-                        if (choice === '1') {
-                            captureSelfie(); // Try again
-                        } else if (choice === '2') {
-                            captureSelfieOnly(); // Proceed without verification
-                        }
-                        // Choice 3 (Cancel) does nothing
-                    }
-                }, 2000);
-            }
-        };
-        
-        registrationImg.onerror = function() {
-            showStatus('Error loading registration photo. Proceeding without face verification...', 'error');
-            captureSelfieOnly();
-        };
-        
-        // Load registration photo
-        registrationImg.src = registrationPhotoPath;
-    };
-    
-    currentImg.onerror = function() {
-        showStatus('Error processing current selfie. Please try again.', 'error');
-    };
-    
-    // Load current selfie
-    currentImg.src = currentSelfieDataURL;
-}
-
-function calculateFaceSimilarity(imageData1, imageData2) {
-    const data1 = imageData1.data;
-    const data2 = imageData2.data;
-    
-    // Resize images to same dimensions for comparison
-    const size = 100; // Compare 100x100 region
-    const stride1 = Math.floor(imageData1.width / size);
-    const stride2 = Math.floor(imageData2.width / size);
-    
-    let similarity = 0;
-    let pixelCount = 0;
-    
-    // Sample pixels for comparison (faster than full comparison)
-    for (let y = 0; y < size; y += 5) {
-        for (let x = 0; x < size; x += 5) {
-            const idx1 = (y * stride1 * imageData1.width + x * stride1) * 4;
-            const idx2 = (y * stride2 * imageData2.width + x * stride2) * 4;
-            
-            if (idx1 < data1.length && idx2 < data2.length) {
-                // Compare RGB values
-                const r1 = data1[idx1];
-                const g1 = data1[idx1 + 1];
-                const b1 = data1[idx1 + 2];
-                
-                const r2 = data2[idx2];
-                const g2 = data2[idx2 + 1];
-                const b2 = data2[idx2 + 2];
-                
-                // Calculate color difference
-                const diff = Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
-                const maxDiff = 255 * 3; // Maximum possible difference
-                
-                // Convert to similarity (0-1)
-                const pixelSimilarity = 1 - (diff / maxDiff);
-                
-                similarity += pixelSimilarity;
-                pixelCount++;
-            }
-        }
-    }
-    
-    // Average similarity
-    return pixelCount > 0 ? similarity / pixelCount : 0;
-}
-
-// Reset Attendance
-function resetAttendance() {
-    document.getElementById("staff_id").value = "";
-    document.getElementById("userInfo").textContent = "No staff selected yet";
-    document.getElementById("submitBtn").disabled = true;
-    document.getElementById("submitBtn").classList.remove('btn-success');
-    document.getElementById("submitBtn").innerHTML = 'Submit Attendance';
-    document.getElementById("staffSelect").selectedIndex = 0;
-    document.getElementById("registrationPhotoDisplay").style.display = 'none';
-    showStatus('Attendance reset', 'info');
+    // Submit the form
+    document.body.appendChild(form);
+    form.submit();
 }
 
 // SMS Verification Functions
