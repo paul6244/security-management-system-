@@ -30,14 +30,16 @@ public class SendVerificationCode extends HttpServlet {
             Connection con = SimpleDatabaseConfig.getSimpleConnection();
             
             // Get staff phone number
-            String sql = "SELECT phone, full_name FROM staff_registration WHERE employee_id = ?";
+            String sql = "SELECT phone, first_name, last_name FROM staff_registration WHERE employee_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, employeeId);
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
                 String phoneNumber = rs.getString("phone");
-                String fullName = rs.getString("full_name");
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+                String fullName = firstName + " " + lastName;
                 
                 // Ensure phone number has country code for SMS
                 if (!phoneNumber.startsWith("+")) {

@@ -29,6 +29,17 @@ public class StaffRegistration extends HttpServlet {
         String position = request.getParameter("position");
         String employeeId = request.getParameter("employeeId");
         
+        // Split full name into first and last name
+        String firstName = "";
+        String lastName = "";
+        if (fullName != null && fullName.trim().contains(" ")) {
+            String[] nameParts = fullName.trim().split("\\s+", 2);
+            firstName = nameParts[0];
+            lastName = nameParts.length > 1 ? nameParts[1] : "";
+        } else if (fullName != null) {
+            firstName = fullName.trim();
+        }
+        
         try {
             Connection con = SimpleDatabaseConfig.getSimpleConnection();
             
@@ -42,10 +53,11 @@ public class StaffRegistration extends HttpServlet {
                 out.println("<script>alert('Email already registered!'); window.location.href='staffRegistration.jsp';</script>");
             } else {
                 // Insert new staff registration
-                String insertSql = "INSERT INTO staff_registration (full_name, email, phone, department, position, employee_id) VALUES (?, ?, ?, ?, ?, ?)";
+                String insertSql = "INSERT INTO staff_registration (first_name, last_name, email, phone, department, position, employee_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement insertPs = con.prepareStatement(insertSql);
-                insertPs.setString(1, fullName);
-                insertPs.setString(2, email);
+                insertPs.setString(1, firstName);
+                insertPs.setString(2, lastName);
+                insertPs.setString(3, email);
                 insertPs.setString(3, phone);
                 insertPs.setString(4, department);
                 insertPs.setString(5, position);
