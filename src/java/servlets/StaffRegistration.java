@@ -58,10 +58,10 @@ public class StaffRegistration extends HttpServlet {
                 insertPs.setString(1, firstName);
                 insertPs.setString(2, lastName);
                 insertPs.setString(3, email);
-                insertPs.setString(3, phone);
-                insertPs.setString(4, department);
-                insertPs.setString(5, position);
-                insertPs.setString(6, employeeId);
+                insertPs.setString(4, phone);
+                insertPs.setString(5, department);
+                insertPs.setString(6, position);
+                insertPs.setString(7, employeeId);
                 
                 int result = insertPs.executeUpdate();
                 
