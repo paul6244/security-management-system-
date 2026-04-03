@@ -81,6 +81,20 @@ public class SendVerificationCode extends HttpServlet {
         // Simulate SMS sending - in production, integrate with Twilio, AWS SNS, etc.
         System.out.println("SMS SIMULATION: Sending verification code " + code + " to " + phoneNumber + " for " + action);
         System.out.println("SMS MESSAGE: Hi " + fullName + ", your verification code for " + action + " is: " + code);
+        
+        // For testing purposes, we'll store the code in session so it can be displayed
+        // In production, this would be replaced with actual SMS sending
+        try {
+            // Store code in session for debugging (remove in production)
+            HttpServletRequest request = null; // This would be passed as parameter in real implementation
+            // For now, just log the code prominently
+            System.out.println("=================================================");
+            System.out.println("IMPORTANT: Your verification code is: " + code);
+            System.out.println("=================================================");
+        } catch (Exception e) {
+            System.out.println("Session storage error: " + e.getMessage());
+        }
+        
         return true; // Simulate success
     }
     
