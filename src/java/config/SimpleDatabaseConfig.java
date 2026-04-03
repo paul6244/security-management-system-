@@ -35,42 +35,29 @@ public class SimpleDatabaseConfig {
             // Load driver
             Class.forName("org.postgresql.Driver");
             
-            // Try multiple connection approaches
-            Connection conn = null;
+            // Try connection with different SSL settings
+            String[] jdbcUrls = {
+                "jdbc:postgresql://" + host + ":" + port + "/" + database + "?ssl=true&sslmode=require",
+                "jdbc:postgresql://" + host + ":" + port + "/" + database,
+                "jdbc:postgresql://" + host + ":" + port + "/" + database + "?useSSL=true&ssl=true"
+            };
             
-            // Approach 1: Try with SSL (for AWS RDS)
-            try {
-                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + database + "?ssl=true&sslmode=require";
-                System.out.println("SIMPLE DEBUG: Trying SSL connection: " + jdbcUrl);
-                conn = DriverManager.getConnection(jdbcUrl, username, password);
-                System.out.println("SIMPLE DEBUG: SSL Connection successful!");
-                return conn;
-            } catch (Exception sslException) {
-                System.out.println("SIMPLE DEBUG: SSL connection failed: " + sslException.getMessage());
-                
-                // Approach 2: Try without SSL (for local development)
+            for (int i = 0; i < jdbcUrls.length; i++) {
                 try {
-                    String jdbcUrlNoSSL = "jdbc:postgresql://" + host + ":" + port + "/" + database;
-                    System.out.println("SIMPLE DEBUG: Trying non-SSL connection: " + jdbcUrlNoSSL);
-                    conn = DriverManager.getConnection(jdbcUrlNoSSL, username, password);
-                    System.out.println("SIMPLE DEBUG: Non-SSL Connection successful!");
+                    System.out.println("SIMPLE DEBUG: Attempt " + (i+1) + ": " + jdbcUrls[i]);
+                    Connection conn = DriverManager.getConnection(jdbcUrls[i], username, password);
+                    System.out.println("SIMPLE DEBUG: Connection successful with attempt " + (i+1));
                     return conn;
-                } catch (Exception noSSLException) {
-                    System.out.println("SIMPLE DEBUG: Non-SSL connection also failed: " + noSSLException.getMessage());
-                    
-                    // Approach 3: Try with legacy SSL settings
-                    try {
-                        String jdbcUrlLegacy = "jdbc:postgresql://" + host + ":" + port + "/" + database + "?useSSL=true&ssl=true";
-                        System.out.println("SIMPLE DEBUG: Trying legacy SSL connection: " + jdbcUrlLegacy);
-                        conn = DriverManager.getConnection(jdbcUrlLegacy, username, password);
-                        System.out.println("SIMPLE DEBUG: Legacy SSL Connection successful!");
-                        return conn;
-                    } catch (Exception legacyException) {
-                        System.out.println("SIMPLE DEBUG: All connection attempts failed");
-                        throw new SQLException("All database connection attempts failed. Last error: " + legacyException.getMessage(), legacyException);
+                } catch (Exception e) {
+                    System.out.println("SIMPLE DEBUG: Attempt " + (i+1) + " failed: " + e.getMessage());
+                    if (i == jdbcUrls.length - 1) {
+                        // Last attempt failed, throw the exception
+                        throw new SQLException("All database connection attempts failed. Last error: " + e.getMessage(), e);
                     }
                 }
             }
+            
+            throw new SQLException("Unexpected error in database connection");
             
         } catch (Exception e) {
             System.out.println("SIMPLE ERROR: " + e.getMessage());
