@@ -964,6 +964,26 @@ function sendVerificationCode(action) {
     .then(data => {
         if (data.success) {
             showStatus(data.message, 'success');
+            
+            // Display verification code prominently for testing
+            if (data.code) {
+                const codeDisplay = document.createElement('div');
+                codeDisplay.style.cssText = 'background: #e8f5e8; border: 2px solid #4CAF50; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; font-size: 18px; font-weight: bold; color: #2e7d32;';
+                codeDisplay.innerHTML = `
+                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">📱 TESTING: Your verification code is:</div>
+                    <div style="font-size: 24px; letter-spacing: 3px; background: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; display: inline-block;">${data.code}</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 8px;">Use this code to verify (SMS simulation for testing)</div>
+                `;
+                
+                // Insert after the verification section
+                const verificationSection = document.getElementById('verificationSection');
+                verificationSection.parentNode.insertBefore(codeDisplay, verificationSection.nextSibling);
+                
+                // Also log to console
+                console.log('=================================================');
+                console.log('🔔 VERIFICATION CODE FOR TESTING: ' + data.code);
+                console.log('=================================================');
+            }
         } else {
             showStatus(data.message, 'error');
         }
