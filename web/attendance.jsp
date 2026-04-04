@@ -985,22 +985,42 @@ function sendVerificationCode(action) {
             
             // Display verification code prominently for testing
             if (data.code) {
+                // Remove any existing code displays first
+                const existingDisplays = document.querySelectorAll('[style*="background: #e8f5e8"]');
+                existingDisplays.forEach(display => display.remove());
+                
                 const codeDisplay = document.createElement('div');
                 codeDisplay.style.cssText = 'background: #e8f5e8; border: 2px solid #4CAF50; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; font-size: 18px; font-weight: bold; color: #2e7d32;';
                 codeDisplay.innerHTML = `
                     <div style="font-size: 14px; color: #666; margin-bottom: 8px;">📱 TESTING: Your verification code is:</div>
-                    <div style="font-size: 24px; letter-spacing: 3px; background: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; display: inline-block;">${data.code}</div>
+                    <div style="font-size: 32px; letter-spacing: 5px; background: #4CAF50; color: white; padding: 15px 25px; border-radius: 8px; display: inline-block; margin: 10px 0; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${data.code}</div>
                     <div style="font-size: 12px; color: #888; margin-top: 8px;">Use this code to verify (SMS simulation for testing)</div>
+                    <div style="font-size: 11px; color: #ff5722; margin-top: 5px; font-weight: normal;">⚠️ CODE: ${data.code}</div>
                 `;
                 
                 // Insert after the verification section
                 const verificationSection = document.getElementById('verificationSection');
                 verificationSection.parentNode.insertBefore(codeDisplay, verificationSection.nextSibling);
                 
-                // Also log to console
-                console.log('=================================================');
-                console.log('🔔 VERIFICATION CODE FOR TESTING: ' + data.code);
-                console.log('=================================================');
+                // Also show in multiple places
+                const statusDiv = document.getElementById('statusMessage');
+                const extraCode = document.createElement('div');
+                extraCode.style.cssText = 'background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin: 5px 0; text-align: center; font-size: 16px; color: #856404;';
+                extraCode.innerHTML = `🔔 VERIFICATION CODE: <strong style="font-size: 20px;">${data.code}</strong>`;
+                statusDiv.parentNode.insertBefore(extraCode, statusDiv.nextSibling);
+                
+                // Also log to console multiple times
+                console.log('='.repeat(50));
+                console.log('🔔🔔🔔 VERIFICATION CODE FOR TESTING: ' + data.code + ' 🔔🔔🔔');
+                console.log('='.repeat(50));
+                console.log('COPY THIS CODE: ' + data.code);
+                console.log('='.repeat(50));
+                
+                // Also show in page title (temporary)
+                document.title = 'CODE: ' + data.code + ' - SMS Verification';
+                
+                // Also show alert for immediate visibility
+                alert('🔔 VERIFICATION CODE: ' + data.code + '\n\nUse this code for SMS verification testing!');
             }
         } else {
             showStatus(data.message, 'error');
