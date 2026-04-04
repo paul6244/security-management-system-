@@ -986,16 +986,23 @@ function sendVerificationCode(action) {
             // Display verification code prominently for testing
             if (data.code) {
                 // Remove any existing code displays first
-                const existingDisplays = document.querySelectorAll('[style*="background: #e8f5e8"]');
+                const existingDisplays = document.querySelectorAll('[style*="linear-gradient(135deg, #4CAF50"]');
                 existingDisplays.forEach(display => display.remove());
                 
                 const codeDisplay = document.createElement('div');
-                codeDisplay.style.cssText = 'background: #e8f5e8; border: 2px solid #4CAF50; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; font-size: 18px; font-weight: bold; color: #2e7d32;';
+                codeDisplay.style.cssText = 'background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #2e7d32; border-radius: 12px; padding: 25px; margin: 15px 0; text-align: center; font-size: 20px; font-weight: bold; color: white; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3); position: relative; overflow: hidden;';
                 codeDisplay.innerHTML = `
-                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">📱 TESTING: Your verification code is:</div>
-                    <div style="font-size: 32px; letter-spacing: 5px; background: #4CAF50; color: white; padding: 15px 25px; border-radius: 8px; display: inline-block; margin: 10px 0; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${data.code}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 8px;">Use this code to verify (SMS simulation for testing)</div>
-                    <div style="font-size: 11px; color: #ff5722; margin-top: 5px; font-weight: normal;">⚠️ CODE: ${data.code}</div>
+                    <div style="font-size: 16px; color: rgba(255,255,255,0.9); margin-bottom: 12px; font-weight: 500;">📱 VERIFICATION CODE FOR TESTING</div>
+                    <div style="font-size: 48px; letter-spacing: 8px; background: rgba(255,255,255,0.15); padding: 20px 30px; border-radius: 10px; display: inline-block; margin: 15px 0; font-weight: bold; text-shadow: 3px 3px 6px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px);">${data.code}</div>
+                    <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 12px; font-weight: 400;">Use this code to verify your attendance</div>
+                    <div style="font-size: 16px; color: #ffeb3b; margin-top: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">⚠️ CODE: ${data.code}</div>
+                    <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent); transform: rotate(45deg); animation: shine 3s infinite;"></div>
+                    <style>
+                        @keyframes shine {
+                            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+                        }
+                    </style>
                 `;
                 
                 // Insert after the verification section
