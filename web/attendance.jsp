@@ -833,7 +833,28 @@ function submitManualStaff() {
     document.getElementById('userInfo').innerHTML = '<strong>Manual Entry:</strong><br>ID: ' + staffId;
     
     hideManualStaffEntry();
+    
+    // Send verification code for manual staff
+    sendVerificationCodeOnSelection();
+    
     checkFormReady();
+}
+
+function resetAttendance() {
+    document.getElementById("staff_id").value = "";
+    document.getElementById("userInfo").textContent = "No staff selected yet";
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("submitBtn").classList.remove('btn-success');
+    document.getElementById("submitBtn").innerHTML = 'Submit Attendance';
+    document.getElementById("staffSelect").selectedIndex = 0;
+    document.getElementById("verificationSection").style.display = 'none';
+    document.getElementById("attendanceActionSection").style.display = 'none';
+    document.getElementById("verificationCode").value = '';
+    showStatus('Attendance reset', 'info');
+    
+    // Clear any verification code displays
+    const codeDisplays = document.querySelectorAll('[style*="background: #e8f5e8"]');
+    codeDisplays.forEach(display => display.remove());
 }
 
 // Get GPS Location
@@ -846,8 +867,7 @@ function getLocation() {
                 
                 document.getElementById("latitude").value = lat;
                 document.getElementById("longitude").value = lng;
-                document.getElementById("locationInfo").textContent = lat + ', ' + lng;
-                showStatus('Location captured successfully', 'success');
+                document.getElementById("locationInfo").textContent = lat + ", " + lng;
                 
                 checkFormReady();
             },
@@ -861,8 +881,6 @@ function getLocation() {
         showStatus('GPS not supported by browser', 'error');
     }
 }
-
-// Initialize on page load
 
 // Check if form is ready to submit
 function checkFormReady() {
