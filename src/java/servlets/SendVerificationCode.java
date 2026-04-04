@@ -9,10 +9,11 @@ import config.SMSConfig;
 import java.util.Random;
 import java.net.URI;
 import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Account;
-import com.twilio.rest.api.v2010.account.MessageCreator;
+import com.twilio.rest.api.TwilioRestClient;
+import com.twilio.base.ResourceSet;
+import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
-import com.twilio.type.api.v2010.account.Message;
+import com.twilio.type.api.v2010.account.Creator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -93,7 +94,7 @@ public class SendVerificationCode extends HttpServlet {
     private boolean sendRealSMS(String phoneNumber, String code, String fullName, String action) {
         try {
             // Initialize Twilio client
-            Twilio twilio = new Twilio(SMSConfig.getAccountSid(), SMSConfig.getAuthToken());
+            TwilioRestClient client = new TwilioRestClient.Builder(SMSConfig.getAccountSid(), SMSConfig.getAuthToken()).build();
             
             PhoneNumber to = new PhoneNumber(phoneNumber);
             PhoneNumber from = new PhoneNumber(SMSConfig.getTwilioNumber());
@@ -102,12 +103,12 @@ public class SendVerificationCode extends HttpServlet {
             String message = String.format("Hi %s, your verification code for %s is: %s", fullName, action, code);
             
             // Send SMS
-            MessageCreator creator = Message.creator(
+            Creator messageCreator = Message.creator(
                 to,
                 from
             ).setBody(message);
             
-            Message smsMessage = creator.create();
+            Message smsMessage = messageCreator.create(client);
             
             System.out.println("REAL SMS SENT: " + message + " to " + phoneNumber);
             return true;
