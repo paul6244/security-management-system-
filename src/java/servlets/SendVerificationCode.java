@@ -59,13 +59,8 @@ public class SendVerificationCode extends HttpServlet {
                 request.getSession().setAttribute("verifiedEmployeeId", employeeId);
                 request.getSession().setAttribute("verificationAction", action);
                 
-                // Send verification code (real SMS or simulation)
-                boolean smsSent = false;
-                if (SMSConfig.isRealSMSEnabled()) {
-                    smsSent = sendRealSMS(phoneNumber, verificationCode, fullName, action);
-                } else {
-                    smsSent = simulateSMSSending(phoneNumber, verificationCode, fullName, action);
-                }
+                // Send verification code (simulation only for now)
+                boolean smsSent = simulateSMSSending(phoneNumber, verificationCode, fullName, action);
                 
                 if (smsSent) {
                     String maskedPhone = maskPhoneNumber(phoneNumber);
@@ -85,33 +80,6 @@ public class SendVerificationCode extends HttpServlet {
         } catch (Exception e) {
             String errorMessage = e.getMessage().replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
             out.println("{\"success\": false, \"message\": \"Error: " + errorMessage + "\"}");
-        }
-    }
-    
-    private boolean sendRealSMS(String phoneNumber, String code, String fullName, String action) {
-        try {
-            // Initialize Twilio
-            Twilio.init(SMSConfig.getAccountSid(), SMSConfig.getAuthToken());
-            
-            PhoneNumber to = new PhoneNumber(phoneNumber);
-            PhoneNumber from = new PhoneNumber(SMSConfig.getTwilioNumber());
-            
-            // Create SMS message
-            String message = String.format("Hi %s, your verification code for %s is: %s", fullName, action, code);
-            
-            // Send SMS using correct API
-            Message smsMessage = Message.creator(
-                to,
-                from
-            ).setBody(message).create();
-            
-            System.out.println("REAL SMS SENT: " + message + " to " + phoneNumber);
-            return true;
-            
-        } catch (Exception e) {
-            System.out.println("SMS sending failed: " + e.getMessage());
-            e.printStackTrace();
-            return false;
         }
     }
     
