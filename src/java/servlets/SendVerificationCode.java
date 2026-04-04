@@ -8,12 +8,6 @@ import config.SimpleDatabaseConfig;
 import config.SMSConfig;
 import java.util.Random;
 import java.net.URI;
-import com.twilio.Twilio;
-import com.twilio.rest.api.TwilioRestClient;
-import com.twilio.base.ResourceSet;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
-import com.twilio.type.api.v2010.account.Creator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -62,13 +56,8 @@ public class SendVerificationCode extends HttpServlet {
                 request.getSession().setAttribute("verifiedEmployeeId", employeeId);
                 request.getSession().setAttribute("verificationAction", action);
                 
-                // Send verification code (real SMS or simulation)
-                boolean smsSent = false;
-                if (SMSConfig.isRealSMSEnabled()) {
-                    smsSent = sendRealSMS(phoneNumber, verificationCode, fullName, action);
-                } else {
-                    smsSent = simulateSMSSending(phoneNumber, verificationCode, fullName, action);
-                }
+                // Send verification code (simulation only for now)
+                boolean smsSent = simulateSMSSending(phoneNumber, verificationCode, fullName, action);
                 
                 if (smsSent) {
                     String maskedPhone = maskPhoneNumber(phoneNumber);
@@ -88,35 +77,6 @@ public class SendVerificationCode extends HttpServlet {
         } catch (Exception e) {
             String errorMessage = e.getMessage().replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
             out.println("{\"success\": false, \"message\": \"Error: " + errorMessage + "\"}");
-        }
-    }
-    
-    private boolean sendRealSMS(String phoneNumber, String code, String fullName, String action) {
-        try {
-            // Initialize Twilio client
-            TwilioRestClient client = new TwilioRestClient.Builder(SMSConfig.getAccountSid(), SMSConfig.getAuthToken()).build();
-            
-            PhoneNumber to = new PhoneNumber(phoneNumber);
-            PhoneNumber from = new PhoneNumber(SMSConfig.getTwilioNumber());
-            
-            // Create SMS message
-            String message = String.format("Hi %s, your verification code for %s is: %s", fullName, action, code);
-            
-            // Send SMS
-            Creator messageCreator = Message.creator(
-                to,
-                from
-            ).setBody(message);
-            
-            Message smsMessage = messageCreator.create(client);
-            
-            System.out.println("REAL SMS SENT: " + message + " to " + phoneNumber);
-            return true;
-            
-        } catch (Exception e) {
-            System.out.println("SMS sending failed: " + e.getMessage());
-            e.printStackTrace();
-            return false;
         }
     }
     

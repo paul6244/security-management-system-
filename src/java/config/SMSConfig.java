@@ -1,13 +1,8 @@
 package config;
 
 public class SMSConfig {
-    // Twilio Configuration (you need to set these values)
-    public static final String ACCOUNT_SID = "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Your Twilio Account SID
-    public static final String AUTH_TOKEN = "your_auth_token_here"; // Your Twilio Auth Token
-    public static final String TWILIO_NUMBER = "+1234567890"; // Your Twilio phone number
-    
     // For testing, set to true to use real SMS, false to simulate
-    public static final boolean USE_REAL_SMS = false; // Change to true for production
+    public static final boolean USE_REAL_SMS = false; // Keep false for now until Twilio is properly configured
     
     // Ghana country code for auto-formatting
     public static final String GHANA_COUNTRY_CODE = "+233";
@@ -16,15 +11,16 @@ public class SMSConfig {
         return USE_REAL_SMS;
     }
     
+    // Placeholder for future Twilio configuration
     public static String getTwilioNumber() {
-        return TWILIO_NUMBER;
+        return "+1234567890"; // Placeholder Twilio number
     }
     
     public static String getAccountSid() {
-        return ACCOUNT_SID;
+        return "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Placeholder Account SID
     }
     
     public static String getAuthToken() {
-        return AUTH_TOKEN;
+        return "your_auth_token_here"; // Placeholder Auth Token
     }
 }
