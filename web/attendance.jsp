@@ -1066,8 +1066,16 @@ function verifyCode() {
 }
 
 function resendCode() {
-    if (currentEmployeeId && currentAction) {
-        sendVerificationCode(currentAction);
+    // Get current staff selection if not stored
+    if (!currentEmployeeId) {
+        const staffSelect = document.getElementById('staffSelect');
+        const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+        currentEmployeeId = selectedOption.getAttribute('data-employee-id');
+        currentAction = 'attendance'; // Default action for resend
+    }
+    
+    if (currentEmployeeId) {
+        sendVerificationCode(currentAction || 'attendance');
     } else {
         showStatus('Please select staff member first', 'error');
     }
