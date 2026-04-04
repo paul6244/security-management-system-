@@ -70,6 +70,13 @@
             <artifactId>webapp-runner</artifactId>
             <version>9.0.27.0</version>
         </dependency>
+        
+        <!-- Twilio for SMS sending -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>8.25.0</version>
+        </dependency>
     </dependencies>
     
     <build>
