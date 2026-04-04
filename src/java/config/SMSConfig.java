@@ -7,7 +7,7 @@ public class SMSConfig {
     public static final String TWILIO_NUMBER = "+1234567890"; // Your Twilio phone number
     
     // Set to true to enable real SMS sending
-    public static final boolean USE_REAL_SMS = true; // Change to true to send real SMS messages
+    public static final boolean USE_REAL_SMS = false; // Set to false for now, change to true when Twilio is configured
     
     // Ghana country code for auto-formatting
     public static final String GHANA_COUNTRY_CODE = "+233";

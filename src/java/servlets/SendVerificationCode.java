@@ -99,7 +99,7 @@ public class SendVerificationCode extends HttpServlet {
             // Create SMS message
             String message = String.format("Hi %s, your verification code for %s is: %s", fullName, action, code);
             
-            // Send SMS
+            // Send SMS using correct API
             Message smsMessage = Message.creator(
                 to,
                 from
