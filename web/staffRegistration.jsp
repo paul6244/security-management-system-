@@ -285,6 +285,137 @@ textarea {
     100% { transform: scale(1); }
 }
 
+/* Fingerprint Scanner Styles */
+.fingerprint-scanner {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.scanner-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #2c3e50, #34495e);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 2px 8px rgba(255, 255, 255, 0.1);
+    border: 3px solid #667eea;
+}
+
+.fingerprint-pattern {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    top: 10%;
+    left: 10%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.fp-line {
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #667eea 20%, 
+        #764ba2 50%, 
+        #667eea 80%, 
+        transparent 100%);
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+.fp-line:nth-child(1) { width: 70%; }
+.fp-line:nth-child(2) { width: 65%; }
+.fp-line:nth-child(3) { width: 75%; }
+.fp-line:nth-child(4) { width: 60%; }
+.fp-line:nth-child(5) { width: 70%; }
+.fp-line:nth-child(6) { width: 65%; }
+.fp-line:nth-child(7) { width: 75%; }
+.fp-line:nth-child(8) { width: 60%; }
+
+.scanner-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00ff88 25%, 
+        #00ff88 75%, 
+        transparent 100%);
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    animation: scan 2s linear infinite;
+    opacity: 0;
+}
+
+.scanner-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, 
+        rgba(102, 126, 234, 0.3) 0%, 
+        transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    animation: glow 2s ease-in-out infinite;
+}
+
+.scanner-label {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+@keyframes glow {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* Scanning state animation */
+.fingerprint-scanner.scanning .scanner-line {
+    opacity: 1;
+}
+
+.fingerprint-scanner.scanning .scanner-glow {
+    opacity: 1;
+}
+
+.fingerprint-scanner.scanning .scanner-inner {
+    border-color: #00ff88;
+    box-shadow: 
+        0 8px 32px rgba(0, 255, 136, 0.3),
+        inset 0 2px 8px rgba(0, 255, 136, 0.2);
+}
+
+.fingerprint-scanner.success .scanner-inner {
+    border-color: #27ae60;
+    background: linear-gradient(145deg, #27ae60, #2ecc71);
+}
+
+.fingerprint-scanner.error .scanner-inner {
+    border-color: #e74c3c;
+    background: linear-gradient(145deg, #c0392b, #e74c3c);
+}
+
 </style>
 </head>
 <body>
@@ -388,6 +519,25 @@ textarea {
 <div class="form-group full-width fingerprint-section">
     <label>Fingerprint Registration</label>
     <div class="fingerprint-container">
+        <!-- Fingerprint Scanner Image -->
+        <div class="fingerprint-scanner">
+            <div class="scanner-inner">
+                <div class="fingerprint-pattern">
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                    <div class="fp-line"></div>
+                </div>
+                <div class="scanner-line"></div>
+                <div class="scanner-glow"></div>
+            </div>
+            <div class="scanner-label">Place Finger Here</div>
+        </div>
+        
         <div class="fingerprint-status" id="fingerprintStatus">
             <div class="status-icon">Finger</div>
             <div class="status-text">Fingerprint not registered yet</div>
@@ -660,6 +810,11 @@ function registerFingerprint() {
     
     // Simulate fingerprint registration
     const statusDiv = document.getElementById('fingerprintStatus');
+    const scannerDiv = document.querySelector('.fingerprint-scanner');
+    
+    // Add scanning animation
+    scannerDiv.classList.add('scanning');
+    
     statusDiv.innerHTML = `
         <div class="status-icon scanning">Scanning</div>
         <div class="status-text">Scanning fingerprint...</div>
@@ -691,6 +846,10 @@ function registerFingerprint() {
         .then(data => {
             console.log('Response data:', data);
             if (data.success) {
+                // Remove scanning animation and add success
+                scannerDiv.classList.remove('scanning');
+                scannerDiv.classList.add('success');
+                
                 statusDiv.innerHTML = `
                     <div class="status-icon success">Success</div>
                     <div class="status-text">Fingerprint registered successfully!</div>
@@ -699,16 +858,34 @@ function registerFingerprint() {
                 document.getElementById('registerFingerprintBtn').style.display = 'none';
                 document.getElementById('testFingerprintBtn').style.display = 'inline-block';
                 showStatus('Fingerprint registered successfully!', 'success');
+                
+                // Remove success class after 3 seconds
+                setTimeout(() => {
+                    scannerDiv.classList.remove('success');
+                }, 3000);
             } else {
+                // Remove scanning animation and add error
+                scannerDiv.classList.remove('scanning');
+                scannerDiv.classList.add('error');
+                
                 statusDiv.innerHTML = `
                     <div class="status-icon error">Error</div>
                     <div class="status-text">Registration failed</div>
                     <div class="status-description">${data.message}</div>
                 `;
                 showStatus('Fingerprint registration failed: ' + data.message, 'error');
+                
+                // Remove error class after 3 seconds
+                setTimeout(() => {
+                    scannerDiv.classList.remove('error');
+                }, 3000);
             }
         })
         .catch(error => {
+            // Remove scanning animation and add error
+            scannerDiv.classList.remove('scanning');
+            scannerDiv.classList.add('error');
+            
             console.error('Fingerprint registration error:', error);
             console.error('Error details:', error.message);
             statusDiv.innerHTML = `
@@ -717,6 +894,11 @@ function registerFingerprint() {
                 <div class="status-description">Network error occurred: ${error.message}</div>
             `;
             showStatus('Network error during fingerprint registration: ' + error.message, 'error');
+            
+            // Remove error class after 3 seconds
+            setTimeout(() => {
+                scannerDiv.classList.remove('error');
+            }, 3000);
         });
     }, 2000);
 }
@@ -730,6 +912,11 @@ function testFingerprint() {
     }
     
     const statusDiv = document.getElementById('fingerprintStatus');
+    const scannerDiv = document.querySelector('.fingerprint-scanner');
+    
+    // Add scanning animation
+    scannerDiv.classList.add('scanning');
+    
     statusDiv.innerHTML = `
         <div class="status-icon scanning">Testing</div>
         <div class="status-text">Testing fingerprint...</div>
@@ -760,22 +947,44 @@ function testFingerprint() {
         .then(data => {
             console.log('Verification response data:', data);
             if (data.success) {
+                // Remove scanning animation and add success
+                scannerDiv.classList.remove('scanning');
+                scannerDiv.classList.add('success');
+                
                 statusDiv.innerHTML = `
                     <div class="status-icon success">Success</div>
                     <div class="status-text">Fingerprint verified!</div>
                     <div class="status-description">Match found for ${data.employeeName}</div>
                 `;
                 showStatus('Fingerprint verification successful!', 'success');
+                
+                // Remove success class after 3 seconds
+                setTimeout(() => {
+                    scannerDiv.classList.remove('success');
+                }, 3000);
             } else {
+                // Remove scanning animation and add error
+                scannerDiv.classList.remove('scanning');
+                scannerDiv.classList.add('error');
+                
                 statusDiv.innerHTML = `
                     <div class="status-icon error">Error</div>
                     <div class="status-text">Verification failed</div>
                     <div class="status-description">${data.message}</div>
                 `;
                 showStatus('Fingerprint verification failed: ' + data.message, 'error');
+                
+                // Remove error class after 3 seconds
+                setTimeout(() => {
+                    scannerDiv.classList.remove('error');
+                }, 3000);
             }
         })
         .catch(error => {
+            // Remove scanning animation and add error
+            scannerDiv.classList.remove('scanning');
+            scannerDiv.classList.add('error');
+            
             console.error('Fingerprint verification error:', error);
             console.error('Verification error details:', error.message);
             statusDiv.innerHTML = `
@@ -784,6 +993,11 @@ function testFingerprint() {
                 <div class="status-description">Network error occurred: ${error.message}</div>
             `;
             showStatus('Network error during fingerprint verification: ' + error.message, 'error');
+            
+            // Remove error class after 3 seconds
+            setTimeout(() => {
+                scannerDiv.classList.remove('error');
+            }, 3000);
         });
     }, 2000);
 }
