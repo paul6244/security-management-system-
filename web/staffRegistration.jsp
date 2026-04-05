@@ -275,8 +275,21 @@ textarea {
     transition: background-color 0.3s;
 }
 
-.btn-secondary:hover {
-    background: #545b62;
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(23, 132, 104, 0.3);
 }
 
 @keyframes pulse {
@@ -1159,6 +1172,103 @@ window.onload = function() {
         setTimeout(() => {
             generateAllStaffQRCodes();
         }, 1000);
+    }
+    
+    // Check if real fingerprint registration is enabled
+    const enableRealFingerprint = urlParams.get('realFingerprint') === '1';
+    
+    if (enableRealFingerprint) {
+        // Add real fingerprint registration button
+        const realFingerprintBtn = document.createElement('button');
+        realFingerprintBtn.innerHTML = '🔐 Use Real Fingerprint';
+        realFingerprintBtn.className = 'btn btn-info';
+        realFingerprintBtn.style.margin = '10px';
+        realFingerprintBtn.onclick = registerRealFingerprint;
+        
+        // Insert after the existing register button
+        const registerBtn = document.getElementById('registerFingerprintBtn');
+        registerBtn.parentNode.insertBefore(realFingerprintBtn, registerBtn.nextSibling);
+    }
+}
+
+// Real Windows Hello fingerprint registration
+async function registerRealFingerprint() {
+    const employeeId = document.getElementById('employeeId').value.trim();
+    
+    if (!employeeId) {
+        showStatus('Please enter Employee ID first', 'error');
+        document.getElementById('employeeId').focus();
+        return;
+    }
+    
+    try {
+        // Check if WebAuthn is available
+        if (!window.PublicKeyCredential || !navigator.credentials) {
+            throw new Error('WebAuthn not supported in this browser');
+        }
+        
+        showStatus('Requesting fingerprint from Windows Hello...', 'info');
+        
+        // Create WebAuthn credential request
+        const publicKey = {
+            challenge: new Uint8Array(32),
+            rp: { 
+                name: "Security Management System",
+                id: window.location.hostname 
+            },
+            user: {
+                id: new TextEncoder().encode(employeeId),
+                name: employeeId,
+                displayName: employeeId
+            },
+            pubKeyCredParams: [{ 
+                type: "public-key", 
+                alg: -7 
+            }],
+            authenticatorSelection: {
+                authenticatorAttachment: "platform",
+                userVerification: "required"
+            },
+            timeout: 60000,
+            attestation: "direct"
+        };
+
+        // Request credential creation
+        const credential = await navigator.credentials.create({ publicKey });
+        
+        if (credential) {
+            // Convert credential ID to Base64
+            const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+            
+            showStatus('Registering fingerprint with system...', 'info');
+            
+            // Send ONLY credential ID to server (server will handle the actual fingerprint)
+            const response = await fetch('FingerprintRegistration', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded' 
+                },
+                body: `employeeId=${encodeURIComponent(employeeId)}&credentialId=${encodeURIComponent(credentialId)}&type=windows_hello`
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    showStatus('Windows Hello fingerprint registered successfully!', 'success');
+                    alert('Fingerprint registered via Windows Hello!');
+                } else {
+                    showStatus('Registration failed: ' + result.message, 'error');
+                }
+            } else {
+                throw new Error('Network error');
+            }
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        showStatus('Real fingerprint error: ' + error.message, 'error');
+        console.error('Windows Hello error:', error);
     }
 };
 

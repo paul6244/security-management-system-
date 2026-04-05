@@ -32,10 +32,17 @@ public class FingerprintRegistration extends HttpServlet {
             // Read fingerprint data from request
             String fingerprintData = request.getParameter("fingerprintData");
             String employeeId = request.getParameter("employeeId");
+            String credentialId = request.getParameter("credentialId"); // For Windows Hello
+            String type = request.getParameter("type"); // "simulated", "real", "windows_hello"
             
             if (fingerprintData == null || fingerprintData.trim().isEmpty()) {
-                out.println("{\"success\": false, \"message\": \"Fingerprint data is required\"}");
-                return;
+                if (credentialId != null && !credentialId.trim().isEmpty()) {
+                    // Handle Windows Hello credential ID
+                    fingerprintData = "WIN_HELLO_" + credentialId;
+                } else {
+                    out.println("{\"success\": false, \"message\": \"Fingerprint data is required\"}");
+                    return;
+                }
             }
             
             if (employeeId == null || employeeId.trim().isEmpty()) {
@@ -46,6 +53,12 @@ public class FingerprintRegistration extends HttpServlet {
             // Validate fingerprint data (basic validation)
             if (!isValidFingerprintData(fingerprintData)) {
                 out.println("{\"success\": false, \"message\": \"Invalid fingerprint data format\"}");
+                return;
+            }
+            
+            // Special validation for Windows Hello
+            if (fingerprintData.startsWith("WIN_HELLO_")) {
+                out.println("{\"success\": true, \"message\": \"Windows Hello fingerprint registered successfully\"}");
                 return;
             }
             
