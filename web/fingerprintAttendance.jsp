@@ -7,7 +7,7 @@
 // Check if user is logged in
 String username = (String) session.getAttribute("username");
 if (username == null) {
-    response.sendRedirect("simpleLogin.jsp");
+    response.sendRedirect("index.jsp");
     return;
 }
 
