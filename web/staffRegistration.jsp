@@ -1286,7 +1286,7 @@ async function registerRealFingerprint() {
             
             showStatus('Registering fingerprint with system...', 'info');
             
-            // Send ONLY credential ID to server (server will handle the actual fingerprint)
+            // Send ONLY credential ID to server (server will handle actual fingerprint)
             const response = await fetch('FingerprintRegistration', {
                 method: 'POST',
                 headers: { 
