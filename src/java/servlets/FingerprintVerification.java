@@ -21,6 +21,9 @@ public class FingerprintVerification extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         
         try {
             // Read fingerprint data from request
@@ -38,17 +41,14 @@ public class FingerprintVerification extends HttpServlet {
             }
             
             // Get stored fingerprint from database
-            Connection con = SimpleDatabaseConfig.getSimpleConnection();
+            con = SimpleDatabaseConfig.getSimpleConnection();
             String sql = "SELECT fingerprint_data, first_name, last_name FROM staff_registration WHERE employee_id = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
             ps.setString(1, employeeId);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             
             if (!rs.next()) {
                 out.println("{\"success\": false, \"message\": \"Employee not found\"}");
-                rs.close();
-                ps.close();
-                con.close();
                 return;
             }
             
@@ -56,13 +56,9 @@ public class FingerprintVerification extends HttpServlet {
             String firstName = rs.getString("first_name");
             String lastName = rs.getString("last_name");
             
-            rs.close();
-            ps.close();
-            con.close();
-            
             // Check if fingerprint is registered
             if (storedFingerprint == null || storedFingerprint.trim().isEmpty()) {
-                out.println("{\"success\": false, \"message\": \"No fingerprint registered for this employee\"}");
+                out.println("{\"success\": false, \"message\": \"No fingerprint registered for this employee. Please register fingerprint first.\"}");
                 return;
             }
             
@@ -73,11 +69,20 @@ public class FingerprintVerification extends HttpServlet {
                 String fullName = firstName + " " + lastName;
                 out.println("{\"success\": true, \"message\": \"Fingerprint verified successfully\", \"employeeName\": \"" + fullName + "\"}");
             } else {
-                out.println("{\"success\": false, \"message\": \"Fingerprint does not match\"}");
+                out.println("{\"success\": false, \"message\": \"Fingerprint does not match. Please try again.\"}");
             }
             
         } catch (Exception e) {
             out.println("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+        } finally {
+            // Close all resources properly
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                // Log error if needed
+            }
         }
     }
     
@@ -95,6 +100,22 @@ public class FingerprintVerification extends HttpServlet {
     // Generate simulated fingerprint scan (for testing)
     public static String generateSimulatedScan(String employeeId) {
         // Generate the same fingerprint that would be stored
-        return FingerprintRegistration.generateSimulatedFingerprint(employeeId);
+        return generateSimulatedFingerprint(employeeId);
+    }
+    
+    // Generate simulated fingerprint data for testing
+    public static String generateSimulatedFingerprint(String employeeId) {
+        // Generate a consistent but unique fingerprint template based on employee ID
+        String baseData = "FP_" + employeeId + "_";
+        StringBuilder fingerprint = new StringBuilder(baseData);
+        
+        // Add random-looking but deterministic data
+        long hash = employeeId.hashCode();
+        for (int i = 0; i < 100; i++) {
+            fingerprint.append((char) ('A' + (Math.abs(hash + i) % 26)));
+            fingerprint.append((char) ('0' + (Math.abs(hash * (i + 1)) % 10)));
+        }
+        
+        return fingerprint.toString();
     }
 }

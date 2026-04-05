@@ -10,8 +10,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import config.SimpleDatabaseConfig;
 
 @WebServlet("/FingerprintRegistration")
@@ -23,6 +21,12 @@ public class FingerprintRegistration extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
+        Connection con = null;
+        PreparedStatement checkPs = null;
+        PreparedStatement existingPs = null;
+        PreparedStatement updatePs = null;
+        ResultSet checkRs = null;
+        ResultSet existingRs = null;
         
         try {
             // Read fingerprint data from request
@@ -46,50 +50,36 @@ public class FingerprintRegistration extends HttpServlet {
             }
             
             // Check if employee exists
-            Connection con = SimpleDatabaseConfig.getSimpleConnection();
+            con = SimpleDatabaseConfig.getSimpleConnection();
             String checkSql = "SELECT id FROM staff_registration WHERE employee_id = ?";
-            PreparedStatement checkPs = con.prepareStatement(checkSql);
+            checkPs = con.prepareStatement(checkSql);
             checkPs.setString(1, employeeId);
-            ResultSet checkRs = checkPs.executeQuery();
+            checkRs = checkPs.executeQuery();
             
             if (!checkRs.next()) {
                 out.println("{\"success\": false, \"message\": \"Employee ID not found\"}");
-                checkRs.close();
-                checkPs.close();
-                con.close();
                 return;
             }
             
             // Check if fingerprint already exists for this employee
             String existingSql = "SELECT fingerprint_data FROM staff_registration WHERE employee_id = ?";
-            PreparedStatement existingPs = con.prepareStatement(existingSql);
+            existingPs = con.prepareStatement(existingSql);
             existingPs.setString(1, employeeId);
-            ResultSet existingRs = existingPs.executeQuery();
+            existingRs = existingPs.executeQuery();
             
-            if (existingRs.next() && existingRs.getString("fingerprint_data") != null) {
+            if (existingRs.next() && existingRs.getString("fingerprint_data") != null && 
+                !existingRs.getString("fingerprint_data").trim().isEmpty()) {
                 out.println("{\"success\": false, \"message\": \"Fingerprint already registered for this employee\"}");
-                existingRs.close();
-                existingPs.close();
-                checkRs.close();
-                checkPs.close();
-                con.close();
                 return;
             }
             
-            existingRs.close();
-            existingPs.close();
-            checkRs.close();
-            checkPs.close();
-            
             // Store fingerprint data
             String updateSql = "UPDATE staff_registration SET fingerprint_data = ? WHERE employee_id = ?";
-            PreparedStatement updatePs = con.prepareStatement(updateSql);
+            updatePs = con.prepareStatement(updateSql);
             updatePs.setString(1, fingerprintData);
             updatePs.setString(2, employeeId);
             
             int rowsUpdated = updatePs.executeUpdate();
-            updatePs.close();
-            con.close();
             
             if (rowsUpdated > 0) {
                 out.println("{\"success\": true, \"message\": \"Fingerprint registered successfully\"}");
@@ -99,6 +89,18 @@ public class FingerprintRegistration extends HttpServlet {
             
         } catch (Exception e) {
             out.println("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+        } finally {
+            // Close all resources properly
+            try {
+                if (checkRs != null) checkRs.close();
+                if (existingRs != null) existingRs.close();
+                if (checkPs != null) checkPs.close();
+                if (existingPs != null) existingPs.close();
+                if (updatePs != null) updatePs.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                // Log error if needed
+            }
         }
     }
     
