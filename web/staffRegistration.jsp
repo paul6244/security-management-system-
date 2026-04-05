@@ -671,6 +671,9 @@ function registerFingerprint() {
         const fingerprintData = generateSimulatedFingerprint(employeeId);
         
         // Send to server
+        console.log('Sending fingerprint registration for employee:', employeeId);
+        console.log('Fingerprint data length:', fingerprintData.length);
+        
         fetch('FingerprintRegistration', {
             method: 'POST',
             headers: {
@@ -678,8 +681,15 @@ function registerFingerprint() {
             },
             body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('HTTP error! Status: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             if (data.success) {
                 statusDiv.innerHTML = `
                     <div class="status-icon success">Success</div>
@@ -699,12 +709,14 @@ function registerFingerprint() {
             }
         })
         .catch(error => {
+            console.error('Fingerprint registration error:', error);
+            console.error('Error details:', error.message);
             statusDiv.innerHTML = `
                 <div class="status-icon error">Error</div>
                 <div class="status-text">Registration failed</div>
-                <div class="status-description">Network error occurred</div>
+                <div class="status-description">Network error occurred: ${error.message}</div>
             `;
-            showStatus('Network error during fingerprint registration', 'error');
+            showStatus('Network error during fingerprint registration: ' + error.message, 'error');
         });
     }, 2000);
 }
@@ -728,6 +740,9 @@ function testFingerprint() {
         const fingerprintData = generateSimulatedFingerprint(employeeId);
         
         // Send to verification server
+        console.log('Sending fingerprint verification for employee:', employeeId);
+        console.log('Fingerprint data length:', fingerprintData.length);
+        
         fetch('FingerprintVerification', {
             method: 'POST',
             headers: {
@@ -735,8 +750,15 @@ function testFingerprint() {
             },
             body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Verification response status:', response.status);
+            if (!response.ok) {
+                throw new Error('HTTP error! Status: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Verification response data:', data);
             if (data.success) {
                 statusDiv.innerHTML = `
                     <div class="status-icon success">Success</div>
@@ -754,12 +776,14 @@ function testFingerprint() {
             }
         })
         .catch(error => {
+            console.error('Fingerprint verification error:', error);
+            console.error('Verification error details:', error.message);
             statusDiv.innerHTML = `
                 <div class="status-icon error">Error</div>
                 <div class="status-text">Verification failed</div>
-                <div class="status-description">Network error occurred</div>
+                <div class="status-description">Network error occurred: ${error.message}</div>
             `;
-            showStatus('Network error during fingerprint verification', 'error');
+            showStatus('Network error during fingerprint verification: ' + error.message, 'error');
         });
     }, 2000);
 }
