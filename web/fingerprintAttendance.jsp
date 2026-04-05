@@ -482,7 +482,7 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+                body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
             })
             .then(response => response.json())
             .then(data => {

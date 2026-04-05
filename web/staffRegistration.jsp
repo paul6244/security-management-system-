@@ -676,7 +676,7 @@ function registerFingerprint() {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+            body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
         })
         .then(response => response.json())
         .then(data => {
@@ -733,7 +733,7 @@ function testFingerprint() {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+            body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
         })
         .then(response => response.json())
         .then(data => {
