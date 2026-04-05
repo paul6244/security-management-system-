@@ -808,11 +808,71 @@ function registerFingerprint() {
         return;
     }
     
-    // Simulate fingerprint registration
     const statusDiv = document.getElementById('fingerprintStatus');
     const scannerDiv = document.querySelector('.fingerprint-scanner');
     
-    // Add scanning animation
+    // Check if browser supports WebAuthn (real fingerprint)
+    if (window.PublicKeyCredential && navigator.credentials) {
+        // Try real fingerprint first
+        tryRealFingerprint(employeeId, statusDiv, scannerDiv);
+    } else {
+        // Fall back to simulation
+        useSimulatedFingerprint(employeeId, statusDiv, scannerDiv);
+    }
+}
+
+// Try to use real fingerprint scanner
+async function tryRealFingerprint(employeeId, statusDiv, scannerDiv) {
+    try {
+        scannerDiv.classList.add('scanning');
+        statusDiv.innerHTML = `
+            <div class="status-icon scanning">Scanning</div>
+            <div class="status-text">Scanning real fingerprint...</div>
+            <div class="status-description">Please place your finger on the scanner</div>
+        `;
+        
+        // Create WebAuthn credential request
+        const credentialRequestOptions = {
+            publicKey: {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Security Management System",
+                    id: window.location.hostname
+                },
+                user: {
+                    id: new TextEncoder().encode(employeeId),
+                    name: employeeId,
+                    displayName: employeeId
+                },
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required"
+                }
+            }
+        };
+        
+        // Request real fingerprint
+        const credential = await navigator.credentials.get(credentialRequestOptions);
+        
+        if (credential) {
+            // Convert fingerprint data to string
+            const fingerprintData = arrayBufferToBase64(credential.rawId);
+            
+            // Send to server
+            sendFingerprintToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'real');
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        console.log('Real fingerprint not available, using simulation:', error.message);
+        // Fall back to simulation
+        useSimulatedFingerprint(employeeId, statusDiv, scannerDiv);
+    }
+}
+
+// Use simulated fingerprint (current working method)
+function useSimulatedFingerprint(employeeId, statusDiv, scannerDiv) {
     scannerDiv.classList.add('scanning');
     
     statusDiv.innerHTML = `
@@ -824,83 +884,96 @@ function registerFingerprint() {
     // Generate simulated fingerprint data
     setTimeout(() => {
         const fingerprintData = generateSimulatedFingerprint(employeeId);
-        
-        // Send to server
-        console.log('Sending fingerprint registration for employee:', employeeId);
-        console.log('Fingerprint data length:', fingerprintData.length);
-        
-        fetch('FingerprintRegistration', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            if (!response.ok) {
-                throw new Error('HTTP error! Status: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Response data:', data);
-            if (data.success) {
-                // Remove scanning animation and add success
-                scannerDiv.classList.remove('scanning');
-                scannerDiv.classList.add('success');
-                
-                statusDiv.innerHTML = `
-                    <div class="status-icon success">Success</div>
-                    <div class="status-text">Fingerprint registered successfully!</div>
-                    <div class="status-description">Biometric authentication is now enabled</div>
-                `;
-                document.getElementById('registerFingerprintBtn').style.display = 'none';
-                document.getElementById('testFingerprintBtn').style.display = 'inline-block';
-                showStatus('Fingerprint registered successfully!', 'success');
-                
-                // Remove success class after 3 seconds
-                setTimeout(() => {
-                    scannerDiv.classList.remove('success');
-                }, 3000);
-            } else {
-                // Remove scanning animation and add error
-                scannerDiv.classList.remove('scanning');
-                scannerDiv.classList.add('error');
-                
-                statusDiv.innerHTML = `
-                    <div class="status-icon error">Error</div>
-                    <div class="status-text">Registration failed</div>
-                    <div class="status-description">${data.message}</div>
-                `;
-                showStatus('Fingerprint registration failed: ' + data.message, 'error');
-                
-                // Remove error class after 3 seconds
-                setTimeout(() => {
-                    scannerDiv.classList.remove('error');
-                }, 3000);
-            }
-        })
-        .catch(error => {
+        sendFingerprintToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'simulated');
+    }, 2000);
+}
+
+// Send fingerprint data to server
+function sendFingerprintToServer(employeeId, fingerprintData, statusDiv, scannerDiv, type) {
+    console.log(`Sending ${type} fingerprint registration for employee:`, employeeId);
+    console.log('Fingerprint data length:', fingerprintData.length);
+    
+    fetch('FingerprintRegistration', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData) + '&type=' + encodeURIComponent(type)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error! Status: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            // Remove scanning animation and add success
+            scannerDiv.classList.remove('scanning');
+            scannerDiv.classList.add('success');
+            
+            statusDiv.innerHTML = `
+                <div class="status-icon success">Success</div>
+                <div class="status-text">Fingerprint registered successfully!</div>
+                <div class="status-description">Biometric authentication is now enabled (${type})</div>
+            `;
+            document.getElementById('registerFingerprintBtn').style.display = 'none';
+            document.getElementById('testFingerprintBtn').style.display = 'inline-block';
+            showStatus('Fingerprint registered successfully!', 'success');
+            
+            // Remove success class after 3 seconds
+            setTimeout(() => {
+                scannerDiv.classList.remove('success');
+            }, 3000);
+        } else {
             // Remove scanning animation and add error
             scannerDiv.classList.remove('scanning');
             scannerDiv.classList.add('error');
             
-            console.error('Fingerprint registration error:', error);
-            console.error('Error details:', error.message);
             statusDiv.innerHTML = `
                 <div class="status-icon error">Error</div>
                 <div class="status-text">Registration failed</div>
-                <div class="status-description">Network error occurred: ${error.message}</div>
+                <div class="status-description">${data.message}</div>
             `;
-            showStatus('Network error during fingerprint registration: ' + error.message, 'error');
+            showStatus('Fingerprint registration failed: ' + data.message, 'error');
             
             // Remove error class after 3 seconds
             setTimeout(() => {
                 scannerDiv.classList.remove('error');
             }, 3000);
-        });
-    }, 2000);
+        }
+    })
+    .catch(error => {
+        // Remove scanning animation and add error
+        scannerDiv.classList.remove('scanning');
+        scannerDiv.classList.add('error');
+        
+        console.error('Fingerprint registration error:', error);
+        console.error('Error details:', error.message);
+        statusDiv.innerHTML = `
+            <div class="status-icon error">Error</div>
+            <div class="status-text">Registration failed</div>
+            <div class="status-description">Network error occurred: ${error.message}</div>
+        `;
+        showStatus('Network error during fingerprint registration: ' + error.message, 'error');
+        
+        // Remove error class after 3 seconds
+        setTimeout(() => {
+            scannerDiv.classList.remove('error');
+        }, 3000);
+    });
+}
+
+// Convert ArrayBuffer to Base64
+function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
 }
 
 function testFingerprint() {
@@ -914,7 +987,62 @@ function testFingerprint() {
     const statusDiv = document.getElementById('fingerprintStatus');
     const scannerDiv = document.querySelector('.fingerprint-scanner');
     
-    // Add scanning animation
+    // Check if browser supports WebAuthn (real fingerprint)
+    if (window.PublicKeyCredential && navigator.credentials) {
+        // Try real fingerprint first
+        tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv);
+    } else {
+        // Fall back to simulation
+        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
+    }
+}
+
+// Try to use real fingerprint for verification
+async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv) {
+    try {
+        scannerDiv.classList.add('scanning');
+        
+        statusDiv.innerHTML = `
+            <div class="status-icon scanning">Testing</div>
+            <div class="status-text">Testing real fingerprint...</div>
+            <div class="status-description">Verifying fingerprint match</div>
+        `;
+        
+        // Create WebAuthn assertion request
+        const assertionOptions = {
+            publicKey: {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Security Management System",
+                    id: window.location.hostname
+                },
+                userVerification: "required"
+            }
+        }
+        };
+        
+        // Request real fingerprint verification
+        const assertion = await navigator.credentials.get(assertionOptions);
+        
+        if (assertion) {
+            // Convert fingerprint data to string
+            const fingerprintData = arrayBufferToBase64(assertion.rawId);
+            
+            // Send to verification server
+            sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'real');
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        console.log('Real fingerprint verification not available, using simulation:', error.message);
+        // Fall back to simulation
+        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
+    }
+}
+
+// Use simulated fingerprint verification (current working method)
+function useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv) {
     scannerDiv.classList.add('scanning');
     
     statusDiv.innerHTML = `
@@ -927,79 +1055,84 @@ function testFingerprint() {
         const fingerprintData = generateSimulatedFingerprint(employeeId);
         
         // Send to verification server
-        console.log('Sending fingerprint verification for employee:', employeeId);
-        console.log('Fingerprint data length:', fingerprintData.length);
-        
-        fetch('FingerprintVerification', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData)
-        })
-        .then(response => {
-            console.log('Verification response status:', response.status);
-            if (!response.ok) {
-                throw new Error('HTTP error! Status: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Verification response data:', data);
-            if (data.success) {
-                // Remove scanning animation and add success
-                scannerDiv.classList.remove('scanning');
-                scannerDiv.classList.add('success');
-                
-                statusDiv.innerHTML = `
-                    <div class="status-icon success">Success</div>
-                    <div class="status-text">Fingerprint verified!</div>
-                    <div class="status-description">Match found for ${data.employeeName}</div>
-                `;
-                showStatus('Fingerprint verification successful!', 'success');
-                
-                // Remove success class after 3 seconds
-                setTimeout(() => {
-                    scannerDiv.classList.remove('success');
-                }, 3000);
-            } else {
-                // Remove scanning animation and add error
-                scannerDiv.classList.remove('scanning');
-                scannerDiv.classList.add('error');
-                
-                statusDiv.innerHTML = `
-                    <div class="status-icon error">Error</div>
-                    <div class="status-text">Verification failed</div>
-                    <div class="status-description">${data.message}</div>
-                `;
-                showStatus('Fingerprint verification failed: ' + data.message, 'error');
-                
-                // Remove error class after 3 seconds
-                setTimeout(() => {
-                    scannerDiv.classList.remove('error');
-                }, 3000);
-            }
-        })
-        .catch(error => {
+        sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'simulated');
+    }, 2000);
+}
+
+// Send fingerprint verification to server
+function sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, type) {
+    console.log(`Sending ${type} fingerprint verification for employee:`, employeeId);
+    console.log('Fingerprint data length:', fingerprintData.length);
+    
+    fetch('FingerprintVerification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'employeeId=' + encodeURIComponent(employeeId) + '&fingerprintData=' + encodeURIComponent(fingerprintData) + '&type=' + encodeURIComponent(type)
+    })
+    .then(response => {
+        console.log('Verification response status:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error! Status: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Verification response data:', data);
+        if (data.success) {
+            // Remove scanning animation and add success
+            scannerDiv.classList.remove('scanning');
+            scannerDiv.classList.add('success');
+            
+            statusDiv.innerHTML = `
+                <div class="status-icon success">Success</div>
+                <div class="status-text">Fingerprint verified!</div>
+                <div class="status-description">Match found for ${data.employeeName} (${type})</div>
+            `;
+            showStatus('Fingerprint verification successful!', 'success');
+            
+            // Remove success class after 3 seconds
+            setTimeout(() => {
+                scannerDiv.classList.remove('success');
+            }, 3000);
+        } else {
             // Remove scanning animation and add error
             scannerDiv.classList.remove('scanning');
             scannerDiv.classList.add('error');
             
-            console.error('Fingerprint verification error:', error);
-            console.error('Verification error details:', error.message);
             statusDiv.innerHTML = `
                 <div class="status-icon error">Error</div>
                 <div class="status-text">Verification failed</div>
-                <div class="status-description">Network error occurred: ${error.message}</div>
+                <div class="status-description">${data.message}</div>
             `;
-            showStatus('Network error during fingerprint verification: ' + error.message, 'error');
+            showStatus('Fingerprint verification failed: ' + data.message, 'error');
             
             // Remove error class after 3 seconds
             setTimeout(() => {
                 scannerDiv.classList.remove('error');
             }, 3000);
-        });
-    }, 2000);
+        }
+    })
+    .catch(error => {
+        // Remove scanning animation and add error
+        scannerDiv.classList.remove('scanning');
+        scannerDiv.classList.add('error');
+        
+        console.error('Fingerprint verification error:', error);
+        console.error('Verification error details:', error.message);
+        statusDiv.innerHTML = `
+            <div class="status-icon error">Error</div>
+            <div class="status-text">Verification failed</div>
+            <div class="status-description">Network error occurred: ${error.message}</div>
+        `;
+        showStatus('Network error during fingerprint verification: ' + error.message, 'error');
+        
+        // Remove error class after 3 seconds
+        setTimeout(() => {
+            scannerDiv.classList.remove('error');
+        }, 3000);
+    });
 }
 
 function generateSimulatedFingerprint(employeeId) {
