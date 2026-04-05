@@ -1292,7 +1292,7 @@ async function registerRealFingerprint() {
                 headers: { 
                     'Content-Type': 'application/x-www-form-urlencoded' 
                 },
-                body: `employeeId=${encodeURIComponent(employeeId)}&credentialId=${encodeURIComponent(credentialId)}&type=windows_hello`
+                body: 'employeeId=' + encodeURIComponent(employeeId) + '&credentialId=' + encodeURIComponent(credentialId) + '&type=windows_hello'
             });
             
             if (response.ok) {
