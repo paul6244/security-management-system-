@@ -179,6 +179,112 @@ textarea {
     color:#999;
 }
 
+/* Fingerprint Registration Styles */
+.fingerprint-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius:12px;
+    padding:20px;
+    margin:20px 0;
+}
+
+.fingerprint-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius:10px;
+    padding:20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.fingerprint-status {
+    display: flex;
+    align-items: center;
+    gap:15px;
+    padding:20px;
+    background: #f8f9fa;
+    border-radius:8px;
+    margin-bottom:20px;
+    border: 2px solid #e9ecef;
+}
+
+.status-icon {
+    font-size: 48px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e9ecef;
+}
+
+.status-icon.scanning {
+    animation: pulse 2s infinite;
+    background: #fff3cd;
+}
+
+.status-icon.success {
+    background: #d4edda;
+}
+
+.status-icon.error {
+    background: #f8d7da;
+}
+
+.status-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.status-description {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.fingerprint-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 </style>
 </head>
 <body>
@@ -278,10 +384,24 @@ textarea {
     <textarea id="address" name="address" placeholder="Full address"></textarea>
 </div>
 
-<div class="form-group full-width">
-    <label for="phone">Phone Number (Required for SMS Verification)</label>
-    <input type="tel" id="phone" name="phone" required placeholder="Enter phone number (e.g., +233596244927 or 0596244927)" pattern="^(\+[0-9]{10,15}|[0-9]{10})$" title="Please enter phone number with or without country code (e.g., +233596244927 or 0596244927)">
-    <small style="color:#666;">This number will receive SMS verification codes for attendance check-in.</small>
+<!-- Fingerprint Registration Section -->
+<div class="form-group full-width fingerprint-section">
+    <label>Fingerprint Registration</label>
+    <div class="fingerprint-container">
+        <div class="fingerprint-status" id="fingerprintStatus">
+            <div class="status-icon">👆</div>
+            <div class="status-text">Fingerprint not registered yet</div>
+            <div class="status-description">Register fingerprint for biometric attendance</div>
+        </div>
+        <div class="fingerprint-actions">
+            <button type="button" class="btn btn-primary" onclick="registerFingerprint()" id="registerFingerprintBtn">
+                Register Fingerprint
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="testFingerprint()" id="testFingerprintBtn" style="display:none;">
+                Test Fingerprint
+            </button>
+        </div>
+    </div>
 </div>
 
 <div style="text-align:center;">
@@ -526,6 +646,137 @@ function downloadAllStaffQRCodes() {
             }
         }, index * 200); // Delay between downloads
     });
+}
+
+// Fingerprint Registration Functions
+function registerFingerprint() {
+    const employeeId = document.getElementById('employeeId').value.trim();
+    
+    if (!employeeId) {
+        showStatus('Please enter Employee ID first', 'error');
+        document.getElementById('employeeId').focus();
+        return;
+    }
+    
+    // Simulate fingerprint registration
+    const statusDiv = document.getElementById('fingerprintStatus');
+    statusDiv.innerHTML = `
+        <div class="status-icon scanning">🔄</div>
+        <div class="status-text">Scanning fingerprint...</div>
+        <div class="status-description">Please place your finger on the scanner</div>
+    `;
+    
+    // Generate simulated fingerprint data
+    setTimeout(() => {
+        const fingerprintData = generateSimulatedFingerprint(employeeId);
+        
+        // Send to server
+        fetch('FingerprintRegistration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.innerHTML = `
+                    <div class="status-icon success">✅</div>
+                    <div class="status-text">Fingerprint registered successfully!</div>
+                    <div class="status-description">Biometric authentication is now enabled</div>
+                `;
+                document.getElementById('registerFingerprintBtn').style.display = 'none';
+                document.getElementById('testFingerprintBtn').style.display = 'inline-block';
+                showStatus('Fingerprint registered successfully!', 'success');
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="status-icon error">❌</div>
+                    <div class="status-text">Registration failed</div>
+                    <div class="status-description">${data.message}</div>
+                `;
+                showStatus('Fingerprint registration failed: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            statusDiv.innerHTML = `
+                <div class="status-icon error">❌</div>
+                <div class="status-text">Registration failed</div>
+                <div class="status-description">Network error occurred</div>
+            `;
+            showStatus('Network error during fingerprint registration', 'error');
+        });
+    }, 2000);
+}
+
+function testFingerprint() {
+    const employeeId = document.getElementById('employeeId').value.trim();
+    
+    if (!employeeId) {
+        showStatus('Please enter Employee ID first', 'error');
+        return;
+    }
+    
+    const statusDiv = document.getElementById('fingerprintStatus');
+    statusDiv.innerHTML = `
+        <div class="status-icon scanning">🔄</div>
+        <div class="status-text">Testing fingerprint...</div>
+        <div class="status-description">Verifying fingerprint match</div>
+    `;
+    
+    setTimeout(() => {
+        const fingerprintData = generateSimulatedFingerprint(employeeId);
+        
+        // Send to verification server
+        fetch('FingerprintVerification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.innerHTML = `
+                    <div class="status-icon success">✅</div>
+                    <div class="status-text">Fingerprint verified!</div>
+                    <div class="status-description">Match found for ${data.employeeName}</div>
+                `;
+                showStatus('Fingerprint verification successful!', 'success');
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="status-icon error">❌</div>
+                    <div class="status-text">Verification failed</div>
+                    <div class="status-description">${data.message}</div>
+                `;
+                showStatus('Fingerprint verification failed: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            statusDiv.innerHTML = `
+                <div class="status-icon error">❌</div>
+                <div class="status-text">Verification failed</div>
+                <div class="status-description">Network error occurred</div>
+            `;
+            showStatus('Network error during fingerprint verification', 'error');
+        });
+    }, 2000);
+}
+
+function generateSimulatedFingerprint(employeeId) {
+    // Generate a consistent but unique fingerprint template based on employee ID
+    const baseData = "FP_" + employeeId + "_";
+    let fingerprint = baseData;
+    
+    // Add random-looking but deterministic data
+    const hash = employeeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    for (let i = 0; i < 100; i++) {
+        fingerprint += String.fromCharCode(65 + (Math.abs(hash + i) % 26));
+        fingerprint += String.fromCharCode(48 + (Math.abs(hash * (i + 1)) % 10));
+    }
+    
+    return fingerprint;
 }
 
 // Check for success parameter

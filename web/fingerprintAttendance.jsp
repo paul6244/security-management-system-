@@ -450,7 +450,7 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             }
         }
         
-        // Simulate fingerprint scanning
+        // Simulate fingerprint scanning with real verification
         function simulateFingerprintScan(callback) {
             const statusDiv = document.getElementById('fingerprintStatus');
             
@@ -465,10 +465,56 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             
             // Simulate fingerprint scan delay
             setTimeout(() => {
-                statusDiv.textContent = 'Fingerprint verified successfully!';
-                statusDiv.style.background = 'rgba(76, 175, 80, 0.2)';
-                callback();
+                // Generate simulated fingerprint data for the selected employee
+                const fingerprintData = generateSimulatedFingerprint(selectedEmployeeId);
+                
+                // Verify fingerprint against database
+                verifyFingerprint(selectedEmployeeId, fingerprintData, callback);
             }, 2000);
+        }
+        
+        // Verify fingerprint with server
+        function verifyFingerprint(employeeId, fingerprintData, callback) {
+            const statusDiv = document.getElementById('fingerprintStatus');
+            
+            fetch('FingerprintVerification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `employeeId=${encodeURIComponent(employeeId)}&fingerprintData=${encodeURIComponent(fingerprintData)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.textContent = 'Fingerprint verified successfully! Welcome ' + data.employeeName;
+                    statusDiv.style.background = 'rgba(76, 175, 80, 0.2)';
+                    callback();
+                } else {
+                    statusDiv.textContent = 'Fingerprint verification failed: ' + data.message;
+                    statusDiv.style.background = 'rgba(244, 67, 54, 0.2)';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = 'Fingerprint verification failed: Network error';
+                statusDiv.style.background = 'rgba(244, 67, 54, 0.2)';
+            });
+        }
+        
+        // Generate simulated fingerprint data
+        function generateSimulatedFingerprint(employeeId) {
+            // Generate a consistent but unique fingerprint template based on employee ID
+            const baseData = "FP_" + employeeId + "_";
+            let fingerprint = baseData;
+            
+            // Add random-looking but deterministic data
+            const hash = employeeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            for (let i = 0; i < 100; i++) {
+                fingerprint += String.fromCharCode(65 + (Math.abs(hash + i) % 26));
+                fingerprint += String.fromCharCode(48 + (Math.abs(hash * (i + 1)) % 10));
+            }
+            
+            return fingerprint;
         }
         
         // Check In

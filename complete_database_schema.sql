@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS staff_registration (
     office_location VARCHAR(200),
     address TEXT,
     selfie_path VARCHAR(255),
+    fingerprint_data TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
