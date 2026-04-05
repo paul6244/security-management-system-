@@ -30,27 +30,18 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             String fullName = staffRs.getString("first_name") + " " + staffRs.getString("last_name");
             
             // Record attendance with fingerprint verification
-            String attendanceSql = "INSERT INTO attendance (employee_id, check_in_time, check_out_time, date, latitude, longitude, verification_method, status) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, 'fingerprint', ?)";
+            String attendanceSql = "INSERT INTO attendance (employee_id, first_name, last_name, latitude, longitude, check_in_time, verification_method, attendance_type) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'fingerprint', 'checkin')";
             PreparedStatement attendancePs = con.prepareStatement(attendanceSql);
             
-            if ("checkin".equals(action)) {
-                attendancePs.setString(1, employeeId);
-                attendancePs.setNull(2, Types.TIMESTAMP);
-                attendancePs.setString(3, latitude);
-                attendancePs.setString(4, longitude);
-                attendancePs.setString(5, "checked_in");
-            } else {
-                attendancePs.setString(1, employeeId);
-                attendancePs.setNull(1, Types.TIMESTAMP);
-                attendancePs.setString(2, latitude);
-                attendancePs.setString(3, longitude);
-                attendancePs.setString(4, "checked_out");
-            }
-            
+            attendancePs.setString(1, employeeId);
+            attendancePs.setString(2, staffRs.getString("first_name"));
+            attendancePs.setString(3, staffRs.getString("last_name"));
+            attendancePs.setString(4, latitude);
+            attendancePs.setString(5, longitude);
             attendancePs.executeUpdate();
             attendancePs.close();
             
-            session.setAttribute("attendanceMessage", "✅ " + fullName + " - " + action + " completed successfully with fingerprint verification!");
+            session.setAttribute("attendanceMessage", fullName + " - " + action + " completed successfully with fingerprint verification!");
             session.setAttribute("attendanceStatus", "success");
         }
         
@@ -280,8 +271,8 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
 <body>
     <div class="container">
         <div class="header">
-            <h1>� Welcome to Security Management System</h1>
-            <p style="color: #666; font-size: 18px;">Quick & Easy Biometric Attendance</p>
+            <h1>Welcome to Security Management System</h1>
+            <p style="color: #666; font-size: 18px;">Quick and Easy Biometric Attendance</p>
         </div>
         
         <% 
@@ -300,10 +291,10 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
         
         <div class="main-content">
             <div class="card">
-                <h2>👤 Who Are You?</h2>
+                <h2>Who Are You?</h2>
                 <form id="staffForm" method="post" action="fingerprintAttendance.jsp">
                     <div class="form-group">
-                        <label for="employeeSelect" style="font-size: 16px; margin-bottom: 12px;">🔍 Select Your Name:</label>
+                        <label for="employeeSelect" style="font-size: 16px; margin-bottom: 12px;">Select Your Name:</label>
                         <select id="employeeSelect" name="employee_id" required onchange="updateStaffInfo()" style="font-size: 16px; padding: 15px;">
                             <option value="">-- Choose your name --</option>
                             <%
@@ -333,69 +324,69 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
                     </div>
                     
                     <div class="form-group">
-                        <label style="font-size: 16px; margin-bottom: 8px;">✅ Selected Staff:</label>
+                        <label style="font-size: 16px; margin-bottom: 8px;">Selected Staff:</label>
                         <div id="selectedStaffInfo" style="padding: 15px; background: #e8f5e8; border-radius: 8px; color: #2e7d32; font-size: 16px; border: 2px solid #4CAF50;">
-                            👤 Please select your name from the list above
+                            Please select your name from the list above
                         </div>
                     </div>
                 </form>
             </div>
             
             <div class="card">
-                <h2>📍 Your Location</h2>
+                <h2>Your Location</h2>
                 <div class="info-section">
                     <div class="info-item">
-                        <strong>🗺️ GPS Status:</strong>
-                        <span id="gpsStatus">🔄 Getting your location...</span>
+                        <strong>GPS Status:</strong>
+                        <span id="gpsStatus">Getting your location...</span>
                     </div>
                     <div class="info-item">
-                        <strong>📍 Latitude:</strong>
+                        <strong>Latitude:</strong>
                         <span id="latitude">--</span>
                     </div>
                     <div class="info-item">
-                        <strong>📍 Longitude:</strong>
+                        <strong>Longitude:</strong>
                         <span id="longitude">--</span>
                     </div>
                     <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 6px; color: #856404; font-size: 14px;">
-                        📍 Your location is automatically captured for attendance tracking
+                        Your location is automatically captured for attendance tracking
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="card">
-            <h2>👆 Quick Fingerprint Check</h2>
+            <h2>Quick Fingerprint Check</h2>
             <div class="fingerprint-section">
-                <div class="fingerprint-icon">👆</div>
-                <div class="fingerprint-text">📱 Touch your finger here to check in/out</div>
-                <div class="fingerprint-status" id="fingerprintStatus">👋 Ready when you are! Select your name first, then click below...</div>
+                <div class="fingerprint-icon">Finger</div>
+                <div class="fingerprint-text">Touch your finger here to check in/out</div>
+                <div class="fingerprint-status" id="fingerprintStatus">Ready when you are! Select your name first, then click below...</div>
                 
                 <div style="margin-top: 25px;">
                     <button class="btn btn-success" onclick="checkIn()" style="font-size: 18px; padding: 15px 30px;">
-                        🔓 Start Work (Check In)
+                        Start Work (Check In)
                     </button>
                     <button class="btn btn-warning" onclick="checkOut()" style="font-size: 18px; padding: 15px 30px;">
-                        🏠 Leave Work (Check Out)
+                        Leave Work (Check Out)
                     </button>
                 </div>
                 
                 <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 14px;">
-                    💡 <strong>Easy Steps:</strong> Select your name → Click Check In/Out → Done! 🎉
+                    <strong>Easy Steps:</strong> Select your name - Click Check In/Out - Done!
                 </div>
             </div>
         </div>
         
         <div class="info-section">
-            <h3>🎯 How to Use This System:</h3>
+            <h3>How to Use This System:</h3>
             <ol style="color: #666; line-height: 1.8; padding-left: 20px; font-size: 16px;">
-                <li>👤 <strong>Select Your Name:</strong> Choose your name from the dropdown list above</li>
-                <li>📍 <strong>Location Auto-Captured:</strong> Your GPS location is recorded automatically</li>
-                <li>👆 <strong>Fingerprint Check:</strong> Click "Start Work" or "Leave Work" button below</li>
-                <li>✅ <strong>Done!</strong> Your attendance is recorded with timestamp and location</li>
+                <li><strong>Select Your Name:</strong> Choose your name from the dropdown list above</li>
+                <li><strong>Location Auto-Captured:</strong> Your GPS location is recorded automatically</li>
+                <li><strong>Fingerprint Check:</strong> Click "Start Work" or "Leave Work" button below</li>
+                <li><strong>Done!</strong> Your attendance is recorded with timestamp and location</li>
             </ol>
             
             <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; color: #2e7d32; font-size: 15px;">
-                🎉 <strong>Super Easy!</strong> Just 3 clicks and you're done! No passwords, no codes, just your fingerprint! 👍
+                <strong>Super Easy!</strong> Just 3 clicks and you are done! No passwords, no codes, just your fingerprint!
             </div>
         </div>
     </div>
@@ -418,16 +409,16 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
                         document.getElementById("longitude").value = lng;
                         document.getElementById("latitude").textContent = lat;
                         document.getElementById("longitude").textContent = lng;
-                        document.getElementById("gpsStatus").textContent = '✅ Location captured successfully!';
+                        document.getElementById("gpsStatus").textContent = 'Location captured successfully!';
                         document.getElementById("gpsStatus").style.color = '#4CAF50';
                     },
                     function(error) {
-                        document.getElementById("gpsStatus").textContent = '❌ Location unavailable - Please enable GPS';
+                        document.getElementById("gpsStatus").textContent = 'Location unavailable - Please enable GPS';
                         document.getElementById("gpsStatus").style.color = '#f44336';
                     }
                 );
             } else {
-                document.getElementById("gpsStatus").textContent = '❌ GPS not supported by your browser';
+                document.getElementById("gpsStatus").textContent = 'GPS not supported by your browser';
                 document.getElementById("gpsStatus").style.color = '#f44336';
             }
         }
@@ -442,20 +433,20 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
                 const staffName = selectedOption.text;
                 document.getElementById('selectedStaffInfo').innerHTML = `
                     <div style="font-size: 18px; font-weight: bold;">
-                        👋 Hello! You selected: <strong>${staffName}</strong>
+                        Hello! You selected: <strong>${staffName}</strong>
                     </div>
                     <div style="margin-top: 8px; font-size: 14px;">
-                        ✅ Ready for fingerprint check! Click Start Work or Leave Work below 👇
+                        Ready for fingerprint check! Click Start Work or Leave Work below
                     </div>
                 `;
                 document.getElementById('selectedStaffInfo').style.background = '#e8f5e8';
                 document.getElementById('selectedStaffInfo').style.border = '2px solid #4CAF50';
-                document.getElementById('fingerprintStatus').textContent = '👋 Great! Now click Start Work or Leave Work below!';
+                document.getElementById('fingerprintStatus').textContent = 'Great! Now click Start Work or Leave Work below!';
             } else {
-                document.getElementById('selectedStaffInfo').innerHTML = '👤 Please select your name from the list above';
+                document.getElementById('selectedStaffInfo').innerHTML = 'Please select your name from the list above';
                 document.getElementById('selectedStaffInfo').style.background = '#e8f5e8';
                 document.getElementById('selectedStaffInfo').style.border = '2px solid #4CAF50';
-                document.getElementById('fingerprintStatus').textContent = '👋 Ready when you are! Select your name first, then click below...';
+                document.getElementById('fingerprintStatus').textContent = 'Ready when you are! Select your name first, then click below...';
             }
         }
         
@@ -464,17 +455,17 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             const statusDiv = document.getElementById('fingerprintStatus');
             
             if (!selectedEmployeeId) {
-                statusDiv.textContent = '😊 Please select your name first, then click again!';
+                statusDiv.textContent = 'Please select your name first, then click again!';
                 statusDiv.style.background = 'rgba(255, 152, 0, 0.2)';
                 return false;
             }
             
-            statusDiv.textContent = '🔄 Scanning your fingerprint... Please wait...';
+            statusDiv.textContent = 'Scanning your fingerprint... Please wait...';
             statusDiv.style.background = 'rgba(255, 152, 0, 0.2)';
             
             // Simulate fingerprint scan delay
             setTimeout(() => {
-                statusDiv.textContent = '✅ Fingerprint verified successfully! 🎉';
+                statusDiv.textContent = 'Fingerprint verified successfully!';
                 statusDiv.style.background = 'rgba(76, 175, 80, 0.2)';
                 callback();
             }, 2000);
@@ -500,7 +491,7 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             const lng = document.getElementById('longitude').value;
             
             if (!lat || !lng) {
-                alert('📍 Please enable location services for attendance tracking. Your location is needed for security purposes.');
+                alert('Please enable location services for attendance tracking. Your location is needed for security purposes.');
                 return;
             }
             
