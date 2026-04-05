@@ -111,12 +111,12 @@ public class FingerprintRegistration extends HttpServlet {
         }
         
         // Check minimum length (fingerprint templates are typically long strings)
-        if (data.length() < 50) {
+        if (data.length() < 20) {
             return false;
         }
         
-        // Check for valid characters (base64-like or hex-like data)
-        return data.matches("^[a-zA-Z0-9+/=]+$");
+        // Check for valid characters (allow letters, numbers, underscores, and basic symbols)
+        return data.matches("^[a-zA-Z0-9_+=]+$");
     }
     
     // Generate simulated fingerprint data for testing
