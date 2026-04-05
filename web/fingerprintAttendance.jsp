@@ -30,7 +30,7 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
             String fullName = staffRs.getString("first_name") + " " + staffRs.getString("last_name");
             
             // Record attendance with fingerprint verification
-            String attendanceSql = "INSERT INTO attendance (employee_id, first_name, last_name, latitude, longitude, check_in_time, verification_method, attendance_type) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'fingerprint', 'checkin')";
+            String attendanceSql = "INSERT INTO attendance (employee_id, first_name, last_name, latitude, longitude, check_in_time, attendance_type) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'fingerprint')";
             PreparedStatement attendancePs = con.prepareStatement(attendanceSql);
             
             attendancePs.setString(1, employeeId);
