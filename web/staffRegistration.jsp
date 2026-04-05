@@ -1052,7 +1052,7 @@ async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv)
         // Fall back to simulation
         useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
     }
-}
+
 
 // Use simulated fingerprint verification (current working method)
 function useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv) {

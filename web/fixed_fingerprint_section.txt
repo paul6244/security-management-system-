@@ -1,0 +1,42 @@
+// Try to use real fingerprint for verification
+async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv) {
+    try {
+        scannerDiv.classList.add('scanning');
+        
+        statusDiv.innerHTML = `
+            <div class="status-icon scanning">Testing</div>
+            <div class="status-text">Testing real fingerprint...</div>
+            <div class="status-description">Verifying fingerprint match</div>
+        `;
+        
+        // Create WebAuthn assertion request
+        const assertionOptions = {
+            publicKey: {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Security Management System",
+                    id: window.location.hostname
+                },
+                userVerification: "required"
+            }
+        };
+        
+        // Request real fingerprint verification
+        const assertion = await navigator.credentials.get(assertionOptions);
+        
+        if (assertion) {
+            // Convert fingerprint data to string
+            const fingerprintData = arrayBufferToBase64(assertion.rawId);
+            
+            // Send to verification server
+            sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'real');
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        console.log('Real fingerprint verification not available, using simulation:', error.message);
+        // Fall back to simulation
+        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
+    }
+}
