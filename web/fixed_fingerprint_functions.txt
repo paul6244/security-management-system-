@@ -1,0 +1,117 @@
+// Try to use real fingerprint scanner
+async function tryRealFingerprint(employeeId, statusDiv, scannerDiv) {
+    try {
+        scannerDiv.classList.add('scanning');
+        statusDiv.innerHTML = `
+            <div class="status-icon scanning">Scanning</div>
+            <div class="status-text">Scanning real fingerprint...</div>
+            <div class="status-description">Please place your finger on the scanner</div>
+        `;
+        
+        // Create WebAuthn credential request
+        const credentialRequestOptions = {
+            publicKey: {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Security Management System",
+                    id: window.location.hostname
+                },
+                user: {
+                    id: new TextEncoder().encode(employeeId),
+                    name: employeeId,
+                    displayName: employeeId
+                },
+                pubKeyCredParams: [{ 
+                    type: "public-key", 
+                    alg: -7 
+                }],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required"
+                },
+                timeout: 60000,
+                attestation: "direct"
+            }
+        };
+        
+        // Request credential creation
+        const credential = await navigator.credentials.create({ publicKey });
+        
+        if (credential) {
+            // Convert credential ID to Base64
+            const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+            
+            showStatus('Registering fingerprint with system...', 'info');
+            
+            // Send ONLY credential ID to server (server will handle actual fingerprint)
+            const response = await fetch('FingerprintRegistration', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded' 
+                },
+                body: `employeeId=${encodeURIComponent(employeeId)}&credentialId=${encodeURIComponent(credentialId)}&type=windows_hello` 
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    showStatus('Windows Hello fingerprint registered successfully!', 'success');
+                    alert('Fingerprint registered via Windows Hello!');
+                } else {
+                    showStatus('Registration failed: ' + result.message, 'error');
+                }
+            } else {
+                throw new Error('Network error');
+            }
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        showStatus('Real fingerprint error: ' + error.message, 'error');
+        console.error('Windows Hello error:', error);
+    }
+}
+
+// Try to use real fingerprint for verification
+async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv) {
+    try {
+        scannerDiv.classList.add('scanning');
+        
+        statusDiv.innerHTML = `
+            <div class="status-icon scanning">Testing</div>
+            <div class="status-text">Testing real fingerprint...</div>
+            <div class="status-description">Verifying fingerprint match</div>
+        `;
+        
+        // Create WebAuthn assertion request
+        const assertionOptions = {
+            publicKey: {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Security Management System",
+                    id: window.location.hostname
+                },
+                userVerification: "required"
+            }
+        };
+        
+        // Request real fingerprint verification
+        const assertion = await navigator.credentials.get(assertionOptions);
+        
+        if (assertion) {
+            // Convert fingerprint data to string
+            const fingerprintData = arrayBufferToBase64(assertion.rawId);
+            
+            // Send to verification server
+            sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'real');
+        } else {
+            throw new Error('No fingerprint provided');
+        }
+        
+    } catch (error) {
+        console.log('Real fingerprint verification not available, using simulation:', error.message);
+        // Fall back to simulation
+        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
+    }
+}
