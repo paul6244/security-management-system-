@@ -389,7 +389,7 @@ textarea {
     <label>Fingerprint Registration</label>
     <div class="fingerprint-container">
         <div class="fingerprint-status" id="fingerprintStatus">
-            <div class="status-icon">👆</div>
+            <div class="status-icon">Finger</div>
             <div class="status-text">Fingerprint not registered yet</div>
             <div class="status-description">Register fingerprint for biometric attendance</div>
         </div>
@@ -661,7 +661,7 @@ function registerFingerprint() {
     // Simulate fingerprint registration
     const statusDiv = document.getElementById('fingerprintStatus');
     statusDiv.innerHTML = `
-        <div class="status-icon scanning">🔄</div>
+        <div class="status-icon scanning">Scanning</div>
         <div class="status-text">Scanning fingerprint...</div>
         <div class="status-description">Please place your finger on the scanner</div>
     `;
@@ -682,7 +682,7 @@ function registerFingerprint() {
         .then(data => {
             if (data.success) {
                 statusDiv.innerHTML = `
-                    <div class="status-icon success">✅</div>
+                    <div class="status-icon success">Success</div>
                     <div class="status-text">Fingerprint registered successfully!</div>
                     <div class="status-description">Biometric authentication is now enabled</div>
                 `;
@@ -691,7 +691,7 @@ function registerFingerprint() {
                 showStatus('Fingerprint registered successfully!', 'success');
             } else {
                 statusDiv.innerHTML = `
-                    <div class="status-icon error">❌</div>
+                    <div class="status-icon error">Error</div>
                     <div class="status-text">Registration failed</div>
                     <div class="status-description">${data.message}</div>
                 `;
@@ -700,7 +700,7 @@ function registerFingerprint() {
         })
         .catch(error => {
             statusDiv.innerHTML = `
-                <div class="status-icon error">❌</div>
+                <div class="status-icon error">Error</div>
                 <div class="status-text">Registration failed</div>
                 <div class="status-description">Network error occurred</div>
             `;
@@ -719,7 +719,7 @@ function testFingerprint() {
     
     const statusDiv = document.getElementById('fingerprintStatus');
     statusDiv.innerHTML = `
-        <div class="status-icon scanning">🔄</div>
+        <div class="status-icon scanning">Testing</div>
         <div class="status-text">Testing fingerprint...</div>
         <div class="status-description">Verifying fingerprint match</div>
     `;
@@ -739,14 +739,14 @@ function testFingerprint() {
         .then(data => {
             if (data.success) {
                 statusDiv.innerHTML = `
-                    <div class="status-icon success">✅</div>
+                    <div class="status-icon success">Success</div>
                     <div class="status-text">Fingerprint verified!</div>
                     <div class="status-description">Match found for ${data.employeeName}</div>
                 `;
                 showStatus('Fingerprint verification successful!', 'success');
             } else {
                 statusDiv.innerHTML = `
-                    <div class="status-icon error">❌</div>
+                    <div class="status-icon error">Error</div>
                     <div class="status-text">Verification failed</div>
                     <div class="status-description">${data.message}</div>
                 `;
@@ -755,7 +755,7 @@ function testFingerprint() {
         })
         .catch(error => {
             statusDiv.innerHTML = `
-                <div class="status-icon error">❌</div>
+                <div class="status-icon error">Error</div>
                 <div class="status-text">Verification failed</div>
                 <div class="status-description">Network error occurred</div>
             `;
