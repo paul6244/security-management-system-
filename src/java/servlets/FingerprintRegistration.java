@@ -88,7 +88,17 @@ public class FingerprintRegistration extends HttpServlet {
             }
             
         } catch (Exception e) {
-            out.println("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) {
+                errorMessage = "Unknown error occurred";
+            }
+            // Proper JSON escaping
+            String jsonMessage = errorMessage.replace("\\", "\\\\")
+                                          .replace("\"", "\\\"")
+                                          .replace("\n", "\\n")
+                                          .replace("\r", "\\r")
+                                          .replace("\t", "\\t");
+            out.println("{\"success\": false, \"message\": \"Error: " + jsonMessage + "\"}");
         } finally {
             // Close all resources properly
             try {

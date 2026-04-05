@@ -67,13 +67,29 @@ public class FingerprintVerification extends HttpServlet {
             
             if (isMatch) {
                 String fullName = firstName + " " + lastName;
-                out.println("{\"success\": true, \"message\": \"Fingerprint verified successfully\", \"employeeName\": \"" + fullName + "\"}");
+                // Escape employee name for JSON
+                String escapedName = fullName.replace("\\", "\\\\")
+                                           .replace("\"", "\\\"")
+                                           .replace("\n", "\\n")
+                                           .replace("\r", "\\r")
+                                           .replace("\t", "\\t");
+                out.println("{\"success\": true, \"message\": \"Fingerprint verified successfully\", \"employeeName\": \"" + escapedName + "\"}");
             } else {
                 out.println("{\"success\": false, \"message\": \"Fingerprint does not match. Please try again.\"}");
             }
             
         } catch (Exception e) {
-            out.println("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) {
+                errorMessage = "Unknown error occurred";
+            }
+            // Proper JSON escaping
+            String jsonMessage = errorMessage.replace("\\", "\\\\")
+                                          .replace("\"", "\\\"")
+                                          .replace("\n", "\\n")
+                                          .replace("\r", "\\r")
+                                          .replace("\t", "\\t");
+            out.println("{\"success\": false, \"message\": \"Error: " + jsonMessage + "\"}");
         } finally {
             // Close all resources properly
             try {
