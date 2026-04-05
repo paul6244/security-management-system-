@@ -88,6 +88,25 @@
                 con = SimpleDatabaseConfig.getSimpleConnection();
                 stmt = con.createStatement();
                 
+                // Check if qr_code column exists
+                boolean qrColumnExists = false;
+                try {
+                    rs = stmt.executeQuery("SELECT qr_code FROM staff_registration LIMIT 1");
+                    qrColumnExists = true;
+                    rs.close();
+                } catch (Exception e) {
+                    qrColumnExists = false;
+                }
+                
+                // Add qr_code column if it doesn't exist
+                if (!qrColumnExists) {
+                    stmt.executeUpdate("ALTER TABLE staff_registration ADD COLUMN qr_code VARCHAR(255)");
+                    out.println("<div class='success'>");
+                    out.println("<h3>✅ Added QR Code Column!</h3>");
+                    out.println("<p>Successfully added qr_code column to staff_registration table.</p>");
+                    out.println("</div>");
+                }
+                
                 // Count total staff records
                 rs = stmt.executeQuery("SELECT COUNT(*) as total FROM staff_registration");
                 int totalStaff = 0;
