@@ -1,11 +1,12 @@
 <%@ page import="java.sql.*" %>
-<%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="config.SimpleDatabaseConfig" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
 
 <%
-if(session.getAttribute("username")==null){
-    response.sendRedirect("index.jsp");
-}
+// Redirect to fingerprint system
+response.sendRedirect("fingerprintAttendance.jsp");
+return;
 %>
 
 <!DOCTYPE html>

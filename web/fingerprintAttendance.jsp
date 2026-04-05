@@ -280,8 +280,8 @@ if (employeeId != null && action != null && latitude != null && longitude != nul
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔐 Fingerprint Attendance System</h1>
-            <p style="color: #666;">Secure biometric attendance tracking</p>
+            <h1>🔐 Security Management System</h1>
+            <p style="color: #666;">Biometric Attendance Tracking System</p>
         </div>
         
         <% 
