@@ -452,6 +452,16 @@ body {
     </div>
     
     <div class="main-content">
+        <!-- Error Display -->
+        <div id="errorDisplay" style="display:none;" class="status-card verification-error">
+            <h4>⚠️ System Error</h4>
+            <div id="errorMessage"></div>
+            <div class="card-actions">
+                <button class="btn btn-small" onclick="showDiagnosticInfo()">🔍 Show Diagnostics</button>
+                <button class="btn btn-small" onclick="refreshPage()">🔄 Refresh Page</button>
+            </div>
+        </div>
+
         <!-- System Status -->
         <div class="status-card">
             <div class="card-title">🔐 System Status</div>
@@ -621,7 +631,106 @@ document.addEventListener('DOMContentLoaded', function() {
     checkSystemStatus();
     checkLocation();
     loadTodayAttendance();
+    
+    // Check for URL error parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error) {
+        showError(error);
+    }
 });
+
+// Error display functions
+function showError(errorType) {
+    const errorDisplay = document.getElementById('errorDisplay');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (errorDisplay && errorMessage) {
+        errorDisplay.style.display = 'block';
+        
+        switch(errorType) {
+            case 'database_column_type':
+                errorMessage.innerHTML = 'Database Error: Column type mismatch. Please check database schema.';
+                break;
+            case 'connection_failed':
+                errorMessage.innerHTML = 'Database Connection Failed: Unable to connect to database.';
+                break;
+            case 'parameter_missing':
+                errorMessage.innerHTML = 'Parameter Error: Required parameter is missing.';
+                break;
+            case 'unknown':
+                errorMessage.innerHTML = 'Unknown Error: An unexpected error occurred.';
+                break;
+            default:
+                errorMessage.innerHTML = 'Error: ' + errorType;
+        }
+    }
+}
+
+// Diagnostic info
+function showDiagnosticInfo() {
+    const diagnosticInfo = `
+        <div class="verification-section">
+            <h4>🔍 System Diagnostics</h4>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Database Connection</div>
+                    <div class="status-value" id="dbConnectionStatus">Checking...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Table Schema</div>
+                    <div class="status-value" id="tableSchemaStatus">Checking...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Column Types</div>
+                    <div class="status-value" id="columnTypesStatus">Checking...</div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-small" onclick="runDiagnostics()">🔍 Run Diagnostics</button>
+                <button class="btn btn-small" onclick="hideDiagnosticInfo()">❌ Close</button>
+            </div>
+        </div>
+    `;
+    
+    const errorDisplay = document.getElementById('errorDisplay');
+    errorDisplay.innerHTML = diagnosticInfo;
+    errorDisplay.style.display = 'block';
+    
+    runDiagnostics();
+}
+
+function hideDiagnosticInfo() {
+    const errorDisplay = document.getElementById('errorDisplay');
+    errorDisplay.style.display = 'none';
+}
+
+function runDiagnostics() {
+    // Check database connection
+    fetch('EnhancedAttendance?action=diagnostic')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('dbConnectionStatus').textContent = '✅ Connected';
+                document.getElementById('tableSchemaStatus').textContent = '✅ Valid';
+                document.getElementById('columnTypesStatus').textContent = '✅ Compatible';
+            } else {
+                document.getElementById('dbConnectionStatus').textContent = '❌ Failed';
+                document.getElementById('tableSchemaStatus').textContent = '❌ Invalid';
+                document.getElementById('columnTypesStatus').textContent = '❌ Mismatch';
+            }
+        })
+        .catch(error => {
+            document.getElementById('dbConnectionStatus').textContent = '❌ Error';
+            document.getElementById('tableSchemaStatus').textContent = '❌ Unknown';
+            document.getElementById('columnTypesStatus').textContent = '❌ Check Failed';
+        });
+}
+
+function refreshPage() {
+    location.reload();
+}
 
 // System status checks
 function checkSystemStatus() {

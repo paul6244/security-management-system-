@@ -134,7 +134,7 @@ public class EnhancedAttendance extends HttpServlet {
                             "INSERT INTO attendance (staff_id, employee_id, first_name, last_name, " +
                             "department, latitude, longitude, check_in_time, attendance_type, " +
                             "verification_method, face_verified, selfie_path, verification_data) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)"
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                         );
                         
                         pstmt.setInt(1, staffDbId);
@@ -142,8 +142,8 @@ public class EnhancedAttendance extends HttpServlet {
                         pstmt.setString(3, firstName);
                         pstmt.setString(4, lastName);
                         pstmt.setString(5, department);
-                        pstmt.setDouble(6, latitude);
-                        pstmt.setDouble(7, longitude);
+                        pstmt.setString(6, String.valueOf(latitude)); // Convert to string
+                        pstmt.setString(7, String.valueOf(longitude)); // Convert to string
                         pstmt.setString(8, method);
                         pstmt.setString(9, getVerificationMethod(method));
                         pstmt.setBoolean(10, isFaceVerified(method));
