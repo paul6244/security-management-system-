@@ -1,5 +1,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.sql.Timestamp" %>
+<%@ page import="model.Mymodel" %>
 <%@ page import="config.SimpleDatabaseConfig" %>
 
 <%
@@ -442,7 +443,7 @@ textarea {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <a href="personnelDashboard.jsp">Dashboard</a>
-    <a href="attendance.jsp">Attendance</a>
+    <a href="enhancedAttendanceSystem.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
     <a href="Logout">Logout</a>
 </div>
@@ -1048,8 +1049,9 @@ async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv)
         }
         
     } catch (error) {
-        showStatus('Real fingerprint error: ' + error.message, 'error');
-        console.error('Windows Hello error:', error);
+        console.log('Real fingerprint verification not available, using simulation:', error.message);
+        // Fall back to simulation
+        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
     }
 }
 
@@ -1083,20 +1085,6 @@ async function tryRealFingerprintVerification(employeeId, statusDiv, scannerDiv)
             // Convert fingerprint data to string
             const fingerprintData = arrayBufferToBase64(assertion.rawId);
             
-            // Send to verification server
-            sendVerificationToServer(employeeId, fingerprintData, statusDiv, scannerDiv, 'real');
-        } else {
-            throw new Error('No fingerprint provided');
-        }
-        
-    } catch (error) {
-        console.log('Real fingerprint verification not available, using simulation:', error.message);
-        // Fall back to simulation
-        useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv);
-    }
-}
-}
-
 
 // Use simulated fingerprint verification (current working method)
 function useSimulatedFingerprintVerification(employeeId, statusDiv, scannerDiv) {
