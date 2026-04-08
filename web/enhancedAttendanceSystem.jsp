@@ -491,7 +491,6 @@ body {
                 <div class="card-title">⚡ Quick Attendance</div>
                 <div class="card-actions">
                     <button class="btn btn-success" onclick="showQRSection()">QR Code</button>
-                    <button class="btn btn-primary" onclick="showSelfieSection()">Face Recognition</button>
                     <button class="btn btn-warning" onclick="showManualSection()">Manual Entry</button>
                 </div>
             </div>
@@ -509,23 +508,35 @@ body {
                 </div>
             </div>
 
-            <!-- Face Recognition Section -->
-            <div class="verification-section" id="selfieSection" style="display:none;">
-                <div class="card-title">👤 Face Recognition Check-in</div>
+            <!-- QR Code Section -->
+            <div class="qr-section" id="qrSection" style="display:none;">
+                <div class="card-title">� QR Code Check-in</div>
+                <div class="form-group">
+                    <label for="qrCode">Enter QR Code:</label>
+                    <input type="text" id="qrCode" placeholder="Scan QR code or enter manually">
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="verifyQRCode()">Verify & Check In</button>
+                    <button class="btn" onclick="showQuickActions()">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Manual Entry Section -->
+            <div class="verification-section" id="manualSection" style="display:none;">
+                <div class="card-title">✍️ Manual Entry</div>
                 
-                <div class="camera-container">
-                    <video id="camera" autoplay></video>
-                    <canvas id="selfie-canvas"></canvas>
-                    <div class="liveness-indicator" id="livenessIndicator">👁 Live</div>
+                <div class="form-group">
+                    <label for="manualStaffId">Staff ID:</label>
+                    <input type="text" id="manualStaffId" placeholder="Enter staff ID">
                 </div>
                 
-                <div class="verification-result" id="verificationResult">
-                    <!-- Result will be shown here -->
+                <div class="form-group">
+                    <label for="manualPassword">Password:</label>
+                    <input type="password" id="manualPassword" placeholder="Enter password">
                 </div>
                 
                 <div class="card-actions">
-                    <button class="btn btn-success" onclick="captureSelfie()">📸 Capture Selfie</button>
-                    <button class="btn btn-primary" onclick="verifyFace()">🔍 Verify Face</button>
+                    <button class="btn btn-primary" onclick="manualCheckIn()">� Manual Check-in</button>
                     <button class="btn" onclick="showQuickActions()">Cancel</button>
                 </div>
             </div>
@@ -569,14 +580,6 @@ body {
             <div class="security-section">
                 <div class="card-title">🛡️ Security Status</div>
                 <div class="security-grid">
-                    <div class="security-item">
-                        <div class="security-label">Elevation Check</div>
-                        <div class="security-value" id="elevationStatus">Checking...</div>
-                    </div>
-                    <div class="security-item">
-                        <div class="security-label">Device Trust</div>
-                        <div class="security-value" id="deviceTrustStatus">Checking...</div>
-                    </div>
                     <div class="security-item">
                         <div class="security-label">Network Security</div>
                         <div class="security-value" id="networkSecurityStatus">Checking...</div>
@@ -639,6 +642,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (error) {
         showError(error);
     }
+    
+    // Auto-show QR section by default
+    showQRSection();
 });
 
 // Error display functions
@@ -734,13 +740,6 @@ function refreshPage() {
 
 // System status checks
 function checkSystemStatus() {
-    // Check camera
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        updateSecurityStatus('deviceTrust', 'good');
-    } else {
-        updateSecurityStatus('deviceTrust', 'warning');
-    }
-    
     // Check GPS
     if (navigator.geolocation) {
         updateSecurityStatus('gps', 'good');
@@ -852,11 +851,10 @@ function verifyQRCode() {
     verifyQRCodeAndCheckIn(qrCode, 'qr');
 }
 
-// Face Recognition section
-function showSelfieSection() {
+// QR Code section (default)
+function showQRSection() {
     hideAllSections();
-    document.getElementById('selfieSection').style.display = 'block';
-    startCamera();
+    document.getElementById('qrSection').style.display = 'block';
 }
 
 function showManualSection() {
@@ -1188,7 +1186,6 @@ function updateLastCheckin() {
 // UI helpers
 function hideAllSections() {
     document.getElementById('qrSection').style.display = 'none';
-    document.getElementById('selfieSection').style.display = 'none';
     document.getElementById('manualSection').style.display = 'none';
 }
 
