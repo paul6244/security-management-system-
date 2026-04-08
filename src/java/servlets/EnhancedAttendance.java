@@ -33,20 +33,46 @@ public class EnhancedAttendance extends HttpServlet {
         Gson gson = new Gson();
         
         try {
-            // Read JSON request body
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = request.getReader().readLine()) != null) {
-                sb.append(line);
+            // Handle both GET and POST requests
+            String staffId = request.getParameter("staffId");
+            String method = request.getParameter("method");
+            String verificationData = request.getParameter("verificationData");
+            String timestamp = request.getParameter("timestamp");
+            
+            // For POST requests, parse JSON body
+            if (request.getMethod().equalsIgnoreCase("POST")) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = request.getReader().readLine()) != null) {
+                    sb.append(line);
+                }
+                
+                String requestBody = sb.toString();
+                try {
+                    JsonObject jsonRequest = JsonParser.parseString(requestBody).getAsJsonObject();
+                    
+                    if (jsonRequest.has("staffId")) {
+                        staffId = jsonRequest.get("staffId").getAsString();
+                    }
+                    if (jsonRequest.has("method")) {
+                        method = jsonRequest.get("method").getAsString();
+                    }
+                    if (jsonRequest.has("verificationData")) {
+                        verificationData = jsonRequest.get("verificationData").toString();
+                    }
+                    if (jsonRequest.has("timestamp")) {
+                        timestamp = jsonRequest.get("timestamp").getAsString();
+                    }
+                } catch (Exception e) {
+                    // JSON parsing failed, use URL parameters
+                }
             }
             
-            String requestBody = sb.toString();
-            JsonObject jsonRequest = JsonParser.parseString(requestBody).getAsJsonObject();
-            
-            String staffId = jsonRequest.has("staffId") ? jsonRequest.get("staffId").getAsString() : null;
-            String method = jsonRequest.has("method") ? jsonRequest.get("method").getAsString() : null;
-            String verificationData = jsonRequest.has("verificationData") ? jsonRequest.get("verificationData").toString() : null;
-            String timestamp = jsonRequest.has("timestamp") ? jsonRequest.get("timestamp").getAsString() : null;
+            // Only use JSON values if they exist, otherwise use URL parameters
+            String staffId = (jsonRequest != null && jsonRequest.has("staffId")) ? jsonRequest.get("staffId").getAsString() : staffId;
+            String method = (jsonRequest != null && jsonRequest.has("method")) ? jsonRequest.get("method").getAsString() : method;
+            String verificationData = (jsonRequest != null && jsonRequest.has("verificationData")) ? jsonRequest.get("verificationData").toString() : verificationData;
+            String timestamp = (jsonRequest != null && jsonRequest.has("timestamp")) ? jsonRequest.get("timestamp").getAsString() : timestamp;
             
             if (staffId == null || staffId.trim().isEmpty()) {
                 String jsonResponse = gson.toJson(new Response(false, "Staff ID is required"));
