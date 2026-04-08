@@ -311,7 +311,7 @@ th, td {
 <div class="sidebar">
     <a href="personnelDashboard.jsp">Dashboard</a>
     <a href="personnelDashboard.jsp">Checklist</a>
-    <a href="staffRegistrationIntegrated.jsp">Attendance</a>
+    <a href="attendance.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
     <a href="securityOfficerSettings.jsp">Settings</a>
     <a href="Logout">Logout</a>
