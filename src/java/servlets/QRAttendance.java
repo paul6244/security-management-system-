@@ -6,21 +6,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-@WebServlet("/EnhancedAttendance")
-public class EnhancedAttendance extends HttpServlet {
+@WebServlet("/QRAttendance")
+public class QRAttendance extends HttpServlet {
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
@@ -33,57 +27,17 @@ public class EnhancedAttendance extends HttpServlet {
         Gson gson = new Gson();
         
         try {
-            // Handle both GET and POST requests
-            String staffId = request.getParameter("staffId");
+            String qrCode = request.getParameter("qrCode");
             String method = request.getParameter("method");
-            String verificationData = request.getParameter("verificationData");
-            String timestamp = request.getParameter("timestamp");
             
-            // For POST requests, parse JSON body
-            if (request.getMethod().equalsIgnoreCase("POST")) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = request.getReader().readLine()) != null) {
-                    sb.append(line);
-                }
-                
-                String requestBody = sb.toString();
-                try {
-                    JsonObject jsonRequest = JsonParser.parseString(requestBody).getAsJsonObject();
-                    
-                    if (jsonRequest.has("staffId")) {
-                        staffId = jsonRequest.get("staffId").getAsString();
-                    }
-                    if (jsonRequest.has("method")) {
-                        method = jsonRequest.get("method").getAsString();
-                    }
-                    if (jsonRequest.has("verificationData")) {
-                        verificationData = jsonRequest.get("verificationData").toString();
-                    }
-                    if (jsonRequest.has("timestamp")) {
-                        timestamp = jsonRequest.get("timestamp").getAsString();
-                    }
-                } catch (Exception e) {
-                    // JSON parsing failed, use URL parameters
-                }
-            }
-            
-            // Only use JSON values if they exist, otherwise use URL parameters
-            String staffId = (jsonRequest != null && jsonRequest.has("staffId")) ? jsonRequest.get("staffId").getAsString() : staffId;
-            String method = (jsonRequest != null && jsonRequest.has("method")) ? jsonRequest.get("method").getAsString() : method;
-            String verificationData = (jsonRequest != null && jsonRequest.has("verificationData")) ? jsonRequest.get("verificationData").toString() : verificationData;
-            String timestamp = (jsonRequest != null && jsonRequest.has("timestamp")) ? jsonRequest.get("timestamp").getAsString() : timestamp;
-            
-            if (staffId == null || staffId.trim().isEmpty()) {
-                String jsonResponse = gson.toJson(new Response(false, "Staff ID is required"));
+            if (qrCode == null || qrCode.trim().isEmpty()) {
+                String jsonResponse = gson.toJson(new Response(false, "QR Code is required"));
                 out.print(jsonResponse);
                 return;
             }
             
             if (method == null || method.trim().isEmpty()) {
-                String jsonResponse = gson.toJson(new Response(false, "Attendance method is required"));
-                out.print(jsonResponse);
-                return;
+                method = "qr";
             }
             
             Connection conn = null;
@@ -92,6 +46,15 @@ public class EnhancedAttendance extends HttpServlet {
             
             try {
                 conn = config.SimpleDatabaseConfig.getSimpleConnection();
+                
+                // Extract staff ID from QR code
+                String staffId = extractStaffIdFromQR(qrCode);
+                
+                if (staffId == null) {
+                    String jsonResponse = gson.toJson(new Response(false, "Invalid QR code format"));
+                    out.print(jsonResponse);
+                    return;
+                }
                 
                 // Get staff information
                 pstmt = conn.prepareStatement(
@@ -130,29 +93,6 @@ public class EnhancedAttendance extends HttpServlet {
                     attendanceRs.close();
                     
                     if (!alreadyMarked) {
-                        // Parse verification data for location
-                        double latitude = 0.0;
-                        double longitude = 0.0;
-                        
-                        if (verificationData != null && !verificationData.equals("null")) {
-                            try {
-                                JsonObject verificationJson = JsonParser.parseString(verificationData).getAsJsonObject();
-                                if (verificationJson.has("location")) {
-                                    JsonObject location = verificationJson.getAsJsonObject("location");
-                                    if (location.has("latitude")) {
-                                        latitude = location.get("latitude").getAsDouble();
-                                    }
-                                    if (location.has("longitude")) {
-                                        longitude = location.get("longitude").getAsDouble();
-                                    }
-                                }
-                            } catch (Exception e) {
-                                // Use default values if parsing fails
-                                latitude = 0.0;
-                                longitude = 0.0;
-                            }
-                        }
-                        
                         // Mark attendance
                         if (pstmt != null) pstmt.close();
                         
@@ -160,7 +100,7 @@ public class EnhancedAttendance extends HttpServlet {
                             "INSERT INTO attendance (staff_id, employee_id, first_name, last_name, " +
                             "department, latitude, longitude, check_in_time, attendance_type, " +
                             "verification_method, face_verified, selfie_path, verification_data) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)"
                         );
                         
                         pstmt.setInt(1, staffDbId);
@@ -168,13 +108,13 @@ public class EnhancedAttendance extends HttpServlet {
                         pstmt.setString(3, firstName);
                         pstmt.setString(4, lastName);
                         pstmt.setString(5, department);
-                        pstmt.setString(6, String.valueOf(latitude)); // Convert to string
-                        pstmt.setString(7, String.valueOf(longitude)); // Convert to string
+                        pstmt.setString(6, "0.0"); // Default latitude
+                        pstmt.setString(7, "0.0"); // Default longitude
                         pstmt.setString(8, method);
-                        pstmt.setString(9, getVerificationMethod(method));
-                        pstmt.setBoolean(10, isFaceVerified(method));
-                        pstmt.setString(11, getSelfiePath(method, verificationData, selfiePath));
-                        pstmt.setString(12, verificationData);
+                        pstmt.setString(9, "QR Code");
+                        pstmt.setBoolean(10, false);
+                        pstmt.setString(11, selfiePath);
+                        pstmt.setString(12, qrCode);
                         
                         int rowsAffected = pstmt.executeUpdate();
                         
@@ -187,14 +127,14 @@ public class EnhancedAttendance extends HttpServlet {
                             record.setFirstName(firstName);
                             record.setLastName(lastName);
                             record.setDepartment(department);
-                            record.setLatitude(latitude);
-                            record.setLongitude(longitude);
+                            record.setLatitude(0.0);
+                            record.setLongitude(0.0);
                             record.setCheckInTime(new Timestamp(System.currentTimeMillis()));
                             record.setAttendanceType(method);
-                            record.setVerificationMethod(getVerificationMethod(method));
-                            record.setFaceVerified(isFaceVerified(method));
-                            record.setSelfiePath(getSelfiePath(method, verificationData, selfiePath));
-                            record.setVerificationData(verificationData);
+                            record.setVerificationMethod("QR Code");
+                            record.setFaceVerified(false);
+                            record.setSelfiePath(selfiePath);
+                            record.setVerificationData(qrCode);
                             
                             String jsonResponse = gson.toJson(new Response(true, "Attendance marked successfully", record));
                             out.print(jsonResponse);
@@ -261,7 +201,7 @@ public class EnhancedAttendance extends HttpServlet {
             try {
                 conn = config.SimpleDatabaseConfig.getSimpleConnection();
                 
-                // Get today's attendance for the staff member
+                // Get today's attendance for staff member
                 pstmt = conn.prepareStatement(
                     "SELECT id, staff_id, employee_id, first_name, last_name, " +
                     "department, latitude, longitude, check_in_time, attendance_type, " +
@@ -297,7 +237,7 @@ public class EnhancedAttendance extends HttpServlet {
                 }
                 
                 // Create response with attendance data
-                Map<String, Object> responseData = new HashMap<>();
+                Map<String, Object> responseData = new java.util.HashMap<>();
                 responseData.put("success", true);
                 responseData.put("message", "Attendance records retrieved successfully");
                 responseData.put("attendance", attendanceList);
@@ -327,35 +267,15 @@ public class EnhancedAttendance extends HttpServlet {
     }
     
     // Helper methods
-    private String getVerificationMethod(String method) {
-        switch (method) {
-            case "qr":
-                return "QR Code";
-            case "face_recognition":
-                return "Face Recognition";
-            case "manual":
-                return "Manual Entry";
-            default:
-                return "Unknown";
-        }
-    }
-    
-    private boolean isFaceVerified(String method) {
-        return "face_recognition".equals(method);
-    }
-    
-    private String getSelfiePath(String method, String verificationData, String existingPath) {
-        if ("face_recognition".equals(method) && verificationData != null) {
-            try {
-                JsonObject verificationJson = JsonParser.parseString(verificationData).getAsJsonObject();
-                if (verificationJson.has("selfie")) {
-                    return verificationJson.get("selfie").getAsString();
-                }
-            } catch (Exception e) {
-                // Return existing path if parsing fails
+    private String extractStaffIdFromQR(String qrCode) {
+        // Simple QR code parsing for demo
+        if (qrCode.startsWith("STAFF_")) {
+            String[] parts = qrCode.split("_");
+            if (parts.length >= 3) {
+                return parts[2]; // Return staff ID part
             }
         }
-        return existingPath;
+        return null;
     }
     
     // Response class for JSON
