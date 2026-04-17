@@ -199,12 +199,12 @@
             
             <div id="alert" class="alert"></div>
 
-            <c:if test="${not empty param.id and not empty param.date}">
+            <c:if test="${not empty param.staffId and not empty param.date}">
                 <div class="qr-info">
                     <h3>Session Information</h3>
                     <div class="detail-row">
-                        <span class="detail-label">Class ID:</span>
-                        <span class="detail-value">${param.id}</span>
+                        <span class="detail-label">Staff ID:</span>
+                        <span class="detail-value">${param.staffId}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Date:</span>
@@ -213,19 +213,19 @@
                 </div>
 
                 <form id="attendanceForm" method="POST" action="MarkAttendance">
-                    <input type="hidden" name="id" value="${param.id}">
+                    <input type="hidden" name="staffId" value="${param.staffId}">
                     <input type="hidden" name="date" value="${param.date}">
                     
                     <div class="form-group">
-                        <label for="studentId">Student ID:</label>
-                        <input type="text" id="studentId" name="studentId" placeholder="Enter your Student ID" required>
+                        <label for="employeeId">Employee ID:</label>
+                        <input type="text" id="employeeId" name="employeeId" placeholder="Enter your Employee ID" required>
                     </div>
                     
                     <button type="submit" class="btn">Mark Attendance</button>
                 </form>
             </c:if>
 
-            <c:if test="${empty param.id or empty param.date}">
+            <c:if test="${empty param.staffId or empty param.date}">
                 <div class="alert alert-error" style="display: block;">
                     Invalid QR code or missing parameters. Please scan a valid QR code.
                 </div>

@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="model.Mymodel" %>
+<%@ page import="config.DatabaseConfig" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,12 +212,46 @@
 
             <form id="qrForm">
                 <div class="form-group">
-                    <label for="classId">Class ID:</label>
-                    <select id="classId" name="classId" required>
-                        <option value="class1">Class 1 - Morning Session</option>
-                        <option value="class2">Class 2 - Afternoon Session</option>
-                        <option value="class3">Class 3 - Evening Session</option>
-                        <option value="class4">Class 4 - Special Session</option>
+                    <label for="staffId">Select Staff Member:</label>
+                    <select id="staffId" name="staffId" required>
+                        <option value="">-- Select Staff Member --</option>
+                        <%
+                            Connection conn = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseConfig.getConnection();
+                                if(conn != null) {
+                                    String sql = "SELECT sp.id, sp.name, sp.shift_time, b.name as branch_name " +
+                                                "FROM security_personnel sp " +
+                                                "LEFT JOIN branches b ON sp.branch_id = b.id " +
+                                                "ORDER BY sp.name";
+                                    PreparedStatement stmt = conn.prepareStatement(sql);
+                                    rs = stmt.executeQuery();
+                                    
+                                    while(rs.next()) {
+                                        String staffId = rs.getString("id");
+                                        String staffName = rs.getString("name");
+                                        String branchName = rs.getString("branch_name");
+                                        String shiftTime = rs.getString("shift_time");
+                        %>
+                        <option value="<%= staffId %>"><%= staffName %> - <%= branchName %> (<%= shiftTime %>)</option>
+                        <%
+                                    }
+                                    rs.close();
+                                    stmt.close();
+                                }
+                            } catch(Exception e) {
+                                // Handle database connection error gracefully
+                                out.println("<option value=''>Database connection error</option>");
+                            } finally {
+                                try {
+                                    if(rs != null) rs.close();
+                                    if(conn != null) conn.close();
+                                } catch(Exception e) {
+                                    // Ignore cleanup errors
+                                }
+                            }
+                        %>
                     </select>
                 </div>
 
@@ -258,17 +295,22 @@
         });
 
         function generateQRCode() {
-            const classId = document.getElementById('classId').value;
+            const staffId = document.getElementById('staffId').value;
             const date = document.getElementById('date').value;
-
+            
+            if (!staffId || !date) {
+                showAlert('Please select a staff member and date', 'error');
+                return;
+            }
+            
             // Show loading
             document.getElementById('loading').style.display = 'block';
             document.getElementById('qrContainer').style.display = 'none';
             hideAlert();
-
+            
             // Generate QR code
-            var qrUrl = 'QRCodeGenerator?classId=' + encodeURIComponent(classId) + '&date=' + encodeURIComponent(date);
-            var fullUrl = 'qrAttendance.jsp?id=' + encodeURIComponent(classId) + '&date=' + encodeURIComponent(date);
+            var qrUrl = 'QRCodeGenerator?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+            var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
 
             // Load QR code image
             const img = new Image();

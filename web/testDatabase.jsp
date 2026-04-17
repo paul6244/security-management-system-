@@ -1,4 +1,5 @@
 <%@ page import="java.sql.*" %>
+<%@ page import="config.DatabaseConfig" %>
 <%
 if(session.getAttribute("username")==null){
     response.sendRedirect("index.jsp");
@@ -26,8 +27,9 @@ if(session.getAttribute("username")==null){
     <div class="result">
         <h3>shift_checks Table Structure</h3>
         <%
+        Connection conn = null;
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DatabaseConfig.getConnection();
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
             
             // Show table structure

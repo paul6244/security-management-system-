@@ -1,6 +1,7 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="model.Mymodel" %>
+<%@ page import="config.DatabaseConfig" %>
 
 <%
 if(session.getAttribute("username")==null){
@@ -325,13 +326,15 @@ textarea {
 <div id="staffListContainer">
 
 <%
-// Load registered staff from database using same connection as Mymodel
+// Load registered staff from database using DatabaseConfig
+Connection con = null;
+PreparedStatement ps = null;
+ResultSet rs = null;
 try {
-    Class.forName("com.mysql.cj.jdbc.Driver");
-    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+    con = DatabaseConfig.getConnection();
     String sql = "SELECT * FROM staff_registration ORDER BY created_at DESC";
-    PreparedStatement ps = con.prepareStatement(sql);
-    ResultSet rs = ps.executeQuery();
+    ps = con.prepareStatement(sql);
+    rs = ps.executeQuery();
     
     boolean hasStaff = false;
     while(rs.next()) {
@@ -371,9 +374,9 @@ try {
 
 <%
     }
-    rs.close();
-    ps.close();
-    con.close();
+    if(rs != null) rs.close();
+    if(ps != null) ps.close();
+    if(con != null) con.close();
     
     if(!hasStaff) {
 %>
@@ -385,16 +388,16 @@ try {
 
 <%
     }
-} catch(ClassNotFoundException e) {
-%>
+} finally {
+    try {
+        if(rs != null) rs.close();
+        if(ps != null) ps.close();
+        if(con != null) con.close();
+    } catch(Exception e) {
+        // Ignore cleanup errors
+    }
+}
 
-<div style="text-align:center; padding:40px; background:#f8d7da; border-radius:10px; margin:20px 0;">
-    <h3 style="color:#721c24; margin-bottom:10px;">MySQL Driver Not Found</h3>
-    <p style="color:#721c24;">The MySQL JDBC driver is not available. Please add the MySQL connector JAR to your project.</p>
-    <p style="color:#721c24;">Download from: https://dev.mysql.com/downloads/connector/j/</p>
-</div>
-
-<%
 } catch(SQLException e) {
     if(e.getMessage().contains("doesn't exist")) {
 %>

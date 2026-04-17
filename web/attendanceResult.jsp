@@ -202,20 +202,20 @@
                 </c:otherwise>
             </c:choose>
 
-            <c:if test="${not empty classId and not empty date and not empty studentId}">
+            <c:if test="${not empty staffId and not empty date and not empty employeeId}">
                 <div class="details">
                     <h3>Attendance Details</h3>
                     <div class="detail-row">
-                        <span class="detail-label">Class ID:</span>
-                        <span class="detail-value">${classId}</span>
+                        <span class="detail-label">Staff ID:</span>
+                        <span class="detail-value">${staffId}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Date:</span>
                         <span class="detail-value">${date}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Student ID:</span>
-                        <span class="detail-value">${studentId}</span>
+                        <span class="detail-label">Employee ID:</span>
+                        <span class="detail-value">${employeeId}</span>
                     </div>
                     <c:if test="${not empty timestamp}">
                         <div class="detail-row">

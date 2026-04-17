@@ -30,18 +30,21 @@ public class QRCodeGeneratorServlet extends HttpServlet {
             throws ServletException, IOException {
         
         // Get parameters
-        String classId = request.getParameter("classId");
+        String staffId = request.getParameter("staffId");
         String dateParam = request.getParameter("date");
         
         // Use today's date if not provided
         String date = (dateParam != null && !dateParam.isEmpty()) ? 
                      dateParam : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         
-        // Use default class ID if not provided
-        String finalClassId = (classId != null && !classId.isEmpty()) ? classId : "class1";
+        // Validate staff ID
+        if (staffId == null || staffId.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Staff ID is required");
+            return;
+        }
         
         // Generate the attendance URL
-        String attendanceUrl = String.format("%s?id=%s&date=%s", BASE_URL, finalClassId, date);
+        String attendanceUrl = String.format("%s?staffId=%s&date=%s", BASE_URL, staffId, date);
         
         // Generate QR code
         try {

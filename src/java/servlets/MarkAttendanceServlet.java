@@ -34,14 +34,14 @@ public class MarkAttendanceServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        String classId = request.getParameter("id");
+        String staffId = request.getParameter("staffId");
         String date = request.getParameter("date");
-        String studentId = request.getParameter("studentId");
+        String employeeId = request.getParameter("employeeId");
         
         // Validate required parameters
-        if (classId == null || classId.trim().isEmpty() || 
+        if (staffId == null || staffId.trim().isEmpty() || 
             date == null || date.trim().isEmpty() || 
-            studentId == null || studentId.trim().isEmpty()) {
+            employeeId == null || employeeId.trim().isEmpty()) {
             
             request.setAttribute("message", "Missing required parameters. Please scan the QR code again.");
             request.setAttribute("messageType", "error");
@@ -51,12 +51,12 @@ public class MarkAttendanceServlet extends HttpServlet {
         
         try {
             // Check if attendance is already marked
-            if (isAttendanceAlreadyMarked(classId, date, studentId)) {
+            if (isAttendanceAlreadyMarked(staffId, date, employeeId)) {
                 request.setAttribute("message", "Attendance already marked for this session.");
                 request.setAttribute("messageType", "warning");
             } else {
                 // Mark attendance
-                if (markAttendance(classId, date, studentId)) {
+                if (markAttendance(staffId, date, employeeId)) {
                     request.setAttribute("message", "Attendance marked successfully!");
                     request.setAttribute("messageType", "success");
                 } else {
@@ -66,9 +66,9 @@ public class MarkAttendanceServlet extends HttpServlet {
             }
             
             // Set additional attributes for display
-            request.setAttribute("classId", classId);
+            request.setAttribute("staffId", staffId);
             request.setAttribute("date", date);
-            request.setAttribute("studentId", studentId);
+            request.setAttribute("employeeId", employeeId);
             request.setAttribute("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             
             request.getRequestDispatcher("attendanceResult.jsp").forward(request, response);
@@ -100,15 +100,15 @@ public class MarkAttendanceServlet extends HttpServlet {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
     
-    private boolean isAttendanceAlreadyMarked(String classId, String date, String studentId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM qr_attendance WHERE class_id = ? AND date = ? AND student_id = ?";
+    private boolean isAttendanceAlreadyMarked(String staffId, String date, String employeeId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM staff_attendance WHERE staff_id = ? AND date = ? AND employee_id = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, classId);
+            stmt.setString(1, staffId);
             stmt.setString(2, date);
-            stmt.setString(3, studentId);
+            stmt.setString(3, employeeId);
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -120,15 +120,15 @@ public class MarkAttendanceServlet extends HttpServlet {
         return false;
     }
     
-    private boolean markAttendance(String classId, String date, String studentId) throws SQLException {
-        String sql = "INSERT INTO qr_attendance (class_id, date, student_id, marked_at, status) VALUES (?, ?, ?, ?, ?)";
+    private boolean markAttendance(String staffId, String date, String employeeId) throws SQLException {
+        String sql = "INSERT INTO staff_attendance (staff_id, date, employee_id, marked_at, status) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, classId);
+            stmt.setString(1, staffId);
             stmt.setString(2, date);
-            stmt.setString(3, studentId);
+            stmt.setString(3, employeeId);
             stmt.setString(4, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             stmt.setString(5, "PRESENT");
             
@@ -141,16 +141,16 @@ public class MarkAttendanceServlet extends HttpServlet {
      * Initialize database table if it doesn't exist
      */
     public static void initializeDatabase() {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS qr_attendance (" +
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS staff_attendance (" +
             "id INT AUTO_INCREMENT PRIMARY KEY," +
-            "class_id VARCHAR(50) NOT NULL," +
+            "staff_id VARCHAR(50) NOT NULL," +
             "date DATE NOT NULL," +
-            "student_id VARCHAR(50) NOT NULL," +
+            "employee_id VARCHAR(50) NOT NULL," +
             "marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
             "status VARCHAR(20) DEFAULT 'PRESENT'," +
-            "UNIQUE KEY unique_attendance (class_id, date, student_id)," +
-            "INDEX idx_class_date (class_id, date)," +
-            "INDEX idx_student (student_id)" +
+            "UNIQUE KEY unique_attendance (staff_id, date, employee_id)," +
+            "INDEX idx_staff_date (staff_id, date)," +
+            "INDEX idx_employee (employee_id)" +
             ")";
         
         try (Connection conn = DriverManager.getConnection(

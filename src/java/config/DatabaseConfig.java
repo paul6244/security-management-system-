@@ -127,7 +127,7 @@ public class DatabaseConfig {
                         System.out.println("DEBUG: MySQL driver loaded successfully");
                         
                         // MySQL connection parameters
-                        String mysqlUrl = "jdbc:mysql://localhost:3306/securitymanagementsystem?useSSL=false&serverTimezone=UTC";
+                        String mysqlUrl = "jdbc:mysql://localhost:3306/security_management?useSSL=false&serverTimezone=UTC";
                         String mysqlUser = "root";
                         String mysqlPassword = "";
                         
