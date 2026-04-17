@@ -221,20 +221,21 @@
                             try {
                                 conn = DatabaseConfig.getConnection();
                                 if(conn != null) {
-                                    String sql = "SELECT sp.id, sp.name, sp.shift_time, b.name as branch_name " +
-                                                "FROM security_personnel sp " +
-                                                "LEFT JOIN branches b ON sp.branch_id = b.id " +
-                                                "ORDER BY sp.name";
+                                    String sql = "SELECT sr.id, sr.first_name, sr.last_name, sr.department, sr.position, sr.employee_id " +
+                                                "FROM staff_registration sr " +
+                                                "ORDER BY sr.first_name, sr.last_name";
                                     PreparedStatement stmt = conn.prepareStatement(sql);
                                     rs = stmt.executeQuery();
                                     
                                     while(rs.next()) {
                                         String staffId = rs.getString("id");
-                                        String staffName = rs.getString("name");
-                                        String branchName = rs.getString("branch_name");
-                                        String shiftTime = rs.getString("shift_time");
+                                        String firstName = rs.getString("first_name");
+                                        String lastName = rs.getString("last_name");
+                                        String department = rs.getString("department");
+                                        String position = rs.getString("position");
+                                        String employeeId = rs.getString("employee_id");
                         %>
-                        <option value="<%= staffId %>"><%= staffName %> - <%= branchName %> (<%= shiftTime %>)</option>
+                        <option value="<%= staffId %>"><%= firstName %> <%= lastName %> - <%= department %> (<%= position %>)</option>
                         <%
                                     }
                                     rs.close();
