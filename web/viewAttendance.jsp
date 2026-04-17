@@ -35,6 +35,32 @@
             font-size: 1.8rem;
             font-weight: 600;
         }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .nav-tabs a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            color: #666;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs a:hover {
+            background: rgba(103, 126, 234, 0.1);
+            color: #333;
+        }
+        
+        .nav-tabs a.active {
+            background: #677eea;
+            color: white;
+        }
 
         .container {
             flex: 1;
@@ -202,6 +228,13 @@
 <body>
     <div class="header">
         <h1>QR Code Attendance System</h1>
+        <div class="nav-tabs">
+            <a href="personnelDashboard.jsp">Dashboard</a>
+            <a href="viewAttendance.jsp" class="active">QR Code</a>
+            <a href="staffRegistration.jsp">Staff Registration</a>
+            <a href="securityOfficerSettings.jsp">Settings</a>
+            <a href="Logout">Logout</a>
+        </div>
     </div>
 
     <div class="container">
