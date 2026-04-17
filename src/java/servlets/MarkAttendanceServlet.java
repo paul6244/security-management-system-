@@ -141,19 +141,17 @@ public class MarkAttendanceServlet extends HttpServlet {
      * Initialize database table if it doesn't exist
      */
     public static void initializeDatabase() {
-        String createTableSQL = """
-            CREATE TABLE IF NOT EXISTS qr_attendance (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                class_id VARCHAR(50) NOT NULL,
-                date DATE NOT NULL,
-                student_id VARCHAR(50) NOT NULL,
-                marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                status VARCHAR(20) DEFAULT 'PRESENT',
-                UNIQUE KEY unique_attendance (class_id, date, student_id),
-                INDEX idx_class_date (class_id, date),
-                INDEX idx_student (student_id)
-            )
-            """;
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS qr_attendance (" +
+            "id INT AUTO_INCREMENT PRIMARY KEY," +
+            "class_id VARCHAR(50) NOT NULL," +
+            "date DATE NOT NULL," +
+            "student_id VARCHAR(50) NOT NULL," +
+            "marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+            "status VARCHAR(20) DEFAULT 'PRESENT'," +
+            "UNIQUE KEY unique_attendance (class_id, date, student_id)," +
+            "INDEX idx_class_date (class_id, date)," +
+            "INDEX idx_student (student_id)" +
+            ")";
         
         try (Connection conn = DriverManager.getConnection(
                 System.getenv("DATABASE_URL") != null ? System.getenv("DATABASE_URL") : "jdbc:mysql://localhost:3306/security_management",
