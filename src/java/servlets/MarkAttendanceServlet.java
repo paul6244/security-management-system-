@@ -5,7 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import javax.servlet.ServletException;
@@ -98,7 +99,7 @@ public class MarkAttendanceServlet extends HttpServlet {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, staffId);
-            stmt.setString(2, date);
+            stmt.setDate(2, Date.valueOf(LocalDate.parse(date)));
             stmt.setString(3, employeeId);
             
             try (ResultSet rs = stmt.executeQuery()) {
@@ -118,7 +119,7 @@ public class MarkAttendanceServlet extends HttpServlet {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, staffId);
-            stmt.setString(2, date);
+            stmt.setDate(2, Date.valueOf(LocalDate.parse(date)));
             stmt.setString(3, employeeId);
             stmt.setString(4, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             stmt.setString(5, "PRESENT");
