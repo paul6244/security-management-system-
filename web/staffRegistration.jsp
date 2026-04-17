@@ -438,10 +438,6 @@ CREATE TABLE IF NOT EXISTS staff_registration (
 
 </div>
 
-<div style="text-align:center; margin-top:20px;">
-    <button class="btn btn-success" onclick="generateAllStaffQRCodes()">Generate QR Codes for All Staff</button>
-    <button class="btn" onclick="downloadAllStaffQRCodes()">Download All QR Codes</button>
-</div>
 
 </div>
 
@@ -587,77 +583,13 @@ function generateStaffQRCode(staffId, fullName, employeeId, email) {
     showStatus('QR code generated for ' + fullName, 'success');
 }
 
-function generateAllStaffQRCodes() {
-    const staffCards = document.querySelectorAll('.staff-card');
-    let generated = 0;
-    
-    staffCards.forEach(card => {
-        const staffId = card.querySelector('.qr-preview').id.replace('qr_', '');
-        const fullName = card.querySelector('h4').textContent;
-        
-        // Extract employee ID and email from staff info
-        const staffInfo = card.querySelectorAll('p');
-        let employeeId = '';
-        let email = '';
-        
-        staffInfo.forEach(p => {
-            if(p.textContent.includes('Employee ID:')) {
-                employeeId = p.textContent.replace('Employee ID:', '').trim();
-            }
-            if(p.textContent.includes('Email:')) {
-                email = p.textContent.replace('Email:', '').trim();
-            }
-        });
-        
-        // Create unique QR code content
-        const qrContent = 'STAFF_' + staffId + '_' + employeeId + '_' + btoa(email).substring(0, 8);
-        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=' + encodeURIComponent(qrContent);
-        
-        const qrDiv = card.querySelector('.qr-preview');
-        qrDiv.innerHTML = '<img src="' + qrUrl + '" alt="QR Code for ' + fullName + '" style="width:100%; height:100%; border-radius:8px;">';
-        
-        generated++;
-    });
-    
-    showStatus('Generated ' + generated + ' unique QR codes successfully!', 'success');
-}
 
-function downloadAllStaffQRCodes() {
-    const qrImages = document.querySelectorAll('.qr-preview img');
-    let downloaded = 0;
-    
-    qrImages.forEach((img, index) => {
-        setTimeout(() => {
-            const staffCard = img.closest('.staff-card');
-            const fullName = staffCard.querySelector('h4').textContent;
-            const staffId = staffCard.querySelector('.qr-preview').id.replace('qr_', '');
-            
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.download = 'QR_' + fullName.replace(' ', '_') + '_' + staffId + '.png';
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            downloaded++;
-            
-            if(downloaded === qrImages.length) {
-                showStatus('Downloaded ' + downloaded + ' QR codes successfully!', 'success');
-            }
-        }, index * 200); // Delay between downloads
-    });
-}
 
 // Check for success parameter
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.get('success') === '1') {
         showStatus('Staff registered successfully!', 'success');
-        // Auto-generate QR code for new staff after a delay
-        setTimeout(() => {
-            generateAllStaffQRCodes();
-        }, 1000);
     }
 };
 
