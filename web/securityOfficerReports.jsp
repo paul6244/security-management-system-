@@ -6,19 +6,34 @@
 <%@ page import="config.DatabaseConfig" %>
 
 <%
+// Debug: Print all session attributes
+System.out.println("=== Security Officer Reports Session Debug ===");
+java.util.Enumeration<String> attrNames = session.getAttributeNames();
+while (attrNames.hasMoreElements()) {
+    String attrName = attrNames.nextElement();
+    Object attrValue = session.getAttribute(attrName);
+    System.out.println("Session Attribute: " + attrName + " = " + attrValue);
+}
+
 // Check if user is logged in
 String username = (String) session.getAttribute("username");
+System.out.println("Username from session: " + username);
 if (username == null) {
+    System.out.println("Username is null, redirecting to index.jsp");
     response.sendRedirect("index.jsp");
     return;
 }
 
 // Get user ID from session
 Integer userId = (Integer) session.getAttribute("userId");
+System.out.println("UserId from session: " + userId);
 if (userId == null) {
+    System.out.println("UserId is null, redirecting to index.jsp");
     response.sendRedirect("index.jsp");
     return;
 }
+
+System.out.println("Session validation passed, proceeding with security officer reports");
 
 // Initialize default values
 int monthlyShifts = 0;
