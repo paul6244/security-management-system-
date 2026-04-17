@@ -48,7 +48,7 @@ public class SimpleLogin extends HttpServlet {
             String hash = universalManager.hashPassword(password);
 
             // Check user credentials
-            String sql = "SELECT role FROM users WHERE username=? AND password=?";
+            String sql = "SELECT id, role FROM users WHERE username=? AND password=?";
             ps = conn.prepareStatement(sql);
             ps.setString(1, username);
             ps.setString(2, hash);
@@ -57,9 +57,11 @@ public class SimpleLogin extends HttpServlet {
             
             if (rs.next()) {
                 // Login successful
+                int userId = rs.getInt("id");
                 String role = rs.getString("role");
                 
                 session.setAttribute("username", username);
+                session.setAttribute("userId", userId);
                 session.setAttribute("role", role);
                 session.setAttribute("loginSuccess", "Login successful!");
 
