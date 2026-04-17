@@ -27,6 +27,7 @@
             <a href="#dashboard">Dashboard</a>
             <a href="#personnel">Personnel</a>
             <a href="userManagement.jsp">Users</a>
+            <a href="viewAttendance.jsp">QR Code</a>
             <a href="reports.jsp">Reports</a>
             <a href="settings.jsp">Settings</a>
         </div>
