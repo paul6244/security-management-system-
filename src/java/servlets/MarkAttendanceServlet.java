@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -122,7 +123,7 @@ public class MarkAttendanceServlet extends HttpServlet {
             stmt.setString(1, staffId);
             stmt.setDate(2, Date.valueOf(LocalDate.parse(date)));
             stmt.setString(3, employeeId);
-            stmt.setString(4, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setString(5, "PRESENT");
             
             int rowsAffected = stmt.executeUpdate();
