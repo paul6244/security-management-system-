@@ -1,7 +1,122 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.sql.*" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="config.DatabaseConfig" %>
+
+<%
+// Check if user is logged in
+String username = (String) session.getAttribute("username");
+if (username == null) {
+    response.sendRedirect("index.jsp");
+    return;
+}
+
+// Get user ID from session
+Integer userId = (Integer) session.getAttribute("userId");
+if (userId == null) {
+    response.sendRedirect("index.jsp");
+    return;
+}
+
+// Database connection
+Connection conn = null;
+try {
+    conn = DatabaseConfig.getConnection();
+    
+    // Get personal statistics
+    String shiftsSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
+    PreparedStatement shiftsPs = conn.prepareStatement(shiftsSql);
+    shiftsPs.setInt(1, userId);
+    ResultSet shiftsRs = shiftsPs.executeQuery();
+    int monthlyShifts = 0;
+    if (shiftsRs.next()) {
+        monthlyShifts = shiftsRs.getInt("count");
+    }
+    shiftsRs.close();
+    shiftsPs.close();
+    
+    // Get checklist completions
+    String checklistSql = "SELECT COUNT(*) as count FROM checklist_items WHERE user_id = ? AND completed = true";
+    PreparedStatement checklistPs = conn.prepareStatement(checklistSql);
+    checklistPs.setInt(1, userId);
+    ResultSet checklistRs = checklistPs.executeQuery();
+    int completedChecklists = 0;
+    if (checklistRs.next()) {
+        completedChecklists = checklistRs.getInt("count");
+    }
+    checklistRs.close();
+    checklistPs.close();
+    
+    // Get attendance records
+    String attendanceSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?)";
+    PreparedStatement attendancePs = conn.prepareStatement(attendanceSql);
+    attendancePs.setInt(1, userId);
+    ResultSet attendanceRs = attendancePs.executeQuery();
+    int attendanceRecords = 0;
+    if (attendanceRs.next()) {
+        attendanceRecords = attendanceRs.getInt("count");
+    }
+    attendanceRs.close();
+    attendancePs.close();
+    
+    // Get QR scans
+    String qrSql = "SELECT COUNT(*) as count FROM qr_scans WHERE user_id = ?";
+    PreparedStatement qrPs = conn.prepareStatement(qrSql);
+    qrPs.setInt(1, userId);
+    ResultSet qrRs = qrPs.executeQuery();
+    int qrScans = 0;
+    if (qrRs.next()) {
+        qrScans = qrRs.getInt("count");
+    }
+    qrRs.close();
+    qrPs.close();
+    
+    // Get weekly attendance
+    String weeklySql = "SELECT COUNT(*) as present FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?) AND date >= CURRENT_DATE - INTERVAL '7 days'";
+    PreparedStatement weeklyPs = conn.prepareStatement(weeklySql);
+    weeklyPs.setInt(1, userId);
+    ResultSet weeklyRs = weeklyPs.executeQuery();
+    int weeklyPresent = 0;
+    if (weeklyRs.next()) {
+        weeklyPresent = weeklyRs.getInt("present");
+    }
+    weeklyRs.close();
+    weeklyPs.close();
+    
+    // Get monthly attendance
+    String monthlySql = "SELECT COUNT(*) as present FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?) AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)";
+    PreparedStatement monthlyPs = conn.prepareStatement(monthlySql);
+    monthlyPs.setInt(1, userId);
+    ResultSet monthlyRs = monthlyPs.executeQuery();
+    int monthlyPresent = 0;
+    if (monthlyRs.next()) {
+        monthlyPresent = monthlyRs.getInt("present");
+    }
+    monthlyRs.close();
+    monthlyPs.close();
+    
+    // Store data in session for JavaScript access
+    session.setAttribute("monthlyShifts", monthlyShifts);
+    session.setAttribute("completedChecklists", completedChecklists);
+    session.setAttribute("attendanceRecords", attendanceRecords);
+    session.setAttribute("qrScans", qrScans);
+    session.setAttribute("weeklyPresent", weeklyPresent);
+    session.setAttribute("monthlyPresent", monthlyPresent);
+    
+} catch (Exception e) {
+    e.printStackTrace();
+} finally {
+    if (conn != null) {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -385,57 +500,94 @@
     </div>
 
     <script>
-        // Load personal statistics
+        // Load personal statistics from database
         function loadPersonalStats() {
-            // Simulate loading personal statistics
-            document.getElementById('myShifts').textContent = '12';
-            document.getElementById('myChecklists').textContent = '45';
-            document.getElementById('myAttendance').textContent = '18';
-            document.getElementById('myQRScans').textContent = '23';
+            // Get data from session variables
+            const monthlyShifts = parseInt('<%= session.getAttribute("monthlyShifts") != null ? session.getAttribute("monthlyShifts") : "0" %>');
+            const completedChecklists = parseInt('<%= session.getAttribute("completedChecklists") != null ? session.getAttribute("completedChecklists") : "0" %>');
+            const attendanceRecords = parseInt('<%= session.getAttribute("attendanceRecords") != null ? session.getAttribute("attendanceRecords") : "0" %>');
+            const qrScans = parseInt('<%= session.getAttribute("qrScans") != null ? session.getAttribute("qrScans") : "0" %>');
+            
+            document.getElementById('myShifts').textContent = monthlyShifts;
+            document.getElementById('myChecklists').textContent = completedChecklists;
+            document.getElementById('myAttendance').textContent = attendanceRecords;
+            document.getElementById('myQRScans').textContent = qrScans;
         }
 
-        // Load activities
+        // Load activities from database
         function loadActivities() {
-            const activities = [
-                { date: '2026-04-17', type: 'Shift', description: 'Morning Shift - Gate Security', status: 'Completed' },
-                { date: '2026-04-16', type: 'Checklist', description: 'Daily Security Checklist', status: 'Completed' },
-                { date: '2026-04-16', type: 'QR Scan', description: 'Staff Attendance QR Code Scan', status: 'Completed' },
-                { date: '2026-04-15', type: 'Shift', description: 'Evening Shift - Patrol', status: 'Completed' },
-                { date: '2026-04-15', type: 'Checklist', description: 'Equipment Security Check', status: 'Completed' }
-            ];
+            fetch('GetSecurityOfficerActivities')
+                .then(response => response.json())
+                .then(activities => {
+                    const tbody = document.getElementById('activitiesTableBody');
+                    tbody.innerHTML = '';
 
-            const tbody = document.getElementById('activitiesTableBody');
-            tbody.innerHTML = '';
+                    if (activities.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4">No activities found</td></tr>';
+                        return;
+                    }
 
-            activities.forEach(activity => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${activity.date}</td>
-                    <td>${activity.type}</td>
-                    <td>${activity.description}</td>
-                    <td><span style="color: green;">${activity.status}</span></td>
-                `;
-            });
+                    activities.forEach(activity => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${activity.date}</td>
+                            <td>${activity.type}</td>
+                            <td>${activity.description}</td>
+                            <td><span style="color: ${activity.status === 'Completed' ? 'green' : 'orange'};">${activity.status}</span></td>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading activities:', error);
+                    document.getElementById('activitiesTableBody').innerHTML = '<tr><td colspan="4">Error loading activities</td></tr>';
+                });
         }
 
-        // Load attendance data
+        // Load attendance data from database
         function loadAttendanceData() {
-            document.getElementById('weekPresent').textContent = '4';
-            document.getElementById('weekAbsent').textContent = '1';
-            document.getElementById('weekRate').textContent = '80%';
-            document.getElementById('monthPresent').textContent = '16';
-            document.getElementById('monthAbsent').textContent = '4';
-            document.getElementById('monthRate').textContent = '80%';
+            const weeklyPresent = parseInt('<%= session.getAttribute("weeklyPresent") != null ? session.getAttribute("weeklyPresent") : "0" %>');
+            const monthlyPresent = parseInt('<%= session.getAttribute("monthlyPresent") != null ? session.getAttribute("monthlyPresent") : "0" %>');
+            
+            // Calculate working days (approximate)
+            const weeklyWorkingDays = 5;
+            const monthlyWorkingDays = 22;
+            
+            const weeklyAbsent = weeklyWorkingDays - weeklyPresent;
+            const monthlyAbsent = monthlyWorkingDays - monthlyPresent;
+            
+            const weeklyRate = weeklyWorkingDays > 0 ? Math.round((weeklyPresent / weeklyWorkingDays) * 100) : 0;
+            const monthlyRate = monthlyWorkingDays > 0 ? Math.round((monthlyPresent / monthlyWorkingDays) * 100) : 0;
+            
+            document.getElementById('weekPresent').textContent = weeklyPresent;
+            document.getElementById('weekAbsent').textContent = weeklyAbsent;
+            document.getElementById('weekRate').textContent = weeklyRate + '%';
+            document.getElementById('monthPresent').textContent = monthlyPresent;
+            document.getElementById('monthAbsent').textContent = monthlyAbsent;
+            document.getElementById('monthRate').textContent = monthlyRate + '%';
         }
 
-        // Load checklist data
+        // Load checklist data from database
         function loadChecklistData() {
-            document.getElementById('dailyTotal').textContent = '10';
-            document.getElementById('dailyCompleted').textContent = '8';
-            document.getElementById('dailyRate').textContent = '80%';
-            document.getElementById('equipmentTotal').textContent = '5';
-            document.getElementById('equipmentCompleted').textContent = '4';
-            document.getElementById('equipmentRate').textContent = '80%';
+            fetch('GetSecurityOfficerChecklistStats')
+                .then(response => response.json())
+                .then(stats => {
+                    if (stats.daily) {
+                        const dailyRate = stats.daily.total > 0 ? Math.round((stats.daily.completed / stats.daily.total) * 100) : 0;
+                        document.getElementById('dailyTotal').textContent = stats.daily.total;
+                        document.getElementById('dailyCompleted').textContent = stats.daily.completed;
+                        document.getElementById('dailyRate').textContent = dailyRate + '%';
+                    }
+                    
+                    if (stats.equipment) {
+                        const equipmentRate = stats.equipment.total > 0 ? Math.round((stats.equipment.completed / stats.equipment.total) * 100) : 0;
+                        document.getElementById('equipmentTotal').textContent = stats.equipment.total;
+                        document.getElementById('equipmentCompleted').textContent = stats.equipment.completed;
+                        document.getElementById('equipmentRate').textContent = equipmentRate + '%';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading checklist stats:', error);
+                });
         }
 
         // Filter activities
