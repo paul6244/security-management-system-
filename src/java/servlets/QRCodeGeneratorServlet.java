@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 public class QRCodeGeneratorServlet extends HttpServlet {
 
     private static final int QR_CODE_SIZE = 300;
-    private static final String BASE_URL = "qrAttendance.jsp";
+    private static final String BASE_URL = "https://security-management-system-6e67860f049f.herokuapp.com/qrAttendance.jsp";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
