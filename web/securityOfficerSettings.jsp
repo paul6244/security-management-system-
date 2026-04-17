@@ -325,7 +325,7 @@ try {
         <div class="logo">Security System</div>
         <div class="nav">
             <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="reports.jsp">Reports</a>
+            <a href="securityOfficerReports.jsp">Reports</a>
             <a href="securityOfficerSettings.jsp" class="active">Settings</a>
         </div>
     </div>
