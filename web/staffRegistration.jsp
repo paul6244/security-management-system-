@@ -388,16 +388,6 @@ try {
 
 <%
     }
-} finally {
-    try {
-        if(rs != null) rs.close();
-        if(ps != null) ps.close();
-        if(con != null) con.close();
-    } catch(Exception e) {
-        // Ignore cleanup errors
-    }
-}
-
 } catch(SQLException e) {
     if(e.getMessage().contains("doesn't exist")) {
 %>
