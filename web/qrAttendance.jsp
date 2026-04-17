@@ -231,11 +231,7 @@
                 </div>
             </c:if>
 
-            <div class="actions">
-                <a href="scanAttendance.jsp" class="btn btn-secondary">Scan QR Code</a>
-                <a href="viewAttendance.jsp" class="btn btn-secondary">Generate QR Code</a>
-            </div>
-        </div>
+                    </div>
     </div>
 
     <script>
