@@ -144,10 +144,7 @@ public class MarkAttendanceServlet extends HttpServlet {
             "INDEX idx_employee (employee_id)" +
             ")";
         
-        try (Connection conn = DriverManager.getConnection(
-                System.getenv("DATABASE_URL") != null ? System.getenv("DATABASE_URL") : "jdbc:mysql://localhost:3306/security_management",
-                System.getenv("DB_USERNAME") != null ? System.getenv("DB_USERNAME") : "root",
-                System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "");
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(createTableSQL)) {
             
             stmt.executeUpdate();
