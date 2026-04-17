@@ -2,7 +2,6 @@ package servlets;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import config.DatabaseConfig;
 
 /**
  * Servlet to mark attendance from QR code scan
@@ -88,16 +88,7 @@ public class MarkAttendanceServlet extends HttpServlet {
     }
     
     private Connection getConnection() throws SQLException {
-        try {
-            // Try Heroku PostgreSQL first
-            if (HEROKU_DB_URL != null && !HEROKU_DB_URL.isEmpty()) {
-                return DriverManager.getConnection(HEROKU_DB_URL, HEROKU_DB_USER, HEROKU_DB_PASSWORD);
-            }
-        } catch (SQLException e) {
-            // Fallback to local MySQL
-        }
-        
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        return DatabaseConfig.getConnection();
     }
     
     private boolean isAttendanceAlreadyMarked(String staffId, String date, String employeeId) throws SQLException {
