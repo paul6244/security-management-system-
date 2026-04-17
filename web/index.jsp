@@ -38,8 +38,6 @@
             <input type="submit" value="Login">
         </form>
         <p>Don't have an account? <a href="Signup.jsp">Register here</a></p>
-        <a href="personnelDashboard.jsp">Dashboard</a>
-        <a href="viewAttendance.jsp">QR Code</a>
         </div>
     </body>
 
