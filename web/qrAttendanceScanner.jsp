@@ -336,7 +336,6 @@ body {
     
     <!-- Navigation -->
     <div class="navigation">
-        <a href="attendance.jsp">📊 Attendance Records</a>
         <a href="personnelDashboard.jsp">🏠 Dashboard</a>
         <a href="index.jsp">🔐 Logout</a>
     </div>
