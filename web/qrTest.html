@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Attendance System Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .qr-demo {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .status {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #bbdefb;
+        }
+
+        .workflow {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .workflow h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .workflow li {
+            margin-bottom: 0.5rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Attendance System</h1>
+        
+        <div class="status">
+            â System Components Created Successfully!
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>1. Generate QR Code</h3>
+                <p>Create dynamic QR codes for different classes and dates</p>
+                <a href="viewAttendance.jsp" class="btn">Open QR Generator</a>
+            </div>
+
+            <div class="card">
+                <h3>2. Scan QR Code</h3>
+                <p>Use camera to scan QR codes and mark attendance</p>
+                <a href="scanAttendance.jsp" class="btn">Open Scanner</a>
+            </div>
+
+            <div class="card">
+                <h3>3. Manual Entry</h3>
+                <p>Direct attendance marking with manual input</p>
+                <a href="qrAttendance.jsp?id=class1&date=2026-04-14" class="btn btn-secondary">Test Manual Entry</a>
+            </div>
+        </div>
+
+        <div class="workflow">
+            <h4>â ï¸ How It Works:</h4>
+            <ol>
+                <li>Navigate to <strong>viewAttendance.jsp</strong> to generate QR codes</li>
+                <li>Select class ID and date, then click "Generate QR Code"</li>
+                <li>Students scan the QR code using <strong>scanAttendance.jsp</strong></li>
+                <li>System extracts class/date from QR code and prompts for student ID</li>
+                <li>Attendance is recorded in database with timestamp</li>
+                <li>Results are shown with success/error messages</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>QR Code Example</h3>
+            <div class="qr-demo">
+                QR Code Will Appear Here
+            </div>
+            <p><small>Generated QR codes contain URLs like:<br>
+            <code>qrAttendance.jsp?id=class1&date=2026-04-14</code></small></p>
+        </div>
+
+        <div class="card">
+            <h3>Database Integration</h3>
+            <p><strong>Table: qr_attendance</strong></p>
+            <ul style="text-align: left;">
+                <li>id (Primary Key)</li>
+                <li>class_id (VARCHAR)</li>
+                <li>date (DATE)</li>
+                <li>student_id (VARCHAR)</li>
+                <li>marked_at (TIMESTAMP)</li>
+                <li>status (VARCHAR)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

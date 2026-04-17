@@ -38,7 +38,7 @@ public class EndShift extends HttpServlet {
 
             int userId = rs.getInt("id");
 
-            // ✅ End shift
+            // End shift
             String sql = "UPDATE shifts SET end_time=NOW() WHERE user_id=? AND end_time IS NULL";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, userId);
@@ -51,6 +51,12 @@ public class EndShift extends HttpServlet {
             } else {
                 response.getWriter().println("No active shift found!");
             }
+
+            // Close resources
+            ps.close();
+            ps1.close();
+            rs.close();
+            con.close();
 
         } catch(Exception e){
             e.printStackTrace();

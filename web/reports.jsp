@@ -538,18 +538,16 @@ function displayReports(reports) {
         const reasonText = report.reason || 'N/A';
         const formattedTime = formatDateTime(report.checkTime);
         
-        html += `
-            <tr>
-                <td>${formattedTime}</td>
-                <td>${report.username}</td>
-                <td>${report.branch}</td>
-                <td>${report.itemName}</td>
-                <td>
-                    <span class="${statusClass}">${statusText}</span>
-                </td>
-                <td>${reasonText}</td>
-            </tr>
-        `;
+        html += '<tr>' +
+            '<td>' + formattedTime + '</td>' +
+            '<td>' + report.username + '</td>' +
+            '<td>' + report.branch + '</td>' +
+            '<td>' + report.itemName + '</td>' +
+            '<td>' +
+                '<span class="' + statusClass + '">' + statusText + '</span>' +
+            '</td>' +
+            '<td>' + reasonText + '</td>' +
+        '</tr>';
     });
     
     console.log('Final HTML:', html);

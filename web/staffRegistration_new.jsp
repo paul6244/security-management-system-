@@ -193,7 +193,7 @@ textarea {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <a href="personnelDashboard.jsp">Dashboard</a>
-    <a href="attendance.jsp">Attendance</a>
+    <a href="enhancedAttendanceSystem.jsp">Attendance</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
 
     <a href="Logout">Logout</a>
@@ -661,7 +661,7 @@ window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.get('success') === '1') {
         showStatus('Staff registered successfully!', 'success');
-        // Auto-generate QR code for the new staff after a delay
+        // Auto-generate QR code for new staff after a delay
         setTimeout(() => {
             generateAllStaffQRCodes();
         }, 1000);

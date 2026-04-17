@@ -119,7 +119,37 @@ public class DatabaseConfig {
                         throw new SQLException("DATABASE_URL format not supported");
                     }
                 } else {
-                    throw new SQLException("DATABASE_URL environment variable not found or empty");
+                    // Fallback to MySQL for local development
+                    System.out.println("DEBUG: DATABASE_URL not found, using MySQL fallback");
+                    try {
+                        // Load MySQL driver
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        System.out.println("DEBUG: MySQL driver loaded successfully");
+                        
+                        // MySQL connection parameters
+                        String mysqlUrl = "jdbc:mysql://localhost:3306/securitymanagementsystem?useSSL=false&serverTimezone=UTC";
+                        String mysqlUser = "root";
+                        String mysqlPassword = "";
+                        
+                        // Set connection properties for MySQL
+                        java.util.Properties props = new java.util.Properties();
+                        props.setProperty("user", mysqlUser);
+                        props.setProperty("password", mysqlPassword);
+                        props.setProperty("connectTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
+                        props.setProperty("socketTimeout", String.valueOf(CONNECTION_TIMEOUT * 1000));
+                        props.setProperty("autoReconnect", "true");
+                        props.setProperty("useSSL", "false");
+                        props.setProperty("serverTimezone", "UTC");
+                        
+                        connection = DriverManager.getConnection(mysqlUrl, props);
+                        System.out.println("DEBUG: MySQL database connection established successfully");
+                        
+                    } catch (ClassNotFoundException e) {
+                        throw new SQLException("MySQL driver not found", e);
+                    } catch (SQLException e) {
+                        System.out.println("ERROR: MySQL connection failed: " + e.getMessage());
+                        throw new SQLException("Failed to connect to MySQL: " + e.getMessage(), e);
+                    }
                 }
             } catch (Exception e) {
                 throw new SQLException("Failed to connect to database: " + e.getMessage(), e);

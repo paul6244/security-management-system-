@@ -291,11 +291,9 @@ function generateQRCode(staffId) {
         
         // Simple QR code display (text-based for demo)
         const qrDiv = document.getElementById('qrCode');
-        qrDiv.innerHTML = `
-            <div style="font-size:10px; word-break:break-all; padding:10px;">
-                ${qrData}
-            </div>
-        `;
+        qrDiv.innerHTML = '<div style="font-size:10px; word-break:break-all; padding:10px;">' +
+            qrData +
+        '</div>';
         
         document.getElementById('qrDisplay').classList.add('show');
         showStatus('QR code generated successfully!', 'success');

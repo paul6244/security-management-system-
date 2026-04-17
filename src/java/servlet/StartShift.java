@@ -72,6 +72,13 @@ public class StartShift extends HttpServlet {
                 response.getWriter().println("ERROR: Shift not inserted");
             }
 
+            // Close resources
+            ps.close();
+            checkPs.close();
+            rs.close();
+            activePs.close();
+            con.close();
+
         } catch(Exception e){
             e.printStackTrace();
             response.getWriter().println("ERROR: " + e.getMessage());

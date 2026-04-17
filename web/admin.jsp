@@ -200,7 +200,7 @@
             link.classList.remove('active');
         });
         
-        const activeLink = document.querySelector(`.nav a[href="#${sectionId}"]`);
+        var activeLink = document.querySelector('.nav a[href="#' + sectionId + '"]');
         if (activeLink) {
             activeLink.classList.add('active');
         }
