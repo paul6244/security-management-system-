@@ -194,7 +194,7 @@ textarea {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <a href="personnelDashboard.jsp">Dashboard</a>
-    <a href="enhancedAttendanceSystem.jsp">Attendance</a>
+    <a href="viewAttendance.jsp">QR Code</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
 
     <a href="Logout">Logout</a>
