@@ -20,69 +20,102 @@ if (userId == null) {
     return;
 }
 
-// Initialize default values
-int monthlyShifts = 0;
-int completedChecklists = 0;
-int attendanceRecords = 0;
-int qrScans = 0;
-int weeklyPresent = 0;
-int monthlyPresent = 0;
-
 // Database connection
 Connection conn = null;
 try {
     conn = DatabaseConfig.getConnection();
     
-    if (conn != null) {
-        // Get personal statistics - simplified queries
-        try {
-            String shiftsSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ?";
-            PreparedStatement shiftsPs = conn.prepareStatement(shiftsSql);
-            shiftsPs.setInt(1, userId);
-            ResultSet shiftsRs = shiftsPs.executeQuery();
-            if (shiftsRs.next()) {
-                monthlyShifts = shiftsRs.getInt("count");
-            }
-            shiftsRs.close();
-            shiftsPs.close();
-        } catch (Exception e) {
-            System.out.println("Error getting shifts: " + e.getMessage());
-        }
-        
-        try {
-            String attendanceSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = ?";
-            PreparedStatement attendancePs = conn.prepareStatement(attendanceSql);
-            attendancePs.setInt(1, userId);
-            ResultSet attendanceRs = attendancePs.executeQuery();
-            if (attendanceRs.next()) {
-                attendanceRecords = attendanceRs.getInt("count");
-            }
-            attendanceRs.close();
-            attendancePs.close();
-        } catch (Exception e) {
-            System.out.println("Error getting attendance: " + e.getMessage());
-        }
+    // Get personal statistics
+    String shiftsSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
+    PreparedStatement shiftsPs = conn.prepareStatement(shiftsSql);
+    shiftsPs.setInt(1, userId);
+    ResultSet shiftsRs = shiftsPs.executeQuery();
+    int monthlyShifts = 0;
+    if (shiftsRs.next()) {
+        monthlyShifts = shiftsRs.getInt("count");
     }
+    shiftsRs.close();
+    shiftsPs.close();
+    
+    // Get checklist completions
+    String checklistSql = "SELECT COUNT(*) as count FROM checklist_items WHERE user_id = ? AND completed = true";
+    PreparedStatement checklistPs = conn.prepareStatement(checklistSql);
+    checklistPs.setInt(1, userId);
+    ResultSet checklistRs = checklistPs.executeQuery();
+    int completedChecklists = 0;
+    if (checklistRs.next()) {
+        completedChecklists = checklistRs.getInt("count");
+    }
+    checklistRs.close();
+    checklistPs.close();
+    
+    // Get attendance records
+    String attendanceSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?)";
+    PreparedStatement attendancePs = conn.prepareStatement(attendanceSql);
+    attendancePs.setInt(1, userId);
+    ResultSet attendanceRs = attendancePs.executeQuery();
+    int attendanceRecords = 0;
+    if (attendanceRs.next()) {
+        attendanceRecords = attendanceRs.getInt("count");
+    }
+    attendanceRs.close();
+    attendancePs.close();
+    
+    // Get QR scans
+    String qrSql = "SELECT COUNT(*) as count FROM qr_scans WHERE user_id = ?";
+    PreparedStatement qrPs = conn.prepareStatement(qrSql);
+    qrPs.setInt(1, userId);
+    ResultSet qrRs = qrPs.executeQuery();
+    int qrScans = 0;
+    if (qrRs.next()) {
+        qrScans = qrRs.getInt("count");
+    }
+    qrRs.close();
+    qrPs.close();
+    
+    // Get weekly attendance
+    String weeklySql = "SELECT COUNT(*) as present FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?) AND date >= CURRENT_DATE - INTERVAL '7 days'";
+    PreparedStatement weeklyPs = conn.prepareStatement(weeklySql);
+    weeklyPs.setInt(1, userId);
+    ResultSet weeklyRs = weeklyPs.executeQuery();
+    int weeklyPresent = 0;
+    if (weeklyRs.next()) {
+        weeklyPresent = weeklyRs.getInt("present");
+    }
+    weeklyRs.close();
+    weeklyPs.close();
+    
+    // Get monthly attendance
+    String monthlySql = "SELECT COUNT(*) as present FROM staff_attendance WHERE employee_id = (SELECT employee_id FROM users WHERE id = ?) AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)";
+    PreparedStatement monthlyPs = conn.prepareStatement(monthlySql);
+    monthlyPs.setInt(1, userId);
+    ResultSet monthlyRs = monthlyPs.executeQuery();
+    int monthlyPresent = 0;
+    if (monthlyRs.next()) {
+        monthlyPresent = monthlyRs.getInt("present");
+    }
+    monthlyRs.close();
+    monthlyPs.close();
+    
+    // Store data in session for JavaScript access
+    session.setAttribute("monthlyShifts", monthlyShifts);
+    session.setAttribute("completedChecklists", completedChecklists);
+    session.setAttribute("attendanceRecords", attendanceRecords);
+    session.setAttribute("qrScans", qrScans);
+    session.setAttribute("weeklyPresent", weeklyPresent);
+    session.setAttribute("monthlyPresent", monthlyPresent);
     
 } catch (Exception e) {
-    System.out.println("Database connection error: " + e.getMessage());
+    e.printStackTrace();
 } finally {
     if (conn != null) {
         try {
             conn.close();
         } catch (SQLException e) {
-            System.out.println("Error closing connection: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
-
-// Store data in session for JavaScript access
-session.setAttribute("monthlyShifts", monthlyShifts);
-session.setAttribute("completedChecklists", completedChecklists);
-session.setAttribute("attendanceRecords", attendanceRecords);
-session.setAttribute("qrScans", qrScans);
-session.setAttribute("weeklyPresent", weeklyPresent);
-session.setAttribute("monthlyPresent", monthlyPresent);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -483,8 +516,31 @@ session.setAttribute("monthlyPresent", monthlyPresent);
 
         // Load activities from database
         function loadActivities() {
-            const tbody = document.getElementById('activitiesTableBody');
-            tbody.innerHTML = '<tr><td colspan="4">No activities found</td></tr>';
+            fetch('GetSecurityOfficerActivities')
+                .then(response => response.json())
+                .then(activities => {
+                    const tbody = document.getElementById('activitiesTableBody');
+                    tbody.innerHTML = '';
+
+                    if (activities.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4">No activities found</td></tr>';
+                        return;
+                    }
+
+                    activities.forEach(activity => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${activity.date}</td>
+                            <td>${activity.type}</td>
+                            <td>${activity.description}</td>
+                            <td><span style="color: ${activity.status === 'Completed' ? 'green' : 'orange'};">${activity.status}</span></td>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading activities:', error);
+                    document.getElementById('activitiesTableBody').innerHTML = '<tr><td colspan="4">Error loading activities</td></tr>';
+                });
         }
 
         // Load attendance data from database
@@ -512,17 +568,32 @@ session.setAttribute("monthlyPresent", monthlyPresent);
 
         // Load checklist data from database
         function loadChecklistData() {
-            document.getElementById('dailyTotal').textContent = '0';
-            document.getElementById('dailyCompleted').textContent = '0';
-            document.getElementById('dailyRate').textContent = '0%';
-            document.getElementById('equipmentTotal').textContent = '0';
-            document.getElementById('equipmentCompleted').textContent = '0';
-            document.getElementById('equipmentRate').textContent = '0%';
+            fetch('GetSecurityOfficerChecklistStats')
+                .then(response => response.json())
+                .then(stats => {
+                    if (stats.daily) {
+                        const dailyRate = stats.daily.total > 0 ? Math.round((stats.daily.completed / stats.daily.total) * 100) : 0;
+                        document.getElementById('dailyTotal').textContent = stats.daily.total;
+                        document.getElementById('dailyCompleted').textContent = stats.daily.completed;
+                        document.getElementById('dailyRate').textContent = dailyRate + '%';
+                    }
+                    
+                    if (stats.equipment) {
+                        const equipmentRate = stats.equipment.total > 0 ? Math.round((stats.equipment.completed / stats.equipment.total) * 100) : 0;
+                        document.getElementById('equipmentTotal').textContent = stats.equipment.total;
+                        document.getElementById('equipmentCompleted').textContent = stats.equipment.completed;
+                        document.getElementById('equipmentRate').textContent = equipmentRate + '%';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading checklist stats:', error);
+                });
         }
 
         // Filter activities
         function filterActivities() {
-            loadActivities();
+            // Implement filtering logic here
+            loadActivities(); // For now, just reload
         }
 
         // Reset filters
