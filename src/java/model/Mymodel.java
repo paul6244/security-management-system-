@@ -332,25 +332,7 @@ public class Mymodel {
         return null;
     }
 
-    public static boolean updateUserPassword(String username, String newPassword) {
-        connection();
-        try {
-            String hashed = universalManager.hashPassword(newPassword);
-            String sql = "UPDATE users SET password = ? WHERE username = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, hashed);
-            ps.setString(2, username);
-
-            int result = ps.executeUpdate();
-            con.close();
-            return result > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
+    
     public static ResultSet getFilteredReports(String dateFrom, String dateTo, String branchId, String status) {
         connection();
         try {
@@ -443,59 +425,7 @@ public class Mymodel {
         return null;
     }
 
-    public static ResultSet getFilteredReports(String dateFrom, String dateTo, String branch, String status) {
-        try {
-            Connection conn = DatabaseConfig.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT sc.check_time, u.username, b.name as branch, ci.item_name, sc.status, sc.reason " +
-                        "FROM shift_checks sc " +
-                        "JOIN branches b ON sc.branch_id = b.id " +
-                        "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
-                        "JOIN users u ON sp.user_id = u.id " +
-                        "JOIN checklist_items ci ON sc.item_id = ci.id " +
-                        "WHERE 1=1");
-            
-            if (dateFrom != null && !dateFrom.isEmpty()) {
-                sql.append(" AND DATE(sc.check_time) >= ?");
-            }
-            if (dateTo != null && !dateTo.isEmpty()) {
-                sql.append(" AND DATE(sc.check_time) <= ?");
-            }
-            if (branch != null && !branch.isEmpty()) {
-                sql.append(" AND b.name = ?");
-            }
-            if (status != null && !status.isEmpty()) {
-                if (status.equals("all")) {
-                    // Get all records including incidents
-                } else {
-                    sql.append(" AND sc.status = ?");
-                }
-            }
-            
-            sql.append(" ORDER BY sc.check_time DESC");
-            
-            PreparedStatement ps = conn.prepareStatement(sql.toString());
-            int paramIndex = 1;
-            
-            if (dateFrom != null && !dateFrom.isEmpty()) {
-                ps.setString(paramIndex++, dateFrom);
-            }
-            if (dateTo != null && !dateTo.isEmpty()) {
-                ps.setString(paramIndex++, dateTo);
-            }
-            if (branch != null && !branch.isEmpty()) {
-                ps.setString(paramIndex++, branch);
-            }
-            if (status != null && !status.isEmpty() && !status.equals("all")) {
-                ps.setString(paramIndex++, status);
-            }
-            
-            return ps.executeQuery();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    
     public static ResultSet getChecklistItems() {
         try {
             Connection conn = DatabaseConfig.getConnection();
