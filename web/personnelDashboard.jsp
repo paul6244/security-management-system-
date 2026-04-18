@@ -325,7 +325,7 @@ th, td {
 <div class="card">
 <h3>Shift Control</h3>
 
-<form action="StartShift" method="post" onsubmit="showShiftNotification('start')">
+<form action="StartShift" method="post">
     <button class="btn" type="submit">Start Shift</button>
 </form>
 
@@ -336,7 +336,7 @@ th, td {
 <h3>Shift Checklist</h3>
 
 <!-- ORIGINAL FORM -->
-<form action="SaveChecklist" method="post" onsubmit="showShiftNotification('end')" id="mainForm">
+<form action="SaveChecklist" method="post" id="mainForm">
 
 <table>
 <thead>

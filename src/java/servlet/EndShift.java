@@ -47,7 +47,7 @@ public class EndShift extends HttpServlet {
 
             if(result > 0){
                 System.out.println("Shift ended!");
-                response.sendRedirect("personnelDashboard.jsp");
+                response.sendRedirect("personnelDashboard.jsp?status=success&message=Shift ended successfully!");
             } else {
                 response.getWriter().println("No active shift found!");
             }
