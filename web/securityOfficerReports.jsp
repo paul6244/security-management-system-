@@ -81,11 +81,25 @@ try {
                 System.out.println("Error getting attendance: " + e.getMessage());
             }
             
-            // Get QR scans (from attendance records)
+            // Get QR scans (from attendance records) - need to get staff ID first
             try {
-                String qrSql = "SELECT COUNT(*) as count FROM attendance WHERE employee_id = ? AND verification_method = 'QR'";
+                // Get staff ID for this user
+                String getStaffSql = "SELECT id FROM security_personnel WHERE user_id = ?";
+                PreparedStatement staffPs = conn.prepareStatement(getStaffSql);
+                staffPs.setInt(1, userId);
+                ResultSet staffRs = staffPs.executeQuery();
+                
+                int staffId = 0;
+                if (staffRs.next()) {
+                    staffId = staffRs.getInt("id");
+                }
+                staffRs.close();
+                staffPs.close();
+                
+                // Now get QR scans using staff_id
+                String qrSql = "SELECT COUNT(*) as count FROM attendance WHERE staff_id = ? AND verification_method = 'QR'";
                 PreparedStatement qrPs = conn.prepareStatement(qrSql);
-                qrPs.setInt(1, userId);
+                qrPs.setInt(1, staffId);
                 ResultSet qrRs = qrPs.executeQuery();
                 if (qrRs.next()) {
                     qrScans = qrRs.getInt("count");
