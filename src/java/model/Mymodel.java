@@ -8,14 +8,6 @@ public class Mymodel {
 
     static Connection con;
 
-<<<<<<< HEAD
-=======
-    // localhost Database Connection for local development
-    private static final String URL = "jdbc:mysql://localhost:3306/securitymanagementsystem";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
-
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
     // ---------------- Database Connection ----------------
     public static void connection() {
         try {
@@ -290,7 +282,6 @@ public class Mymodel {
 
     public static int getTotalIncidents() {
         try {
-<<<<<<< HEAD
             Connection conn = DatabaseConfig.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK' OR status='Not ok'");
@@ -301,14 +292,6 @@ public class Mymodel {
                 conn.close();
                 return count;
             }
-=======
-            String sql = "SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-
-            con.close();
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -321,9 +304,6 @@ public class Mymodel {
             String sql = "SELECT DATE(check_time) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_time) ORDER BY DATE(check_time)";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
-<<<<<<< HEAD
-=======
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -421,7 +401,6 @@ public class Mymodel {
 
             return ps.executeQuery();
 
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -430,7 +409,6 @@ public class Mymodel {
 
     public static ResultSet getIncidentsByBranch() {
         try {
-<<<<<<< HEAD
             Connection conn = DatabaseConfig.getConnection();
             // Fixed query to use correct joins and include both 'NOT_OK' and 'Not ok' status variations
             String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
@@ -441,16 +419,6 @@ public class Mymodel {
                         "GROUP BY b.name " +
                         "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
-=======
-            String sql = "SELECT b.name AS branch_name, COUNT(s.id) AS total " +
-                         "FROM shift_checks s " +
-                         "JOIN security_personnel sp ON s.personnel_id = sp.id " +
-                         "JOIN branches b ON sp.branch_id = b.id " +
-                         "WHERE s.status='NOT_OK' " +
-                         "GROUP BY b.name";
-
-            PreparedStatement ps = con.prepareStatement(sql);
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
             return ps.executeQuery();
         } catch (Exception e) {
             e.printStackTrace();
