@@ -672,8 +672,8 @@ if(rs != null) rs.close();
 
 <!-- Popup Notification -->
 <div id="notificationPopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; min-width: 300px; text-align: center;">
-    <h3 id="notificationTitle"></h3>
-    <p id="notificationMessage"></p>
+    <h3 id="notificationTitle" style="color: black; margin: 0 0 10px 0;"></h3>
+    <p id="notificationMessage" style="color: black; margin: 0 0 15px 0;"></p>
     <button class="btn" onclick="closeNotification()" style="margin-top: 10px;">OK</button>
 </div>
 
