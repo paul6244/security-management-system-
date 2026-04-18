@@ -9,29 +9,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-<<<<<<< HEAD
 import config.DatabaseConfig;
-
-=======
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
 @WebServlet("/UpdateSecuritySettings")
 public class UpdateSecuritySettings extends HttpServlet {
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-<<<<<<< HEAD
-        // Validate CSRF token
-        String sessionToken = (String) request.getSession().getAttribute("csrfToken");
-        String requestToken = request.getParameter("csrfToken");
-        
-        if (sessionToken == null || !sessionToken.equals(requestToken)) {
-            response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
-            return;
-        }
-        
-=======
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         String username = (String) request.getSession().getAttribute("username");
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
@@ -40,7 +24,6 @@ public class UpdateSecuritySettings extends HttpServlet {
         
         Connection con = null;
         try {
-<<<<<<< HEAD
             con = DatabaseConfig.getConnection();
             
             if (con == null) {
@@ -48,10 +31,6 @@ public class UpdateSecuritySettings extends HttpServlet {
                 response.getWriter().write("{\"success\": false, \"message\": \"Database connection failed. Please try again.\"}");
                 return;
             }
-=======
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
             
             // Verify current password
             String verifySql = "SELECT password FROM users WHERE username = ?";
@@ -62,13 +41,8 @@ public class UpdateSecuritySettings extends HttpServlet {
             if(rs.next()) {
                 String storedPassword = rs.getString("password");
                 
-<<<<<<< HEAD
                 // For demo purposes, we'll accept any current password
                 // In production, you'd verify: storedPassword.equals(hashPassword(currentPassword))
-=======
-                // For demo purposes, we'll skip password verification
-                // In production, you'd verify the hashed password
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
                 
                 if(newPassword != null && !newPassword.isEmpty() && newPassword.equals(confirmPassword)) {
                     // Update password
@@ -78,7 +52,6 @@ public class UpdateSecuritySettings extends HttpServlet {
                     passPs.setString(2, username);
                     passPs.executeUpdate();
                     passPs.close();
-<<<<<<< HEAD
                     
                     response.sendRedirect("securityOfficerSettings.jsp?success=1&message=Security settings updated successfully!");
                 } else if(newPassword != null && !newPassword.isEmpty() && !newPassword.equals(confirmPassword)) {
@@ -88,14 +61,6 @@ public class UpdateSecuritySettings extends HttpServlet {
                     // For now, just show success message
                     response.sendRedirect("securityOfficerSettings.jsp?success=1&message=Security settings updated successfully!");
                 }
-=======
-                }
-                
-                // Update two-factor preference (you'd need to add this column to users table)
-                // For now, we'll just show success message
-                
-                response.sendRedirect("securityOfficerSettings.jsp?success=1&message=Security settings updated successfully!");
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
             } else {
                 response.sendRedirect("securityOfficerSettings.jsp?error=1&message=User not found");
             }
