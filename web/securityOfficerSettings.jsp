@@ -452,6 +452,15 @@ try {
                     <div class="form-group">
 
         <div class="settings-container">
+            <!-- TAB NAVIGATION -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="showTab('personal-settings')">Personal Settings</button>
+                <button class="tab-btn" onclick="showTab('security-settings')">Security Settings</button>
+                <button class="tab-btn" onclick="showTab('shift-settings')">Shift Preferences</button>
+                <button class="tab-btn" onclick="showTab('notification-settings')">Notifications</button>
+                <button class="tab-btn" onclick="showTab('dashboard-settings')">Dashboard</button>
+            </div>
+            
             <!-- Success/Error Messages -->
             <%
             String message = "";
@@ -602,41 +611,7 @@ try {
                 </form>
             </div>
 
-            <div class="settings-section">
-                <h3>Profile Information</h3>
-                <form action="UpdateSecurityOfficerSettings" method="post">
-                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
-                    
-                    <div class="two-column">
-                        <div>
-                            <div class="form-group">
-                                <label for="fullName">Full Name</label>
-                                <input type="text" id="fullName" name="fullName" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" placeholder="+1234567890">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="emergencyContact">Emergency Contact</label>
-                                <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Emergency contact name and number">
-                            </div>
-                        </div>
                     </div>
-                    
-                    <button type="submit" class="btn">Save Profile</button>
-                </form>
-            </div>
-        </div>
 
         <!-- SYSTEM SETTINGS TAB -->
         <div id="system-settings" class="tab-content">
