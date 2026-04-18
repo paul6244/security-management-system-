@@ -59,11 +59,8 @@ try {
         response.sendRedirect("index.jsp");
     }
     
-    String username = session.getAttribute("username").toString();
-    
-    // Simple role check - for security officers, we'll assume they have the right role
-    // In a real app, you'd store the role in session during login
-    String userRole = "security_officer"; // Simplified for now
+    // username is already declared above
+    // userRole is already declared above
 %>
 
 <!DOCTYPE html>
@@ -735,17 +732,6 @@ try {
         <%
             String successMsg = request.getParameter("success");
             String errorMsg = request.getParameter("error");
-            String message = request.getParameter("message");
-        %>
-        
-        <% if(successMsg != null) { %>
-            <div class="success-msg">
-                <strong>✅ Success:</strong> <%= message %>
-            </div>
-        <% } %>
-        
-        <% if(errorMsg != null) { %>
-            <div class="error-msg">
                 <strong>❌ Error:</strong> <%= message %>
             </div>
         <% } %>
