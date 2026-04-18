@@ -14,6 +14,8 @@ import config.DatabaseConfig;
 @WebServlet("/UpdateSecurityOfficerSettings")
 public class UpdateSecurityOfficerSettings extends HttpServlet {
     
+    // Force deployment - Java 11 compatibility fix
+    
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
