@@ -6,18 +6,11 @@
 <%@ page import="config.DatabaseConfig" %>
 
 <%
-// Temporary bypass for testing - remove session validation
-// TODO: Re-enable proper session validation after testing
+// Proper session validation
 String username = (String) session.getAttribute("username");
-Integer userId = (Integer) session.getAttribute("userId");
-
-// If not logged in, use default values for testing
-if (username == null || userId == null) {
-    username = "test_user";
-    userId = 1; // Default user ID for testing
-    System.out.println("Using default test user credentials");
-} else {
-    System.out.println("Using logged in user: " + username + " (ID: " + userId + ")");
+if (username == null) {
+    response.sendRedirect("index.jsp");
+    return;
 }
 
 // Initialize default values
@@ -34,34 +27,107 @@ try {
     conn = DatabaseConfig.getConnection();
     
     if (conn != null) {
-        // Get personal statistics - simplified queries
-        try {
-            String shiftsSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ?";
-            PreparedStatement shiftsPs = conn.prepareStatement(shiftsSql);
-            shiftsPs.setInt(1, userId);
-            ResultSet shiftsRs = shiftsPs.executeQuery();
-            if (shiftsRs.next()) {
-                monthlyShifts = shiftsRs.getInt("count");
-            }
-            shiftsRs.close();
-            shiftsPs.close();
-        } catch (Exception e) {
-            System.out.println("Error getting shifts: " + e.getMessage());
-        }
+        // Get user ID from users table
+        String userSql = "SELECT id FROM users WHERE username = ?";
+        PreparedStatement userPs = conn.prepareStatement(userSql);
+        userPs.setString(1, username);
+        ResultSet userRs = userPs.executeQuery();
         
-        try {
-            String attendanceSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = ?";
-            PreparedStatement attendancePs = conn.prepareStatement(attendanceSql);
-            attendancePs.setInt(1, userId);
-            ResultSet attendanceRs = attendancePs.executeQuery();
-            if (attendanceRs.next()) {
-                attendanceRecords = attendanceRs.getInt("count");
+        if (userRs.next()) {
+            int userId = userRs.getInt("id");
+            
+            // Get monthly shifts
+            try {
+                String shiftsSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
+                PreparedStatement shiftsPs = conn.prepareStatement(shiftsSql);
+                shiftsPs.setInt(1, userId);
+                ResultSet shiftsRs = shiftsPs.executeQuery();
+                if (shiftsRs.next()) {
+                    monthlyShifts = shiftsRs.getInt("count");
+                }
+                shiftsRs.close();
+                shiftsPs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting shifts: " + e.getMessage());
             }
-            attendanceRs.close();
-            attendancePs.close();
-        } catch (Exception e) {
-            System.out.println("Error getting attendance: " + e.getMessage());
+            
+            // Get completed checklists
+            try {
+                String checklistSql = "SELECT COUNT(*) as count FROM shift_checks WHERE personnel_id = ? AND EXTRACT(MONTH FROM check_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM check_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
+                PreparedStatement checklistPs = conn.prepareStatement(checklistSql);
+                checklistPs.setInt(1, userId);
+                ResultSet checklistRs = checklistPs.executeQuery();
+                if (checklistRs.next()) {
+                    completedChecklists = checklistRs.getInt("count");
+                }
+                checklistRs.close();
+                checklistPs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting checklists: " + e.getMessage());
+            }
+            
+            // Get attendance records (from shifts table)
+            try {
+                String attendanceSql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ?";
+                PreparedStatement attendancePs = conn.prepareStatement(attendanceSql);
+                attendancePs.setInt(1, userId);
+                ResultSet attendanceRs = attendancePs.executeQuery();
+                if (attendanceRs.next()) {
+                    attendanceRecords = attendanceRs.getInt("count");
+                }
+                attendanceRs.close();
+                attendancePs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting attendance: " + e.getMessage());
+            }
+            
+            // Get QR scans (from attendance records)
+            try {
+                String qrSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = ?";
+                PreparedStatement qrPs = conn.prepareStatement(qrSql);
+                qrPs.setInt(1, userId);
+                ResultSet qrRs = qrPs.executeQuery();
+                if (qrRs.next()) {
+                    qrScans = qrRs.getInt("count");
+                }
+                qrRs.close();
+                qrPs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting QR scans: " + e.getMessage());
+            }
+            
+            // Get weekly attendance
+            try {
+                String weeklySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND start_time >= DATE_TRUNC('week', CURRENT_DATE)";
+                PreparedStatement weeklyPs = conn.prepareStatement(weeklySql);
+                weeklyPs.setInt(1, userId);
+                ResultSet weeklyRs = weeklyPs.executeQuery();
+                if (weeklyRs.next()) {
+                    weeklyPresent = weeklyRs.getInt("count");
+                }
+                weeklyRs.close();
+                weeklyPs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting weekly attendance: " + e.getMessage());
+            }
+            
+            // Get monthly attendance
+            try {
+                String monthlySql = "SELECT COUNT(*) as count FROM shifts WHERE user_id = ? AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)";
+                PreparedStatement monthlyPs = conn.prepareStatement(monthlySql);
+                monthlyPs.setInt(1, userId);
+                ResultSet monthlyRs = monthlyPs.executeQuery();
+                if (monthlyRs.next()) {
+                    monthlyPresent = monthlyRs.getInt("count");
+                }
+                monthlyRs.close();
+                monthlyPs.close();
+            } catch (Exception e) {
+                System.out.println("Error getting monthly attendance: " + e.getMessage());
+            }
         }
+        userRs.close();
+        userPs.close();
     }
     
 } catch (Exception e) {
