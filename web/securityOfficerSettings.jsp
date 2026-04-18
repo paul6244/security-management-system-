@@ -99,19 +99,14 @@ try {
         
         .form-group {
             margin-bottom: 20px;
-
         }
         
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-
-            color: #555;
-            font-size: 14px;
-
             color: #2c3e50;
-
+            font-size: 14px;
         }
         
         .form-group input, .form-group select, .form-group textarea {
@@ -128,20 +123,11 @@ try {
         }
         
         .form-group textarea {
-            height: 80px;
-
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .form-group textarea {
             height: 100px;
-
             resize: vertical;
         }
         
         .btn {
-
             background: #3498db;
             color: white;
             padding: 12px 20px;
@@ -357,14 +343,6 @@ try {
             .form-group input, .form-group select, .form-group textarea {
                 min-height: 44px;
             }
-
-            background-color: #3498db;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
         }
         
         .btn:hover {
@@ -425,15 +403,11 @@ try {
         <div class="logo">Security System</div>
         <div class="nav">
             <a href="personnelDashboard.jsp">Dashboard</a>
-
-            <a href="securityOfficerReports.jsp">Reports</a>
-            <a href="securityOfficerSettings.jsp" class="active">Settings</a>
-
             <a href="attendance.jsp">Attendance</a>
             <a href="staffRegistration.jsp">Staff Registration</a>
+            <a href="securityOfficerReports.jsp">Reports</a>
             <a href="securityOfficerSettings.jsp" class="active">Settings</a>
             <a href="Logout">Logout</a>
-
         </div>
     </div>
 
