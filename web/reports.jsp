@@ -279,13 +279,7 @@ if(session.getAttribute("username")==null){
                                 <th>Reason</th>
                             </tr>
                         </thead>
-<<<<<<< HEAD
                         <tbody id="reportTableBody">
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 20px;">Loading reports...</td>
-                            </tr>
-=======
-                        <tbody>
                             <%
                             // Get filter parameters
                             String dateFrom = request.getParameter("dateFrom");
@@ -358,7 +352,6 @@ if(session.getAttribute("username")==null){
                             <%
                             }
                             %>
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
                         </tbody>
                     </table>
                 </div>

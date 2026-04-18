@@ -1,6 +1,5 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
-<<<<<<< HEAD
 <%@ page import="config.DatabaseConfig" %>
 
 <%
@@ -52,7 +51,7 @@ try {
             max-width: 800px;
             margin: 0 auto;
             padding: 15px;
-=======
+
 
 <%
     if(session.getAttribute("username") == null){
@@ -88,12 +87,12 @@ try {
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
         }
         
         .settings-section {
             background: white;
-<<<<<<< HEAD
+
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 10px;
@@ -110,7 +109,7 @@ try {
         
         .form-group {
             margin-bottom: 15px;
-=======
+
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -127,26 +126,26 @@ try {
         
         .form-group {
             margin-bottom: 20px;
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
         }
         
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-<<<<<<< HEAD
+
             color: #555;
             font-size: 14px;
-=======
+
             color: #2c3e50;
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
         }
         
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
-<<<<<<< HEAD
+
             border-radius: 5px;
             font-size: 16px;
             box-sizing: border-box;
@@ -157,19 +156,19 @@ try {
         
         .form-group textarea {
             height: 80px;
-=======
+
             border-radius: 4px;
             font-size: 14px;
         }
         
         .form-group textarea {
             height: 100px;
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
             resize: vertical;
         }
         
         .btn {
-<<<<<<< HEAD
+
             background: #3498db;
             color: white;
             padding: 12px 20px;
@@ -385,7 +384,7 @@ try {
             .form-group input, .form-group select, .form-group textarea {
                 min-height: 44px;
             }
-=======
+
             background-color: #3498db;
             color: white;
             padding: 12px 24px;
@@ -438,36 +437,36 @@ try {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
         }
     </style>
 </head>
 <body>
-<<<<<<< HEAD
 
-=======
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
+
+
 <div class="container">
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo">Security System</div>
         <div class="nav">
             <a href="personnelDashboard.jsp">Dashboard</a>
-<<<<<<< HEAD
+
             <a href="securityOfficerReports.jsp">Reports</a>
             <a href="securityOfficerSettings.jsp" class="active">Settings</a>
-=======
+
             <a href="attendance.jsp">Attendance</a>
             <a href="staffRegistration.jsp">Staff Registration</a>
             <a href="securityOfficerSettings.jsp" class="active">Settings</a>
             <a href="Logout">Logout</a>
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
         </div>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
-<<<<<<< HEAD
+
         <!-- HEADER -->
         <div class="header">
             <div>
@@ -504,7 +503,7 @@ try {
                     <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     
                     <div class="form-group">
-=======
+
         <div class="settings-container">
             <!-- Success/Error Messages -->
             <%
@@ -632,18 +631,18 @@ try {
                 <h2>Security Settings</h2>
                 <form action="UpdateSecuritySettings" method="post">
                     <div class="form-group">
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
                         <label for="currentPassword">Current Password</label>
                         <input type="password" id="currentPassword" name="currentPassword" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="newPassword">New Password</label>
-<<<<<<< HEAD
+
                         <input type="password" id="newPassword" name="newPassword">
-=======
+
                         <input type="password" id="newPassword" name="newPassword" placeholder="Leave blank to keep current">
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
                     </div>
                     
                     <div class="form-group">
@@ -651,7 +650,7 @@ try {
                         <input type="password" id="confirmPassword" name="confirmPassword">
                     </div>
                     
-<<<<<<< HEAD
+
                     <button type="submit" class="btn">Update Password</button>
                 </form>
             </div>
@@ -749,7 +748,7 @@ try {
                 <strong>❌ Error:</strong> <%= message %>
             </div>
         <% } %>
-=======
+
                     <div class="form-group">
                         <label for="twoFactor">Two-Factor Authentication</label>
                         <select id="twoFactor" name="twoFactor">
@@ -900,12 +899,12 @@ try {
             if(con != null) con.close();
             %>
         </div>
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
     </div>
 </div>
 
 <script>
-<<<<<<< HEAD
+
 function showTab(tabName) {
     // Hide all tab contents
     const tabContents = document.querySelectorAll('.tab-content');
@@ -921,7 +920,7 @@ function showTab(tabName) {
     // Add active class to clicked tab
     event.target.classList.add('active');
 }
-=======
+
     // Form validation and user experience enhancements
     document.addEventListener('DOMContentLoaded', function() {
         // Password strength validation
@@ -1039,7 +1038,7 @@ function showTab(tabName) {
             tabContainer.children[0].style.color = 'white';
         }
     }
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+
 </script>
 
 </body>

@@ -315,11 +315,11 @@ body {
         <a href="personnelDashboard.jsp">Dashboard</a>
         <a href="attendance.jsp">Attendance</a>
         <a href="staffRegistration.jsp">Staff Registration</a>
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
+        
+
+
+
     </div>
     
     <div class="main-content">

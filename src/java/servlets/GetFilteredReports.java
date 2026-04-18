@@ -39,7 +39,7 @@ public class GetFilteredReports extends HttpServlet {
         System.out.println("dateTo: " + dateTo);
         System.out.println("branch: " + branch);
         System.out.println("status: " + status);
-        System.out.println("================================");
+        System.out.println("====");
 
         List<ReportData> reports = new ArrayList<>();
         Connection con = null;
