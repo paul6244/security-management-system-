@@ -83,7 +83,7 @@ try {
             
             // Get QR scans (from attendance records)
             try {
-                String qrSql = "SELECT COUNT(*) as count FROM staff_attendance WHERE employee_id = ?";
+                String qrSql = "SELECT COUNT(*) as count FROM attendance WHERE employee_id = ? AND verification_method = 'QR'";
                 PreparedStatement qrPs = conn.prepareStatement(qrSql);
                 qrPs.setInt(1, userId);
                 ResultSet qrRs = qrPs.executeQuery();
