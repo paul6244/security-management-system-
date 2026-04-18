@@ -306,7 +306,7 @@
                 <img id="qrImage" alt="Attendance QR Code">
                 <div class="qr-info">
                     <strong>QR Code Generated!</strong><br>
-                    Students can scan this code to mark their attendance.<br>
+                    Staff can scan this code to mark their attendance.<br>
                     <span id="qrUrl"></span>
                 </div>
             </div>
