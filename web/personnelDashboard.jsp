@@ -313,7 +313,10 @@ th, td {
     <a href="personnelDashboard.jsp">Checklist</a>
     <a href="viewAttendance.jsp">QR Code</a>
     <a href="staffRegistration.jsp">Staff Registration</a>
+<<<<<<< HEAD
     <a href="securityOfficerReports.jsp">Reports</a>
+=======
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
     <a href="securityOfficerSettings.jsp">Settings</a>
     <a href="Logout">Logout</a>
 </div>
@@ -336,7 +339,11 @@ th, td {
 <h3>Shift Checklist</h3>
 
 <!-- ORIGINAL FORM -->
+<<<<<<< HEAD
 <form action="SaveChecklist" method="post" id="mainForm">
+=======
+<form action="SaveChecklist" method="post" onsubmit="showShiftNotification('end')" id="mainForm">
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
 
 <table>
 <thead>

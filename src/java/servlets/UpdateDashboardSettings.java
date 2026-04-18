@@ -15,6 +15,7 @@ public class UpdateDashboardSettings extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+<<<<<<< HEAD
         // Validate CSRF token
         String sessionToken = (String) request.getSession().getAttribute("csrfToken");
         String requestToken = request.getParameter("csrfToken");
@@ -23,6 +24,9 @@ public class UpdateDashboardSettings extends HttpServlet {
             response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Invalid request - please try again");
             return;
         }
+=======
+        String username = (String) request.getSession().getAttribute("username");
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         String dashboardTheme = request.getParameter("dashboardTheme");
         String refreshRate = request.getParameter("refreshRate");
         String showCharts = request.getParameter("showCharts");

@@ -8,6 +8,14 @@ public class Mymodel {
 
     static Connection con;
 
+<<<<<<< HEAD
+=======
+    // localhost Database Connection for local development
+    private static final String URL = "jdbc:mysql://localhost:3306/securitymanagementsystem";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
     // ---------------- Database Connection ----------------
     public static void connection() {
         try {
@@ -282,6 +290,7 @@ public class Mymodel {
 
     public static int getTotalIncidents() {
         try {
+<<<<<<< HEAD
             Connection conn = DatabaseConfig.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK' OR status='Not ok'");
@@ -292,6 +301,14 @@ public class Mymodel {
                 conn.close();
                 return count;
             }
+=======
+            String sql = "SELECT COUNT(*) FROM shift_checks WHERE status='NOT_OK'";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+
+            con.close();
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -304,6 +321,107 @@ public class Mymodel {
             String sql = "SELECT DATE(check_time) AS date, COUNT(*) AS total FROM shift_checks GROUP BY DATE(check_time) ORDER BY DATE(check_time)";
             PreparedStatement ps = conn.prepareStatement(sql);
             return ps.executeQuery();
+<<<<<<< HEAD
+=======
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // ---------------- Get Reports ----------------
+    public static ResultSet getReports() {
+        connection();
+        try {
+            String sql = "SELECT u.username, b.name AS branch, ci.item_name, " +
+                         "sc.status, sc.reason, sc.check_time, sc.id " +
+                         "FROM shift_checks sc " +
+                         "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
+                         "JOIN users u ON sp.user_id = u.id " +
+                         "JOIN branches b ON sp.branch_id = b.id " +
+                         "JOIN checklist_items ci ON sc.item_id = ci.id " +
+                         "ORDER BY sc.check_time DESC";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            return ps.executeQuery();
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean updateUserPassword(String username, String newPassword) {
+        connection();
+        try {
+            String hashed = universalManager.hashPassword(newPassword);
+            String sql = "UPDATE users SET password = ? WHERE username = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, hashed);
+            ps.setString(2, username);
+
+            int result = ps.executeUpdate();
+            con.close();
+            return result > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static ResultSet getFilteredReports(String dateFrom, String dateTo, String branchId, String status) {
+        connection();
+        try {
+            StringBuilder sql = new StringBuilder(
+                "SELECT u.username, b.name AS branch, ci.item_name, " +
+                "sc.status, sc.reason, sc.check_time, sc.id " +
+                "FROM shift_checks sc " +
+                "JOIN security_personnel sp ON sc.personnel_id = sp.id " +
+                "JOIN users u ON sp.user_id = u.id " +
+                "JOIN branches b ON sp.branch_id = b.id " +
+                "JOIN checklist_items ci ON sc.item_id = ci.id " +
+                "WHERE 1=1"
+            );
+
+            // Add filters dynamically
+            if (dateFrom != null && !dateFrom.trim().isEmpty()) {
+                sql.append(" AND DATE(sc.check_time) >= ?");
+            }
+            if (dateTo != null && !dateTo.trim().isEmpty()) {
+                sql.append(" AND DATE(sc.check_time) <= ?");
+            }
+            if (branchId != null && !branchId.trim().isEmpty()) {
+                sql.append(" AND b.id = ?");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                if ("OK".equals(status)) {
+                    sql.append(" AND sc.status = 'OK'");
+                } else if ("NOT_OK".equals(status)) {
+                    sql.append(" AND sc.status = 'NOT_OK'");
+                }
+            }
+
+            sql.append(" ORDER BY sc.check_time DESC");
+
+            PreparedStatement ps = con.prepareStatement(sql.toString());
+
+            // Set parameters dynamically
+            int paramIndex = 1;
+            if (dateFrom != null && !dateFrom.trim().isEmpty()) {
+                ps.setString(paramIndex++, dateFrom);
+            }
+            if (dateTo != null && !dateTo.trim().isEmpty()) {
+                ps.setString(paramIndex++, dateTo);
+            }
+            if (branchId != null && !branchId.trim().isEmpty()) {
+                ps.setInt(paramIndex++, Integer.parseInt(branchId));
+            }
+
+            return ps.executeQuery();
+
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -312,6 +430,7 @@ public class Mymodel {
 
     public static ResultSet getIncidentsByBranch() {
         try {
+<<<<<<< HEAD
             Connection conn = DatabaseConfig.getConnection();
             // Fixed query to use correct joins and include both 'NOT_OK' and 'Not ok' status variations
             String sql = "SELECT b.name as branch_name, COUNT(sc.id) as total " +
@@ -322,6 +441,16 @@ public class Mymodel {
                         "GROUP BY b.name " +
                         "ORDER BY b.name";
             PreparedStatement ps = conn.prepareStatement(sql);
+=======
+            String sql = "SELECT b.name AS branch_name, COUNT(s.id) AS total " +
+                         "FROM shift_checks s " +
+                         "JOIN security_personnel sp ON s.personnel_id = sp.id " +
+                         "JOIN branches b ON sp.branch_id = b.id " +
+                         "WHERE s.status='NOT_OK' " +
+                         "GROUP BY b.name";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+>>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
             return ps.executeQuery();
         } catch (Exception e) {
             e.printStackTrace();

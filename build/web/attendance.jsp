@@ -315,11 +315,7 @@ body {
         <a href="personnelDashboard.jsp">Dashboard</a>
         <a href="attendance.jsp">Attendance</a>
         <a href="staffRegistration.jsp">Staff Registration</a>
-<<<<<<< HEAD
         
-=======
-
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
     </div>
     
     <div class="main-content">
@@ -341,7 +337,7 @@ body {
             if(errorParam.equals("already_checked_in")) {
                 urlMessage = "Staff member already checked in today!";
                 urlType = "error";
-           } else if(errorParam.equals("attendance_failed")) {
+            } else if(errorParam.equals("attendance_failed")) {
                 urlMessage = "Failed to record attendance!";
                 urlType = "error";
             } else if(errorParam.equals("system_error")) {
@@ -631,7 +627,7 @@ INSERT INTO staff_registration (first_name, last_name, email, phone, department,
                             <div class="error-state">
                                 <div class="icon">❌</div>
                                 <div>Attendance table does not exist!</div>
-                                <small>Please create attendance table first</small>
+                                <small>Please create the attendance table first</small>
                             </div>
                         <%
                         }

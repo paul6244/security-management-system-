@@ -1,8 +1,4 @@
 <%@ page import="java.sql.*" %>
-<<<<<<< HEAD
-<%@ page import="config.DatabaseConfig" %>
-=======
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
 <%
 if(session.getAttribute("username")==null){
     response.sendRedirect("index.jsp");
@@ -30,14 +26,8 @@ if(session.getAttribute("username")==null){
     <div class="result">
         <h3>shift_checks Table Structure</h3>
         <%
-<<<<<<< HEAD
-        Connection conn = null;
-        try {
-            conn = DatabaseConfig.getConnection();
-=======
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
             
             // Show table structure

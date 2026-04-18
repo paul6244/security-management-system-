@@ -1,0 +1,31 @@
+# Ignore build files
+target/
+build/
+dist/
+out/
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore node_modules (if any)
+node_modules/
+
+# Ignore documentation
+docs/
+README.md
