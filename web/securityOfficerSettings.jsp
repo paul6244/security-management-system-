@@ -39,29 +39,6 @@ try {
 %>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Security Management System</title>
-    <link rel="stylesheet" href="css/dashboard.css">
-    <style>
-        /* Mobile-First Responsive Design */
-        .settings-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 15px;
-
-
-<%
-    if(session.getAttribute("username") == null){
-        response.sendRedirect("index.jsp");
-    }
-    
-    // username is already declared above
-%>
-
-<!DOCTYPE html>
 <html>
 <head>
     <title>Security Officer Settings - Security System</title>
