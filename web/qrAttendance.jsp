@@ -235,21 +235,21 @@
     </div>
 
     <script>
-        // Focus on student ID input when page loads
+        // Focus on employee ID input when page loads
         window.addEventListener('load', function() {
-            const studentIdInput = document.getElementById('studentId');
+            const employeeIdInput = document.getElementById('studentId');
             if (studentIdInput) {
-                studentIdInput.focus();
+                employeeIdInput.focus();
             }
         });
 
         // Form submission handler
         document.getElementById('attendanceForm').addEventListener('submit', function(e) {
-            const studentId = document.getElementById('studentId').value.trim();
+            const employeeId = document.getElementById('studentId').value.trim();
             
-            if (!studentId) {
+            if (!employeeId) {
                 e.preventDefault();
-                showAlert('Please enter your Student ID', 'error');
+                showAlert('Please enter your Employee ID', 'error');
                 return;
             }
             

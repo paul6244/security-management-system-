@@ -351,16 +351,16 @@
                 <h3>Manual Entry (if QR code doesn't work)</h3>
                 <form id="manualForm">
                     <div class="form-group">
-                        <label for="manualClassId">Class ID:</label>
-                        <input type="text" id="manualClassId" name="classId" placeholder="e.g., class1" required>
+                        <label for="manualClassId">Staff ID:</label>
+                        <input type="text" id="manualClassId" name="classId" placeholder="e.g., staff1" required>
                     </div>
                     <div class="form-group">
                         <label for="manualDate">Date:</label>
                         <input type="date" id="manualDate" name="date" required>
                     </div>
                     <div class="form-group">
-                        <label for="manualStudentId">Student ID:</label>
-                        <input type="text" id="manualStudentId" name="studentId" placeholder="Enter your student ID" required>
+                        <label for="manualStudentId">Employee ID:</label>
+                        <input type="text" id="manualStudentId" name="studentId" placeholder="Enter your employee ID" required>
                     </div>
                     <button type="submit" class="btn btn-success">Mark Attendance Manually</button>
                 </form>
@@ -478,16 +478,16 @@
                 const date = params.get('date');
                 
                 if (classId && date) {
-                    // Prompt for student ID
-                    const studentId = prompt('QR Code scanned successfully! Please enter your Student ID:');
+                    // Prompt for staff ID
+                    const staffId = prompt('QR Code scanned successfully! Please enter your Employee ID:');
                     
-                    if (studentId && studentId.trim()) {
+                    if (staffId && staffId.trim()) {
                         // Submit attendance
-                        submitAttendance(classId, date, studentId.trim());
+                        submitAttendance(classId, date, staffId.trim());
                     } else {
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('status').className = 'status status-error';
-                        document.getElementById('status').textContent = 'Student ID is required';
+                        document.getElementById('status').textContent = 'Employee ID is required';
                         startScanner(); // Restart scanner
                     }
                 } else {
@@ -506,7 +506,7 @@
         }
 
         // Submit attendance
-        function submitAttendance(classId, date, studentId) {
+        function submitAttendance(classId, date, staffId) {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'MarkAttendance';
@@ -521,14 +521,14 @@
             dateInput.name = 'date';
             dateInput.value = date;
             
-            const studentIdInput = document.createElement('input');
-            studentIdInput.type = 'hidden';
-            studentIdInput.name = 'studentId';
-            studentIdInput.value = studentId;
+            const staffIdInput = document.createElement('input');
+            staffIdInput.type = 'hidden';
+            staffIdInput.name = 'staffId';
+            staffIdInput.value = staffId;
             
             form.appendChild(classIdInput);
             form.appendChild(dateInput);
-            form.appendChild(studentIdInput);
+            form.appendChild(staffIdInput);
             
             document.body.appendChild(form);
             form.submit();
