@@ -36,6 +36,25 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <!-- SUCCESS/ERROR MESSAGES -->
+        <%
+            String successMsg = request.getParameter("success");
+            String errorMsg = request.getParameter("error");
+            String message = request.getParameter("message");
+        %>
+        
+        <% if(successMsg != null) { %>
+            <div class="alert alert-success">
+                <strong>✅ Success:</strong> <%= message %>
+            </div>
+        <% } %>
+        
+        <% if(errorMsg != null) { %>
+            <div class="alert alert-danger">
+                <strong>❌ Error:</strong> <%= message %>
+            </div>
+        <% } %>
+
         <!-- HEADER -->
         <div class="header">
             <div>
@@ -127,8 +146,100 @@
             <div class="header">
                 <div>
                     <h1>Security Personnel Management</h1>
-                    <p>View and search all security personnel</p>
+                    <p>Register and manage security personnel</p>
                 </div>
+            </div>
+
+            <!-- REGISTRATION FORM -->
+            <div class="registration-section">
+                <h2>Register New Security Personnel</h2>
+                <form action="RegisterSecurityPersonnel" method="post" class="registration-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Username *</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label for="branch">Branch *</label>
+                            <select id="branch" name="branch" required>
+                                <option value="">Select Branch</option>
+                                <%
+                                    try {
+                                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                                        String branchSql = "SELECT id, name FROM branches ORDER BY name";
+                                        PreparedStatement branchPs = con.prepareStatement(branchSql);
+                                        ResultSet branchRs = branchPs.executeQuery();
+                                        
+                                        while(branchRs.next()) {
+                                %>
+                                <option value="<%= branchRs.getInt("id") %>"><%= branchRs.getString("name") %></option>
+                                <%
+                                        }
+                                        branchRs.close();
+                                        branchPs.close();
+                                        con.close();
+                                    } catch(Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shiftTime">Shift Time *</label>
+                            <select id="shiftTime" name="shiftTime" required>
+                                <option value="">Select Shift</option>
+                                <option value="08:00-16:00">Day Shift (8AM-4PM)</option>
+                                <option value="16:00-00:00">Evening Shift (4PM-12AM)</option>
+                                <option value="00:00-08:00">Night Shift (12AM-8AM)</option>
+                                <option value="flexible">Flexible</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID</label>
+                            <input type="text" id="employeeId" name="employeeId" placeholder="e.g., EMP001">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" rows="3" placeholder="Full address"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emergencyContact">Emergency Contact</label>
+                        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Name and phone number">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register Personnel</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
             </div>
 
             <!-- SEARCH BAR -->
@@ -432,6 +543,108 @@
     
     #personnelTable tr:hover {
         background-color: #f5f5f5;
+    }
+    
+    .registration-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .registration-form {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        flex: 1;
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+    
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
     }
 </style>
 

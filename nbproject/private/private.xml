@@ -1,23 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/Signup.jsp</file>
-<<<<<<< HEAD
-=======
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/admin.jsp</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/utility/universalManager.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/personnelDashboard.jsp</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/servlet/ScanQR.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/servlet/StartShift.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/servlet/EndShift.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/servlet/SaveChecklist.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/reports.jsp</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/src/java/servlet/GetFilteredReports.java</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/staffRegistration.jsp</file>
-            <file>file:/C:/Users/ELITEBOOK/OneDrive%20-%20KUMASI%20TECHNICAL%20UNIVERSITY/Documents/NetBeansProjects/SecurityManagementSystem/web/attendance.jsp</file>
->>>>>>> a2ae55f67fdb2960dceeb77213e859a83ba787a0
         </group>
     </open-files>
 </project-private>
