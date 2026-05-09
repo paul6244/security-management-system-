@@ -28,6 +28,7 @@
         <div class="nav">
             <a href="#dashboard">Dashboard</a>
             <a href="#personnel">Personnel</a>
+            <a href="#checklist">Checklist Management</a>
             <a href="userManagement.jsp">Users</a>
             <a href="viewAttendance.jsp">QR Code</a>
             <a href="reports.jsp">Reports</a>
@@ -284,6 +285,89 @@
             </div>
         </div>
 
+        <!-- CHECKLIST MANAGEMENT SECTION -->
+        <div id="checklist" class="section" style="display: none;">
+            <div class="header">
+                <div>
+                    <h1>Checklist Management</h1>
+                    <p>Manage checklist items for each branch</p>
+                </div>
+            </div>
+
+            <!-- BRANCH SELECTION -->
+            <div class="checklist-controls">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="branchSelect">Select Branch:</label>
+                        <select id="branchSelect" onchange="loadBranchChecklist()">
+                            <option value="">Select Branch</option>
+                            <%
+                                try {
+                                    ResultSet branchRs = Mymodel.getBranches();
+                                    while(branchRs != null && branchRs.next()) {
+                            %>
+                            <option value="<%= branchRs.getInt("id") %>"><%= branchRs.getString("name") %></option>
+                            <%
+                                    }
+                                    if(branchRs != null) branchRs.close();
+                                } catch(Exception e) {
+                                    e.printStackTrace();
+                                }
+                            %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="showAddItemForm()">Add New Item</button>
+                        <button class="btn btn-secondary" onclick="loadBranchChecklist()">Refresh</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADD ITEM FORM -->
+            <div id="addItemForm" class="add-item-form" style="display: none;">
+                <h3>Add New Checklist Item</h3>
+                <form id="checklistItemForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemName">Item Name:</label>
+                            <input type="text" id="itemName" name="itemName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemBranch">Branch:</label>
+                            <select id="itemBranch" name="itemBranch" required>
+                                <option value="">Select Branch</option>
+                                <%
+                                    try {
+                                        ResultSet branchRs2 = Mymodel.getBranches();
+                                        while(branchRs2 != null && branchRs2.next()) {
+                                %>
+                                <option value="<%= branchRs2.getInt("id") %>"><%= branchRs2.getString("name") %></option>
+                                <%
+                                        }
+                                        if(branchRs2 != null) branchRs2.close();
+                                    } catch(Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddItemForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- CHECKLIST ITEMS TABLE -->
+            <div class="checklist-items-section">
+                <h3>Checklist Items for Selected Branch</h3>
+                <div id="checklistItemsContainer">
+                    <p>Please select a branch to view and manage checklist items.</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -445,6 +529,73 @@
                 legend: { display: true }
             }
         }
+    });
+
+    // Checklist Management Functions
+    function showAddItemForm() {
+        document.getElementById('addItemForm').style.display = 'block';
+    }
+
+    function hideAddItemForm() {
+        document.getElementById('addItemForm').style.display = 'none';
+        document.getElementById('checklistItemForm').reset();
+    }
+
+    function loadBranchChecklist() {
+        const branchId = document.getElementById('branchSelect').value;
+        if (!branchId) {
+            document.getElementById('checklistItemsContainer').innerHTML = '<p>Please select a branch to view and manage checklist items.</p>';
+            return;
+        }
+
+        // Show loading message
+        document.getElementById('checklistItemsContainer').innerHTML = '<p>Loading checklist items...</p>';
+
+        // Fetch checklist items for selected branch
+        fetch('GetBranchChecklistItems?branchId=' + branchId)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('checklistItemsContainer').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Error loading checklist items:', error);
+                document.getElementById('checklistItemsContainer').innerHTML = '<p>Error loading checklist items. Please try again.</p>';
+            });
+    }
+
+    // Handle form submission for adding new checklist item
+    document.getElementById('checklistItemForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const itemName = document.getElementById('itemName').value;
+        const itemBranch = document.getElementById('itemBranch').value;
+
+        if (!itemName || !itemBranch) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        // Submit form data
+        const formData = new FormData(this);
+        
+        fetch('AddChecklistItem', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Checklist item added successfully!');
+                hideAddItemForm();
+                loadBranchChecklist();
+            } else {
+                alert('Error adding checklist item: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding checklist item. Please try again.');
+        });
     });
 </script>
 
@@ -641,6 +792,49 @@
         background-color: #f8d7da;
         color: #721c24;
         border: 1px solid #f5c6cb;
+    }
+    
+    /* Checklist Management Styles */
+    .checklist-controls {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .add-item-form {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .checklist-items-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .checklist-table-container {
+        overflow-x: auto;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #c82333;
     }
 </style>
 
