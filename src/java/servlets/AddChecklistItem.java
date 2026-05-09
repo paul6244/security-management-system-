@@ -1,12 +1,12 @@
 package servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
@@ -19,7 +19,7 @@ public class AddChecklistItem extends HttpServlet {
             throws ServletException, IOException {
         
         response.setContentType("application/json");
-        java.io.PrintWriter out = response.getWriter();
+        PrintWriter out = response.getWriter();
         
         String itemName = request.getParameter("itemName");
         String branchId = request.getParameter("itemBranch");
@@ -29,8 +29,9 @@ public class AddChecklistItem extends HttpServlet {
             return;
         }
         
+        Connection con = null;
         try {
-            Connection con = DatabaseConfig.getConnection();
+            con = DatabaseConfig.getConnection();
             
             // First, get item ID from checklist_items table
             String getItemIdSql = "SELECT id FROM checklist_items WHERE item_name = ?";
@@ -42,7 +43,6 @@ public class AddChecklistItem extends HttpServlet {
                 out.print("{\"success\": false, \"message\": \"Checklist item not found in master checklist.\"}");
                 itemIdRs.close();
                 getItemIdPs.close();
-                con.close();
                 return;
             }
             
@@ -61,7 +61,6 @@ public class AddChecklistItem extends HttpServlet {
                 out.print("{\"success\": false, \"message\": \"This item already exists for the selected branch.\"}");
                 checkRs.close();
                 checkPs.close();
-                con.close();
                 return;
             }
             checkRs.close();
@@ -74,23 +73,24 @@ public class AddChecklistItem extends HttpServlet {
             insertPs.setInt(2, checklistItemId);
             int result = insertPs.executeUpdate();
             insertPs.close();
-                
-                if (result > 0) {
-                    out.print("{\"success\": true, \"message\": \"Checklist item added successfully!\"}");
-                } else {
-                    out.print("{\"success\": false, \"message\": \"Failed to add checklist item.\"}");
-                }
-            } else {
-                out.print("{\"success\": false, \"message\": \"Checklist item not found in master checklist.\"}");
-            }
             
-            itemRs.close();
-            getItemPs.close();
-            con.close();
+            if (result > 0) {
+                out.print("{\"success\": true, \"message\": \"Checklist item added successfully!\"}");
+            } else {
+                out.print("{\"success\": false, \"message\": \"Failed to add checklist item.\"}");
+            }
             
         } catch (Exception e) {
             e.printStackTrace();
             out.print("{\"success\": false, \"message\": \"Error: " + e.getMessage() + "\"}");
+        } finally {
+            try {
+                if (con != null && !con.isClosed()) {
+                    con.close();
+                }
+            } catch (Exception e) {
+                // Ignore close errors
+            }
         }
     }
 }
