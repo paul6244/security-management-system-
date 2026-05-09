@@ -596,6 +596,10 @@
         const itemName = document.getElementById('itemName').value;
         const itemBranch = document.getElementById('itemBranch').value;
 
+        console.log('Form submission debug:');
+        console.log('itemName:', itemName);
+        console.log('itemBranch:', itemBranch);
+
         if (!itemName || !itemBranch) {
             alert('Please fill in all required fields.');
             return;
@@ -603,6 +607,8 @@
 
         // Submit form data
         const formData = new FormData(this);
+        formData.append('itemName', itemName);
+        formData.append('itemBranch', itemBranch);
         
         fetch('AddChecklistItem', {
             method: 'POST',
