@@ -33,22 +33,22 @@ public class AddChecklistItem extends HttpServlet {
             Connection con = DatabaseConfig.getConnection();
             
             // First, get item ID from checklist_items table
-            String getItemSql = "SELECT id FROM checklist_items WHERE item_name = ?";
-            PreparedStatement getItemPs = con.prepareStatement(getItemSql);
-            getItemPs.setString(1, itemName);
-            ResultSet itemRs = getItemPs.executeQuery();
+            String getItemIdSql = "SELECT id FROM checklist_items WHERE item_name = ?";
+            PreparedStatement getItemIdPs = con.prepareStatement(getItemIdSql);
+            getItemIdPs.setString(1, itemName);
+            ResultSet itemIdRs = getItemIdPs.executeQuery();
             
-            if (!itemRs.next()) {
+            if (!itemIdRs.next()) {
                 out.print("{\"success\": false, \"message\": \"Checklist item not found in master checklist.\"}");
-                itemRs.close();
-                getItemPs.close();
+                itemIdRs.close();
+                getItemIdPs.close();
                 con.close();
                 return;
             }
             
-            int itemId = itemRs.getInt("id");
-            itemRs.close();
-            getItemPs.close();
+            int itemId = itemIdRs.getInt("id");
+            itemIdRs.close();
+            getItemIdPs.close();
             
             // Now check if item already exists for this branch
             String checkSql = "SELECT COUNT(*) as count FROM branch_checklist_items WHERE item_id = ? AND branch_id = ?";
