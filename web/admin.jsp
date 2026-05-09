@@ -1,5 +1,7 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
+<%@ page import="config.DatabaseConfig" %>
 
 <%
     if(session.getAttribute("username") == null){
@@ -187,7 +189,7 @@
                                 <option value="">Select Branch</option>
                                 <%
                                     try {
-                                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/securitymanagementsystem","root","");
+                                        Connection con = DatabaseConfig.getConnection();
                                         String branchSql = "SELECT id, name FROM branches ORDER BY name";
                                         PreparedStatement branchPs = con.prepareStatement(branchSql);
                                         ResultSet branchRs = branchPs.executeQuery();
