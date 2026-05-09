@@ -26,13 +26,13 @@ public class CreateDatabaseTables extends HttpServlet {
             
             // Create branch_checklist_items table if it doesn't exist
             String createTableSQL = "CREATE TABLE IF NOT EXISTS branch_checklist_items (" +
-                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "id SERIAL PRIMARY KEY, " +
                     "branch_id INT NOT NULL, " +
                     "item_id INT NOT NULL, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                     "FOREIGN KEY (branch_id) REFERENCES branches(id) ON DELETE CASCADE, " +
                     "FOREIGN KEY (item_id) REFERENCES checklist_items(id) ON DELETE CASCADE, " +
-                    "UNIQUE KEY unique_branch_item (branch_id, item_id)" +
+                    "UNIQUE (branch_id, item_id)" +
                     ")";
             
             stmt.executeUpdate(createTableSQL);
