@@ -8,8 +8,8 @@ import java.net.URI;
 public class DatabaseConfig {
     
     private static Connection connection;
-    private static final int MAX_RETRIES = 3;
-    private static final int CONNECTION_TIMEOUT = 30; // 30 seconds timeout
+    private static final int MAX_RETRIES = 2;
+    private static final int CONNECTION_TIMEOUT = 15; // 15 seconds timeout
     
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
