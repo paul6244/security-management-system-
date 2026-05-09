@@ -541,6 +541,32 @@
         document.getElementById('checklistItemForm').reset();
     }
 
+    function removeChecklistItem(itemId, branchId) {
+        if (confirm('Are you sure you want to remove this checklist item?')) {
+            const formData = new FormData();
+            formData.append('itemId', itemId);
+            formData.append('branchId', branchId);
+            
+            fetch('RemoveChecklistItem', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Checklist item removed successfully!');
+                    loadBranchChecklist();
+                } else {
+                    alert('Error removing checklist item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error removing checklist item. Please try again.');
+            });
+        }
+    }
+
     function loadBranchChecklist() {
         const branchId = document.getElementById('branchSelect').value;
         if (!branchId) {
