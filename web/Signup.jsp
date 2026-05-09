@@ -3,18 +3,31 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
 
+<%
+// Check if user is logged in and has admin role
+String username = (String) session.getAttribute("username");
+String userRole = (String) session.getAttribute("role");
+
+if(username == null || userRole == null || !"admin".equals(userRole)) {
+    session.setAttribute("accessError", "Access denied. Admin privileges required to access sign-up page.");
+    response.sendRedirect("index.jsp");
+    return;
+}
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Sign Up</title>
+<title>Admin - User Registration</title>
 <link rel="stylesheet" type="text/css" href="css/form.css">
 </head>
 
 <body background="image/download.jpg">
 <div class="container">
 
-<h1>Sign Up</h1>
+<h1>Admin - User Registration</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">Register new users (Admin Only)</p>
 
 <%-- Display error message --%>
 <%

@@ -29,6 +29,17 @@
         <%
             session.removeAttribute("loginSuccess");
         }
+        %>
+        
+        <%-- Display access error message --%>
+        <%
+        String accessError = (String) session.getAttribute("accessError");
+        if(accessError != null){
+        %>
+        <p style="color:red;"><%= accessError %></p>
+        <%
+            session.removeAttribute("accessError");
+        }
         %>  
         <form action="Login" method="post">
             <label for="username">Username:</label>
