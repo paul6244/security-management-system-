@@ -189,19 +189,13 @@
                                 <option value="">Select Branch</option>
                                 <%
                                     try {
-                                        Connection con = DatabaseConfig.getConnection();
-                                        String branchSql = "SELECT id, name FROM branches ORDER BY name";
-                                        PreparedStatement branchPs = con.prepareStatement(branchSql);
-                                        ResultSet branchRs = branchPs.executeQuery();
-                                        
-                                        while(branchRs.next()) {
+                                        ResultSet branchRs = Mymodel.getBranches();
+                                        while(branchRs != null && branchRs.next()) {
                                 %>
                                 <option value="<%= branchRs.getInt("id") %>"><%= branchRs.getString("name") %></option>
                                 <%
                                         }
-                                        branchRs.close();
-                                        branchPs.close();
-                                        con.close();
+                                        if(branchRs != null) branchRs.close();
                                     } catch(Exception e) {
                                         e.printStackTrace();
                                     }
