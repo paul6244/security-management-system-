@@ -329,23 +329,8 @@
                 <form id="checklistItemForm">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="itemName">Checklist Item:</label>
-                            <select id="itemName" name="itemName" required>
-                                <option value="">Select Checklist Item</option>
-                                <%
-                                    try {
-                                        ResultSet itemRs = Mymodel.getChecklistItems();
-                                        while(itemRs != null && itemRs.next()) {
-                                %>
-                                <option value="<%= itemRs.getString("item_name") %>"><%= itemRs.getString("item_name") %></option>
-                                <%
-                                        }
-                                        if(itemRs != null) itemRs.close();
-                                    } catch(Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                %>
-                            </select>
+                            <label for="itemName">Item Name:</label>
+                            <input type="text" id="itemName" name="itemName" placeholder="Enter new or existing checklist item" required>
                         </div>
                         <div class="form-group">
                             <label for="itemBranch">Branch:</label>
