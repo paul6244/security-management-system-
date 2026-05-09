@@ -24,6 +24,11 @@ public class AddChecklistItem extends HttpServlet {
         String itemName = request.getParameter("itemName");
         String branchId = request.getParameter("itemBranch");
         
+        if (itemName == null || itemName.trim().isEmpty() || branchId == null || branchId.trim().isEmpty()) {
+            out.print("{\"success\": false, \"message\": \"Item name and branch are required.\"}");
+            return;
+        }
+        
         try {
             Connection con = DatabaseConfig.getConnection();
             
@@ -44,7 +49,7 @@ public class AddChecklistItem extends HttpServlet {
             checkRs.close();
             checkPs.close();
             
-            // Get the item ID from checklist_items table
+            // Get item ID from checklist_items table
             String getItemSql = "SELECT id FROM checklist_items WHERE item_name = ?";
             PreparedStatement getItemPs = con.prepareStatement(getItemSql);
             getItemPs.setString(1, itemName);
@@ -67,7 +72,7 @@ public class AddChecklistItem extends HttpServlet {
                     out.print("{\"success\": false, \"message\": \"Failed to add checklist item.\"}");
                 }
             } else {
-                out.print("{\"success\": false, \"message\": \"Checklist item not found.\"}");
+                out.print("{\"success\": false, \"message\": \"Checklist item not found in master checklist.\"}");
             }
             
             itemRs.close();
