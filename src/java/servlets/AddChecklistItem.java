@@ -46,14 +46,14 @@ public class AddChecklistItem extends HttpServlet {
                 return;
             }
             
-            int itemId = itemIdRs.getInt("id");
+            int checklistItemId = itemIdRs.getInt("id");
             itemIdRs.close();
             getItemIdPs.close();
             
             // Now check if item already exists for this branch
             String checkSql = "SELECT COUNT(*) as count FROM branch_checklist_items WHERE item_id = ? AND branch_id = ?";
             PreparedStatement checkPs = con.prepareStatement(checkSql);
-            checkPs.setInt(1, itemId);
+            checkPs.setInt(1, checklistItemId);
             checkPs.setInt(2, Integer.parseInt(branchId));
             ResultSet checkRs = checkPs.executeQuery();
             
@@ -67,22 +67,13 @@ public class AddChecklistItem extends HttpServlet {
             checkRs.close();
             checkPs.close();
             
-            // Get item ID from checklist_items table
-            String getItemSql = "SELECT id FROM checklist_items WHERE item_name = ?";
-            PreparedStatement getItemPs = con.prepareStatement(getItemSql);
-            getItemPs.setString(1, itemName);
-            ResultSet itemRs = getItemPs.executeQuery();
-            
-            if (itemRs.next()) {
-                int itemId = itemRs.getInt("id");
-                
-                // Add item to branch-specific checklist
-                String insertSql = "INSERT INTO branch_checklist_items (branch_id, item_id) VALUES (?, ?)";
-                PreparedStatement insertPs = con.prepareStatement(insertSql);
-                insertPs.setInt(1, Integer.parseInt(branchId));
-                insertPs.setInt(2, itemId);
-                int result = insertPs.executeUpdate();
-                insertPs.close();
+            // Add item to branch-specific checklist
+            String insertSql = "INSERT INTO branch_checklist_items (branch_id, item_id) VALUES (?, ?)";
+            PreparedStatement insertPs = con.prepareStatement(insertSql);
+            insertPs.setInt(1, Integer.parseInt(branchId));
+            insertPs.setInt(2, checklistItemId);
+            int result = insertPs.executeUpdate();
+            insertPs.close();
                 
                 if (result > 0) {
                     out.print("{\"success\": true, \"message\": \"Checklist item added successfully!\"}");
