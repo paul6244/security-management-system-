@@ -494,10 +494,10 @@
     new Chart(document.getElementById("reportChart"), {
         type: "line",
         data: {
-            labels: [<%= (reportLabels.length() > 0 ? reportLabels.toString() : "") %>],
+            labels: [<%= reportLabels != null && reportLabels.length() > 0 ? reportLabels.toString() : "" %>],
             datasets: [{
                 label: "Reports",
-                data: [<%= (reportData.length() > 0 ? reportData.toString() : "0") %>],
+                data: [<%= reportData != null && reportData.length() > 0 ? reportData.toString() : "0" %>],
                 borderWidth: 2,
                 fill: false,
                 borderColor: "#3498db",
@@ -516,10 +516,10 @@
     new Chart(document.getElementById("incidentChart"), {
         type: "bar",
         data: {
-            labels: [<%= (incidentLabels != null && incidentLabels.length() > 0) ? incidentLabels.toString() : "" %>],
+            labels: [<%= incidentLabels != null && incidentLabels.length() > 0 ? incidentLabels.toString() : "" %>],
             datasets: [{
                 label: "Incidents",
-                data: [<%= (incidentData != null && incidentData.length() > 0) ? incidentData.toString() : "0" %>],
+                data: [<%= incidentData != null && incidentData.length() > 0 ? incidentData.toString() : "0" %>],
                 backgroundColor: "#e74c3c"
             }]
         },
