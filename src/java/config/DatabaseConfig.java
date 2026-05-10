@@ -11,7 +11,7 @@ public class DatabaseConfig {
     private static final int MAX_RETRIES = 1;
     private static final int CONNECTION_TIMEOUT = 10; // 10 seconds timeout
     
-    public static Connection getConnection() throws SQLException, InterruptedException {
+    public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
                 String databaseUrl = System.getenv("DATABASE_URL");
@@ -103,9 +103,6 @@ public class DatabaseConfig {
                                     if (attempt == MAX_RETRIES) {
                                         throw e; // Re-throw after final attempt
                                     }
-                                } catch (InterruptedException ie) {
-                                    Thread.currentThread().interrupt();
-                                    throw new SQLException("Connection retry interrupted", ie);
                                 } catch (Exception ie) {
                                     throw new SQLException("Connection retry error: " + ie.getMessage(), ie);
                                 }
