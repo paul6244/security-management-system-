@@ -625,14 +625,17 @@
             return;
         }
 
-        // Submit form data
-        const formData = new FormData(this);
-        formData.append('itemName', itemName);
-        formData.append('itemBranch', itemBranch);
+        // Submit form data as URL-encoded
+        const params = new URLSearchParams();
+        params.append('itemName', itemName);
+        params.append('itemBranch', itemBranch);
         
         fetch('AddChecklistItem', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params
         })
         .then(response => response.json())
         .then(data => {
