@@ -29,10 +29,7 @@ public class UpdateDashboardSettings extends HttpServlet {
         
         try {
             // Simulate processing
-            Thread.sleep(500);
-            
             response.sendRedirect("securityOfficerSettings.jsp?success=1&message=Dashboard preferences updated successfully!");
-            
         } catch(Exception e) {
             e.printStackTrace();
             response.sendRedirect("securityOfficerSettings.jsp?error=1&message=Error updating dashboard settings");
