@@ -27,15 +27,46 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="logo">Security System</div>
-        <div class="nav">
-            <a href="#dashboard">Dashboard</a>
-            <a href="#personnel">Personnel</a>
-            <a href="#checklist">Checklist Management</a>
-            <a href="userManagement.jsp">Users</a>
-            <a href="viewAttendance.jsp">QR Code</a>
-            <a href="reports.jsp">Reports</a>
-            <a href="settings.jsp">Settings</a>
+        <div class="logo">Security System
+        <!-- NAVIGATION -->
+        <nav class="nav">
+            <div class="nav-header">
+                <h2>Security Management System</h2>
+                <div class="nav-user">
+                    <span>Admin</span>
+                </div>
+            </div>
+            <ul>
+                <li><a href="#dashboard" class="nav-link active">
+                    <i class="nav-icon">📊</i>
+                    <span class="nav-text">Dashboard</span>
+                </a></li>
+                <li><a href="#personnel" class="nav-link">
+                    <i class="nav-icon">👥</i>
+                    <span class="nav-text">Security Personnel</span>
+                </a></li>
+                <li><a href="#checklist" class="nav-link">
+                    <i class="nav-icon">✓</i>
+                    <span class="nav-text">Checklist</span>
+                </a></li>
+                <li><a href="userManagement.jsp" class="nav-link">
+                    <i class="nav-icon">👥</i>
+                    <span class="nav-text">Users</span>
+                </a></li>
+                <li><a href="viewAttendance.jsp" class="nav-link">
+                    <i class="nav-icon">📱</i>
+                    <span class="nav-text">QR Code</span>
+                </a></li>
+                <li><a href="reports.jsp" class="nav-link">
+                    <i class="nav-icon">📈</i>
+                    <span class="nav-text">Reports</span>
+                </a></li>
+                <li><a href="settings.jsp" class="nav-link">
+                    <i class="nav-icon">⚙️</i>
+                    <span class="nav-text">Settings</span>
+                </a></li>
+            </ul>
+        </nav>
         </div>
     </div>
 
@@ -707,20 +738,362 @@
 </script>
 
 <style>
+    /* ============================================
+       DESIGN SYSTEM - CONSISTENT UI
+       ============================================ */
+    
+    /* Color Palette */
+    :root {
+        --primary-color: #3498db;
+        --primary-dark: #2980b9;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-color: #e9ecef;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* Typography */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark-color);
+        background: var(--light-color);
+        margin: 0;
+        padding: 0;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 1rem;
+    }
+    
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    h3 { font-size: 1.75rem; }
+    h4 { font-size: 1.5rem; }
+    h5 { font-size: 1.25rem; }
+    h6 { font-size: 1rem; }
+    
+    /* Layout System */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
     .section {
         display: none;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    .section.active {
+        display: block;
+    }
+    
+    /* Navigation System */
+    .nav {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: var(--shadow-color);
+        margin-bottom: 30px;
+    }
+    
+    .nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .nav a {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: var(--light-color);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--dark-color);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .nav a:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
     }
     
     .nav a.active {
-        background-color: #3498db;
+        background: var(--gradient-primary);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    /* Card System */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: var(--shadow-color);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .card h2 {
+        color: var(--dark-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    /* Button System */
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
         color: white;
     }
     
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: white;
+    }
+    
+    .btn-success {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+    }
+    
+    .btn-warning {
+        background: var(--warning-color);
+        color: var(--dark-color);
+    }
+    
+    /* Form System */
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: var(--shadow-color);
+        border: 1px solid var(--border-color);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--dark-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    /* Table System */
+    .table-section {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: var(--shadow-color);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        background: var(--light-color);
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    .section-header h2 {
+        margin: 0;
+        color: var(--dark-color);
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .section-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container { padding: 0 15px; }
+        .nav ul { grid-template-columns: 1fr; }
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .section-header { flex-direction: column; gap: 15px; }
+        .section-actions { flex-direction: column; width: 100%; }
+        .btn { width: 100%; justify-content: center; }
+        .form-section { padding: 20px; }
+    }
+    
+    /* Navigation Icons */
+    .nav-icon {
+        font-size: 18px;
+        margin-right: 8px;
+    }
+    
+    .nav-text {
+        font-weight: 500;
+    }
+    
+    .nav-user {
+        background: var(--gradient-secondary);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Search Section */
     .search-section {
         margin: 20px 0;
         padding: 20px;
-        background: #f8f9fa;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-color);
+        border: 1px solid var(--border-color);
+    }
+    
+    .search-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
         border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    .search-btn, .clear-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        font-weight: 500;
+    }
+    
+    .search-btn {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .search-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    }
+    
+    .clear-btn {
+        background: var(--secondary-color);
+        color: white;
+    }
+    
+    .clear-btn:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    /* Legacy Compatibility */
+    .nav a.active {
+        background: var(--gradient-primary);
+        color: white;
     }
     
     .search-container {
