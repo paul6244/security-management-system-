@@ -601,60 +601,64 @@
     }
 
     // Handle form submission for adding new checklist item
-    document.getElementById('checklistItemForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const itemName = document.getElementById('itemName').value;
-        const itemBranch = document.getElementById('itemBranch').value;
+    console.log('DEBUG: Attempting to attach event listener to checklistItemForm');
+    const checklistForm = document.getElementById('checklistItemForm');
+    console.log('DEBUG: checklistItemForm element:', checklistForm);
+    
+    if (checklistForm) {
+        checklistForm.addEventListener('submit', function(e) {
+            console.log('DEBUG: Form submitted!');
+            e.preventDefault();
+            
+            const itemName = document.getElementById('itemName').value;
+            const itemBranch = document.getElementById('itemBranch').value;
+            console.log('DEBUG: itemName:', itemName, 'itemBranch:', itemBranch);
 
-        console.log('Form submission debug:');
-        console.log('itemName:', itemName);
-        console.log('itemBranch:', itemBranch);
-        console.log('Form element exists:', !!document.getElementById('checklistItemForm'));
-        console.log('FormData contents:');
-        for (let [key, value] of formData.entries()) {
-            console.log(key + ':', value);
-        }
-
-        if (!itemName || !itemBranch) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-        
-        // Validate branch ID is numeric
-        const branchIdNum = parseInt(itemBranch);
-        if (isNaN(branchIdNum) || branchIdNum < 1) {
-            alert('Please select a valid branch.');
-            return;
-        }
-
-        // Submit form data as URL-encoded
-        const params = new URLSearchParams();
-        params.append('itemName', itemName);
-        params.append('itemBranch', itemBranch);
-        
-        fetch('AddChecklistItem', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Checklist item added successfully!');
-                hideAddItemForm();
-                loadBranchChecklist();
-            } else {
-                alert('Error adding checklist item: ' + data.message);
+            if (!itemName || !itemBranch) {
+                alert('Please fill in all required fields.');
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding checklist item. Please try again.');
+            
+            // Validate branch ID is numeric
+            const branchIdNum = parseInt(itemBranch);
+            if (isNaN(branchIdNum) || branchIdNum < 1) {
+                alert('Please select a valid branch.');
+                return;
+            }
+
+            // Submit form data as URL-encoded
+            const params = new URLSearchParams();
+            params.append('itemName', itemName);
+            params.append('itemBranch', itemBranch);
+            
+            console.log('DEBUG: Sending request with params:', params.toString());
+            
+            fetch('AddChecklistItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('DEBUG: Server response:', data);
+                if (data.success) {
+                    alert('Checklist item added successfully!');
+                    hideAddItemForm();
+                    loadBranchChecklist();
+                } else {
+                    alert('Error adding checklist item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('DEBUG: Fetch error:', error);
+                alert('Error adding checklist item: ' + error.message);
+            });
         });
-    });
+    } else {
+        console.error('DEBUG: checklistItemForm element not found!');
+    }
 </script>
 
 <style>
