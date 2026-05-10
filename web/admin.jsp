@@ -604,6 +604,13 @@
             alert('Please fill in all required fields.');
             return;
         }
+        
+        // Validate branch ID is numeric
+        const branchIdNum = parseInt(itemBranch);
+        if (isNaN(branchIdNum) || branchIdNum < 1) {
+            alert('Please select a valid branch.');
+            return;
+        }
 
         // Submit form data
         const formData = new FormData(this);
