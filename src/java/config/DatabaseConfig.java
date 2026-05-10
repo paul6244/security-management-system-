@@ -8,8 +8,8 @@ import java.net.URI;
 public class DatabaseConfig {
     
     private static Connection connection;
-    private static final int MAX_RETRIES = 2;
-    private static final int CONNECTION_TIMEOUT = 15; // 15 seconds timeout
+    private static final int MAX_RETRIES = 1;
+    private static final int CONNECTION_TIMEOUT = 10; // 10 seconds timeout
     
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
@@ -102,14 +102,13 @@ public class DatabaseConfig {
                                     
                                     if (attempt == MAX_RETRIES) {
                                         throw e; // Re-throw after final attempt
+                                    } else {
+                                        // Add delay between retries
+                                        Thread.sleep(500);
                                     }
-                                    // Wait before retry
-                                    try {
-                                        Thread.sleep(5000); // 5 seconds
-                                    } catch (InterruptedException ie) {
-                                        Thread.currentThread().interrupt();
-                                        throw new SQLException("Connection retry interrupted", ie);
-                                    }
+                                } catch (InterruptedException ie) {
+                                    Thread.currentThread().interrupt();
+                                    throw new SQLException("Connection retry interrupted", ie);
                                 }
                             }
                         } catch (ClassNotFoundException e) {
