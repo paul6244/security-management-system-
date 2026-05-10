@@ -554,13 +554,18 @@
 
     function removeChecklistItem(itemId, branchId) {
         if (confirm('Are you sure you want to remove this checklist item?')) {
-            const formData = new FormData();
-            formData.append('itemId', itemId);
-            formData.append('branchId', branchId);
+            console.log('DEBUG: Removing item:', itemId, 'from branch:', branchId);
+            
+            const params = new URLSearchParams();
+            params.append('itemId', itemId);
+            params.append('branchId', branchId);
             
             fetch('RemoveChecklistItem', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params
             })
             .then(response => response.json())
             .then(data => {
