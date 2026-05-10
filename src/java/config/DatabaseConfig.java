@@ -109,6 +109,8 @@ public class DatabaseConfig {
                                 } catch (InterruptedException ie) {
                                     Thread.currentThread().interrupt();
                                     throw new SQLException("Connection retry interrupted", ie);
+                                } catch (Exception ie) {
+                                    throw new SQLException("Connection retry error: " + ie.getMessage(), ie);
                                 }
                             }
                         } catch (ClassNotFoundException e) {
