@@ -1,4 +1,4 @@
-<%@ page import="java.sql.*" %>
+﻿<%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="config.DatabaseConfig" %>
@@ -16,16 +16,18 @@ if(session.getAttribute("username")==null){
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Security Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="css/shared-ui.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+/* Override any conflicting styles to ensure consistency */
 body {
-    font-family: 'Poppins', sans-serif;
-    margin:0;
-    padding:0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height:100vh;
-    color:white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
 }
 
 /* Mobile-First Responsive Design */
@@ -302,41 +304,77 @@ th, td {
 <body>
 
 <div class="navbar">
-    Security Dashboard | Welcome <%= session.getAttribute("username") %>
+    <div class="navbar-header">
+        <h2>Security Management System</h2>
+        <div class="navbar-user">
+            <span><%= session.getAttribute("username") %></span>
+        </div>
+    </div>
+    <nav class="navbar-nav">
+        <a href="personnelDashboard.jsp" class="nav-link active">
+            <i class="nav-icon">📊</i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="checklistDashboard.jsp" class="nav-link">
+            <i class="nav-icon">✓</i>
+            <span class="nav-text">Checklist</span>
+        </a>
+        <a href="viewAttendance.jsp" class="nav-link">
+            <i class="nav-icon">📱</i>
+            <span class="nav-text">QR Code</span>
+        </a>
+        <a href="staffRegistration.jsp" class="nav-link">
+            <i class="nav-icon">👥</i>
+            <span class="nav-text">Staff Registration</span>
+        </a>
+        <a href="securityOfficerReports.jsp" class="nav-link">
+            <i class="nav-icon">📈</i>
+            <span class="nav-text">Reports</span>
+        </a>
+        <a href="securityOfficerSettings.jsp" class="nav-link">
+            <i class="nav-icon">⚙️</i>
+            <span class="nav-text">Settings</span>
+        </a>
+        <a href="Logout" class="nav-link">
+            <i class="nav-icon">🚪</i>
+            <span class="nav-text">Logout</span>
+        </a>
+    </nav>
 </div>
 
 <div class="container">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <a href="personnelDashboard.jsp">Dashboard</a>
-    <a href="personnelDashboard.jsp">Checklist</a>
-    <a href="viewAttendance.jsp">QR Code</a>
-    <a href="staffRegistration.jsp">Staff Registration</a>
-
-    <a href="securityOfficerReports.jsp">Reports</a>
-
-
-    <a href="securityOfficerSettings.jsp">Settings</a>
-    <a href="Logout">Logout</a>
-</div>
+<!-- MAIN CONTENT -->
+<div class="main">
 
 <!-- MAIN -->
 <div class="main">
 
 <!-- SHIFT CONTROL -->
 <div class="card">
-<h3>Shift Control</h3>
-
-<form action="StartShift" method="post">
-    <button class="btn" type="submit">Start Shift</button>
-</form>
-
+    <div class="card-header">
+        <h3>Shift Control</h3>
+        <div class="card-actions">
+            <button class="btn btn-primary" onclick="startShift()">Start Shift</button>
+            <button class="btn btn-secondary" onclick="endShift()">End Shift</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="shiftStatus" class="text-center">
+            <p>Ready to start your shift</p>
+        </div>
+    </div>
 </div>
 
 <!-- CHECKLIST -->
 <div class="card">
-<h3>Shift Checklist</h3>
+    <div class="card-header">
+        <h3>Shift Checklist</h3>
+        <div class="card-actions">
+            <button class="btn btn-primary" onclick="completeChecklist()">Complete Checklist</button>
+        </div>
+    </div>
+    <div class="card-body">
 
 <!-- ORIGINAL FORM -->
 
@@ -410,12 +448,18 @@ if(rs != null) rs.close();
 
 <!-- PERSONNEL REPORTS -->
 <div class="card">
-<h3>My Reports</h3>
-
-<div class="stats-grid">
-    <div class="stat-card">
-        <h4>My Attendance</h4>
-        <div class="stat-number">
+    <div class="card-header">
+        <h3>My Reports</h3>
+        <div class="card-actions">
+            <button class="btn btn-secondary" onclick="exportMyReport()">Export Report</button>
+            <button class="btn btn-secondary" onclick="window.open('testConnection.jsp', '_blank')">Test Database</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>My Attendance</h4>
+                <div class="stat-number">
             <%
             try {
                 Connection con = DatabaseConfig.getConnection();
@@ -668,9 +712,8 @@ if(rs != null) rs.close();
     </div>
 </div>
 
-<div style="margin-top: 20px;">
-    <button class="btn btn-secondary" onclick="exportMyReport()">Export My Report</button>
-    <button class="btn btn-secondary" onclick="window.open('testConnection.jsp', '_blank')" style="margin-left: 10px;">Test Database</button>
+</div>
+    </div>
 </div>
 
 </div>
