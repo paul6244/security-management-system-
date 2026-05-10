@@ -599,6 +599,11 @@
         console.log('Form submission debug:');
         console.log('itemName:', itemName);
         console.log('itemBranch:', itemBranch);
+        console.log('Form element exists:', !!document.getElementById('checklistItemForm'));
+        console.log('FormData contents:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ':', value);
+        }
 
         if (!itemName || !itemBranch) {
             alert('Please fill in all required fields.');
