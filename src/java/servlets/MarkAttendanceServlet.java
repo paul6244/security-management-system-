@@ -90,11 +90,11 @@ public class MarkAttendanceServlet extends HttpServlet {
         doGet(request, response);
     }
     
-    private Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException, InterruptedException {
         return DatabaseConfig.getConnection();
     }
     
-    private boolean isAttendanceAlreadyMarked(String staffId, String date, String employeeId) throws SQLException {
+    private boolean isAttendanceAlreadyMarked(String staffId, String date, String employeeId) throws SQLException, InterruptedException {
         String sql = "SELECT COUNT(*) FROM staff_attendance WHERE staff_id = ? AND date = ? AND employee_id = ?";
         
         try (Connection conn = getConnection();
@@ -134,7 +134,7 @@ public class MarkAttendanceServlet extends HttpServlet {
     /**
      * Initialize database table if it doesn't exist
      */
-    public static void initializeDatabase() {
+    public static void initializeDatabase() throws InterruptedException {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS staff_attendance (" +
             "id INT AUTO_INCREMENT PRIMARY KEY," +
             "staff_id VARCHAR(50) NOT NULL," +
