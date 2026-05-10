@@ -253,18 +253,26 @@
 
             <!-- PERSONNEL TABLE -->
             <div class="table-section">
-                <h2>All Security Personnel</h2>
+                <div class="section-header">
+                    <h2>All Security Personnel</h2>
+                    <div class="section-actions">
+                        <button class="btn-primary" onclick="showAddPersonnelForm()">Add Personnel</button>
+                        <button class="btn-secondary" onclick="exportPersonnel()">Export</button>
+                    </div>
+                </div>
 
-                <table id="personnelTable" border="1" width="100%" cellpadding="10" style="background:white; border-radius:10px;">
-                    <thead>
-                        <tr style="background:#2c3e50; color:white;">
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Branch</th>
-                            <th>Shift Time</th>
-                            <th>ID</th>
-                        </tr>
-                    </thead>
+                <div class="table-container">
+                    <table id="personnelTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Branch</th>
+                                <th>Shift Time</th>
+                                <th>ID</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                     <tbody>
                         <% 
                             ResultSet rs = Mymodel.getAllPersonnel();
@@ -583,6 +591,38 @@
         }
     }
 
+    function showAddPersonnelForm() {
+        alert('Add Personnel form - Feature coming soon!');
+    }
+
+    function exportPersonnel() {
+        const table = document.getElementById('personnelTable');
+        let csv = 'Name,Email,Branch,Shift Time,ID\n';
+        
+        const rows = table.getElementsByTagName('tr');
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            if (cells.length >= 4) {
+                csv += cells[0].textContent + ',' + 
+                        cells[1].textContent + ',' + 
+                        cells[2].textContent + ',' + 
+                        cells[3].textContent + ',' + 
+                        cells[4].textContent + '\n';
+            }
+        }
+        
+        // Create download link
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'security_personnel.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+
     function loadBranchChecklist() {
         const branchId = document.getElementById('branchSelect').value;
         if (!branchId) {
@@ -736,6 +776,82 @@
         background: white;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Consistent Section Headers */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .section-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .section-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Modern Table Styling */
+    .table-container {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .data-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        padding: 15px 12px;
+        text-align: left;
+        font-size: 14px;
+        border: none;
+    }
+    
+    .data-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #e9ecef;
+        text-align: left;
+        font-size: 14px;
+    }
+    
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .data-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .username {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .email {
+        color: #6c757d;
+    }
+    
+    .branch {
+        font-weight: 500;
+        color: #495057;
     }
     
     #personnelTable {
