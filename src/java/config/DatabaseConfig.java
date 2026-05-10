@@ -11,7 +11,7 @@ public class DatabaseConfig {
     private static final int MAX_RETRIES = 1;
     private static final int CONNECTION_TIMEOUT = 10; // 10 seconds timeout
     
-    public static Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException, InterruptedException {
         if (connection == null || connection.isClosed()) {
             try {
                 String databaseUrl = System.getenv("DATABASE_URL");
