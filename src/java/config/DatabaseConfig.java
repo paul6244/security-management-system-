@@ -102,9 +102,6 @@ public class DatabaseConfig {
                                     
                                     if (attempt == MAX_RETRIES) {
                                         throw e; // Re-throw after final attempt
-                                    } else {
-                                        // Add delay between retries
-                                        Thread.sleep(500);
                                     }
                                 } catch (InterruptedException ie) {
                                     Thread.currentThread().interrupt();
