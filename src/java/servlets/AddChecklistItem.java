@@ -23,11 +23,29 @@ public class AddChecklistItem extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
+        // Debug: Log all received parameters
+        System.out.println("DEBUG: AddChecklistItem servlet called");
+        System.out.println("DEBUG: Content-Type: " + request.getContentType());
+        System.out.println("DEBUG: Method: " + request.getMethod());
+        
+        // Log all parameter names
+        java.util.Enumeration<String> paramNames = request.getParameterNames();
+        System.out.println("DEBUG: Parameters received:");
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            String paramValue = request.getParameter(paramName);
+            System.out.println("  " + paramName + " = '" + paramValue + "'");
+        }
+        
         String itemName = request.getParameter("itemName");
         String branchId = request.getParameter("itemBranch");
         
+        System.out.println("DEBUG: itemName = '" + itemName + "'");
+        System.out.println("DEBUG: branchId = '" + branchId + "'");
+        
         if (itemName == null || itemName.trim().isEmpty() || branchId == null || branchId.trim().isEmpty()) {
-            out.print("{\"success\": false, \"message\": \"Item name and branch are required.\"}");
+            System.out.println("DEBUG: Parameter validation failed");
+            out.print("{\"success\": false, \"message\": \"Item name and branch are required. [DEBUG: itemName=" + itemName + ", branchId=" + branchId + "]\"}");
             return;
         }
         
