@@ -20,14 +20,19 @@ if(session.getAttribute("username")==null){
 body {
     font-family: 'Poppins', sans-serif;
     margin:0;
-    background:#f4f6f9;
+    padding:0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height:100vh;
+    color:white;
 }
 
 .navbar {
-    background:#1e2a38;
+    background:rgba(52,73,94,0.95);
+    padding:15px 25px;
     color:white;
-    padding:15px;
-    font-size:20px;
+    font-weight:600;
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.1);
     text-align:center;
 }
 
@@ -37,9 +42,12 @@ body {
 }
 
 .sidebar {
-    width:220px;
-    background:#2c3e50;
-    color:white;
+    width:250px;
+    background:#34495e;
+    padding:20px;
+    min-height:100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar a {
@@ -47,24 +55,37 @@ body {
     padding:15px;
     color:white;
     text-decoration:none;
+    border-radius:5px;
+    margin-bottom:5px;
+    transition:all 0.3s ease;
 }
 
 .sidebar a:hover {
-    background:#34495e;
+    background:#2c3e50;
+    transform:translateX(5px);
+}
+
+.sidebar a.active {
+    background:#3498db;
 }
 
 .main {
     flex:1;
     padding:20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .registration-container {
     max-width:800px;
     margin:0 auto;
-    background:white;
-    padding:30px;
+    background:rgba(255,255,255,0.95);
     border-radius:15px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.1);
+    padding:25px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#2c3e50;
 }
 
 .form-grid {
@@ -84,18 +105,25 @@ body {
 
 label {
     display:block;
-    margin-bottom:5px;
-    font-weight:600;
+    margin-bottom:8px;
+    font-weight:500;
     color:#2c3e50;
 }
 
 input, select, textarea {
     width:100%;
     padding:12px;
-    border:1px solid #ddd;
+    border:2px solid #ecf0f1;
     border-radius:8px;
     font-size:14px;
+    transition:all 0.3s ease;
     box-sizing:border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline:none;
+    border-color:#3498db;
+    box-shadow:0 0 0 3px rgba(52,152,219,0.1);
 }
 
 textarea {
@@ -104,18 +132,45 @@ textarea {
 }
 
 .btn {
-    padding:12px 24px;
-    border:none;
     background:#3498db;
     color:white;
+    border:none;
+    padding:12px 24px;
     border-radius:8px;
     cursor:pointer;
-    font-size:16px;
-    margin:5px;
+    font-weight:500;
+    transition:all 0.3s ease;
+    font-size:14px;
+}
+
+.btn:hover {
+    background:#2980b9;
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(52,152,219,0.3);
+}
+
+.btn-secondary {
+    background:#95a5a6;
+}
+
+.btn-secondary:hover {
+    background:#7f8c8d;
 }
 
 .btn-success {
     background:#27ae60;
+}
+
+.btn-success:hover {
+    background:#229954;
+}
+
+.btn-danger {
+    background:#e74c3c;
+}
+
+.btn-danger:hover {
+    background:#c0392b;
 }
 
 .btn:hover {
@@ -194,9 +249,11 @@ textarea {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <a href="personnelDashboard.jsp">Dashboard</a>
+    <a href="checklistDashboard.jsp">Checklist</a>
     <a href="viewAttendance.jsp">QR Code</a>
-    <a href="staffRegistration.jsp">Staff Registration</a>
-
+    <a href="staffRegistration.jsp" class="active">Staff Registration</a>
+    <a href="securityOfficerReports.jsp">Reports</a>
+    <a href="securityOfficerSettings.jsp">Settings</a>
     <a href="Logout">Logout</a>
 </div>
 
