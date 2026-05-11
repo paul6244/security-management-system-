@@ -3,12 +3,21 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="model.Mymodel" %>
 <%@ page import="config.DatabaseConfig" %>
+
+<%
+if(session.getAttribute("username")==null){
+    response.sendRedirect("index.jsp");
+}
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Attendance System</title>
+    <title>QR Code Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -17,375 +26,253 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            margin:0;
+            padding:0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            min-height:100vh;
+            color:white;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .nav-tabs a {
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            color: #666;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-tabs a:hover {
-            background: rgba(103, 126, 234, 0.1);
-            color: #333;
-        }
-        
-        .nav-tabs a.active {
-            background: #677eea;
-            color: white;
+        .navbar {
+            background:rgba(52,73,94,0.95);
+            padding:15px 25px;
+            color:white;
+            font-weight:600;
+            backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(255,255,255,0.1);
         }
 
         .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
+            display:flex;
+            min-height:100vh;
+        }
+
+        .sidebar {
+            width:250px;
+            background:#34495e;
+            padding:20px;
+            min-height:100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sidebar a {
+            display:block;
+            padding:15px;
+            color:white;
+            text-decoration:none;
+            border-radius:5px;
+            margin-bottom:5px;
+            transition:all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background:#2c3e50;
+            transform:translateX(5px);
+        }
+
+        .sidebar a.active {
+            background:#3498db;
+        }
+
+        .main {
+            flex:1;
+            padding:20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
+            background:rgba(255,255,255,0.95);
+            border-radius:15px;
+            padding:25px;
+            margin-bottom:20px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,0.2);
+            color:#2c3e50;
         }
 
-        .card h2 {
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
+        .card h3 {
+            color:#2c3e50;
+            margin:0 0 20px 0;
+            font-size:1.4em;
+            font-weight:600;
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin: 0.5rem;
+            background:#3498db;
+            color:white;
+            border:none;
+            padding:12px 24px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:500;
+            transition:all 0.3s ease;
+            font-size:14px;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background:#2980b9;
+            transform:translateY(-2px);
+            box-shadow:0 4px 12px rgba(52,152,219,0.3);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background:#95a5a6;
         }
 
-        .qr-container {
-            margin: 2rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .btn-secondary:hover {
+            background:#7f8c8d;
         }
 
-        .qr-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        .table {
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .qr-info {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #e9ecef;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #666;
+        .table th {
+            background:#34495e;
+            color:white;
+            padding:15px;
+            text-align:left;
+            font-weight:500;
         }
 
-        .actions {
-            margin-top: 2rem;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
+        .table td {
+            padding:15px;
+            border-bottom:1px solid #ecf0f1;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .table tr:hover {
+            background:#f8f9fa;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 1rem;
+                flex-direction:column;
+            }
+            
+            .sidebar {
+                width:100%;
+                order:2;
+            }
+            
+            .main {
+                order:1;
             }
             
             .card {
-                padding: 1.5rem;
-            }
-            
-            .actions {
-                flex-direction: column;
-                align-items: center;
+                padding:15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>QR Code Attendance System</h1>
-        <div class="nav-tabs">
-            <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="viewAttendance.jsp" class="active">QR Code</a>
-            <a href="staffRegistration.jsp">Staff Registration</a>
-            <a href="securityOfficerSettings.jsp">Settings</a>
-            <a href="Logout">Logout</a>
-        </div>
-    </div>
 
-    <div class="container">
-        <div class="card">
-            <h2>Generate Attendance QR Code</h2>
-            
-            <div id="alert" class="alert"></div>
+<div class="navbar">
+    QR Code Dashboard | Welcome <%= session.getAttribute("username") %>
+</div>
 
-            <form id="qrForm">
-                <div class="form-group">
-                    <label for="staffId">Select Staff Member:</label>
-                    <select id="staffId" name="staffId" required>
-                        <option value="">-- Select Staff Member --</option>
-                        <%
-                            Connection conn = null;
-                            ResultSet rs = null;
-                            try {
-                                conn = DatabaseConfig.getConnection();
-                                if(conn != null) {
-                                    String sql = "SELECT sr.id, sr.first_name, sr.last_name, sr.department, sr.position, sr.employee_id " +
-                                                "FROM staff_registration sr " +
-                                                "ORDER BY sr.first_name, sr.last_name";
-                                    PreparedStatement stmt = conn.prepareStatement(sql);
-                                    rs = stmt.executeQuery();
-                                    
-                                    while(rs.next()) {
-                                        String staffId = rs.getString("id");
-                                        String firstName = rs.getString("first_name");
-                                        String lastName = rs.getString("last_name");
-                                        String department = rs.getString("department");
-                                        String position = rs.getString("position");
-                                        String employeeId = rs.getString("employee_id");
-                        %>
-                        <option value="<%= staffId %>"><%= firstName %> <%= lastName %> - <%= department %> (<%= position %>)</option>
-                        <%
-                                    }
-                                    rs.close();
-                                    stmt.close();
-                                }
-                            } catch(Exception e) {
-                                // Handle database connection error gracefully
-                                out.println("<option value=''>Database connection error</option>");
-                            } finally {
-                                try {
-                                    if(rs != null) rs.close();
-                                    if(conn != null) conn.close();
-                                } catch(Exception e) {
-                                    // Ignore cleanup errors
-                                }
-                            }
-                        %>
-                    </select>
-                </div>
+<div class="container">
 
-                <div class="form-group">
-                    <label for="date">Date:</label>
-                    <input type="date" id="date" name="date" required>
-                </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <a href="personnelDashboard.jsp">Dashboard</a>
+    <a href="checklistDashboard.jsp">Checklist</a>
+    <a href="viewAttendance.jsp" class="active">QR Code</a>
+    <a href="staffRegistration.jsp">Staff Registration</a>
+    <a href="securityOfficerReports.jsp">Reports</a>
+    <a href="securityOfficerSettings.jsp">Settings</a>
+    <a href="Logout">Logout</a>
+</div>
 
-                <button type="submit" class="btn">Generate QR Code</button>
-            </form>
+<!-- MAIN -->
+<div class="main">
 
-            <div class="loading" id="loading">
-                <div class="loading-spinner"></div>
-                <p>Generating QR Code...</p>
-            </div>
-
-            <div class="qr-container" id="qrContainer" style="display: none;">
-                <img id="qrImage" alt="Attendance QR Code">
-                <div class="qr-info">
-                    <strong>QR Code Generated!</strong><br>
-                    Staff can scan this code to mark their attendance.<br>
-                    <span id="qrUrl"></span>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button class="btn" onclick="refreshQR()">Refresh QR Code</button>
-                <button class="btn btn-secondary" onclick="goToScanner()">Open Scanner</button>
+<div class="card">
+    <h3>QR Code Attendance System</h3>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <p style="color: #2c3e50; margin-bottom: 20px;">Scan the QR code below to mark your attendance</p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block; margin: 20px 0;">
+            <div id="qrcode" style="width: 200px; height: 200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 2px dashed #3498db; border-radius: 8px;">
+                <span style="color: #7f8c8d; font-size: 14px;">QR Code Loading...</span>
             </div>
         </div>
+        
+        <div style="margin-top: 20px;">
+            <button class="btn" onclick="generateQRCode()">Generate New QR Code</button>
+            <button class="btn btn-secondary" onclick="refreshQRCode()" style="margin-left: 10px;">Refresh</button>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Set today's date as default
-        document.getElementById('date').valueAsDate = new Date();
+<!-- Attendance Log -->
+<div class="card">
+    <h3>Recent Attendance</h3>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2026-05-11</td>
+                <td>John Doe</td>
+                <td>08:30 AM</td>
+                <td>05:30 PM</td>
+                <td><span style="color: #27ae60; font-weight: 500;">Present</span></td>
+            </tr>
+            <tr>
+                <td>2026-05-11</td>
+                <td>Jane Smith</td>
+                <td>09:15 AM</td>
+                <td>-</td>
+                <td><span style="color: #f39c12; font-weight: 500;">Late</span></td>
+            </tr>
+            <tr>
+                <td>2026-05-10</td>
+                <td>Mike Johnson</td>
+                <td>08:00 AM</td>
+                <td>05:00 PM</td>
+                <td><span style="color: #27ae60; font-weight: 500;">Present</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-        // Form submission handler
-        document.getElementById('qrForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            generateQRCode();
-        });
+</div>
+</div>
 
-        function generateQRCode() {
-            const staffId = document.getElementById('staffId').value;
-            const date = document.getElementById('date').value;
-            
-            if (!staffId || !date) {
-                showAlert('Please select a staff member and date', 'error');
-                return;
-            }
-            
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('qrContainer').style.display = 'none';
-            hideAlert();
-            
-            // Generate QR code
-            var qrUrl = 'QRCodeGenerator?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
-            var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+<script>
+function generateQRCode() {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ATTENDANCE_' + new Date().getTime() + '" alt="QR Code" style="width: 200px; height: 200px;">';
+}
 
-            // Load QR code image
-            const img = new Image();
-            img.onload = function() {
-                document.getElementById('qrImage').src = qrUrl;
-                document.getElementById('qrUrl').textContent = fullUrl;
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('qrContainer').style.display = 'block';
-            };
-            img.onerror = function() {
-                document.getElementById('loading').style.display = 'none';
-                showAlert('Error generating QR code. Please try again.', 'error');
-            };
-            img.src = qrUrl;
-        }
+function refreshQRCode() {
+    generateQRCode();
+}
 
-        function refreshQR() {
-            generateQRCode();
-        }
+// Generate QR code on page load
+window.onload = function() {
+    generateQRCode();
+};
+</script>
 
-        function goToScanner() {
-            window.location.href = 'scanAttendance.jsp';
-        }
-
-        function showAlert(message, type) {
-            const alert = document.getElementById('alert');
-            alert.textContent = message;
-            alert.className = 'alert alert-' + type;
-            alert.style.display = 'block';
-        }
-
-        function hideAlert() {
-            document.getElementById('alert').style.display = 'none';
-        }
-
-        // Auto-refresh QR code every 5 minutes
-        setInterval(function() {
-            if (document.getElementById('qrContainer').style.display !== 'none') {
-                refreshQR();
-            }
-        }, 300000); // 5 minutes
-    </script>
 </body>
 </html>
