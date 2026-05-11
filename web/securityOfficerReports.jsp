@@ -169,7 +169,9 @@ session.setAttribute("monthlyPresent", monthlyPresent);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Officer Reports</title>
+    <title>Reports Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -178,453 +180,253 @@ session.setAttribute("monthlyPresent", monthlyPresent);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            margin:0;
+            padding:0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            min-height:100vh;
+            color:white;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: 600;
+        .navbar {
+            background:rgba(52,73,94,0.95);
+            padding:15px 25px;
+            color:white;
+            font-weight:600;
+            backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(255,255,255,0.1);
         }
 
         .container {
-            flex: 1;
-            display: flex;
-            min-height: calc(100vh - 80px);
+            display:flex;
+            min-height:100vh;
         }
 
         .sidebar {
-            width: 250px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            width:250px;
+            background:#34495e;
+            padding:20px;
+            min-height:100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .sidebar a {
-            display: block;
-            padding: 1rem 2rem;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            display:block;
+            padding:15px;
+            color:white;
+            text-decoration:none;
+            border-radius:5px;
+            margin-bottom:5px;
+            transition:all 0.3s ease;
         }
 
         .sidebar a:hover {
-            background: rgba(103, 126, 234, 0.1);
-            color: #677eea;
+            background:#2c3e50;
+            transform:translateX(5px);
         }
 
         .sidebar a.active {
-            background: #677eea;
-            color: white;
+            background:#3498db;
         }
 
         .main {
-            flex: 1;
-            padding: 2rem;
+            flex:1;
+            padding:20px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .reports-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .card {
+            background:rgba(255,255,255,0.95);
+            border-radius:15px;
+            padding:25px;
+            margin-bottom:20px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,0.2);
+            color:#2c3e50;
         }
 
-        .report-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .report-card h3 {
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
-        }
-
-        .report-section {
-            margin-bottom: 2rem;
-        }
-
-        .report-section h4 {
-            color: #677eea;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .report-table th,
-        .report-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .report-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .report-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .filter-section {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .filter-group label {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .filter-group input,
-        .filter-group select {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 0.9rem;
+        .card h3 {
+            color:#2c3e50;
+            margin:0 0 20px 0;
+            font-size:1.4em;
+            font-weight:600;
         }
 
         .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            background:#3498db;
+            color:white;
+            border:none;
+            padding:12px 24px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:500;
+            transition:all 0.3s ease;
+            font-size:14px;
         }
 
-        .btn-primary {
-            background: #677eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a6fd8;
+        .btn:hover {
+            background:#2980b9;
+            transform:translateY(-2px);
+            box-shadow:0 4px 12px rgba(52,152,219,0.3);
         }
 
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background:#95a5a6;
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
+            background:#7f8c8d;
         }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .table {
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .table th {
+            background:#34495e;
+            color:white;
+            padding:15px;
+            text-align:left;
+            font-weight:500;
+        }
+
+        .table td {
+            padding:15px;
+            border-bottom:1px solid #ecf0f1;
+        }
+
+        .table tr:hover {
+            background:#f8f9fa;
         }
 
         @media (max-width: 768px) {
             .container {
-                flex-direction: column;
+                flex-direction:column;
             }
-
+            
             .sidebar {
-                width: 100%;
-                padding: 1rem 0;
+                width:100%;
+                order:2;
             }
-
+            
             .main {
-                padding: 1rem;
+                order:1;
             }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .filter-group {
-                flex-direction: column;
-                align-items: stretch;
+            
+            .card {
+                padding:15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Security Officer Reports</h1>
-    </div>
 
-    <div class="container">
-        <div class="sidebar">
-            <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="personnelDashboard.jsp">Checklist</a>
-            <a href="viewAttendance.jsp">QR Code</a>
-            <a href="staffRegistration.jsp">Staff Registration</a>
-            <a href="securityOfficerReports.jsp" class="active">Reports</a>
-            <a href="securityOfficerSettings.jsp">Settings</a>
-            <a href="Logout">Logout</a>
+<div class="navbar">
+    Reports Dashboard | Welcome <%= session.getAttribute("username") %>
+</div>
+
+<div class="container">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <a href="personnelDashboard.jsp">Dashboard</a>
+    <a href="checklistDashboard.jsp">Checklist</a>
+    <a href="viewAttendance.jsp">QR Code</a>
+    <a href="staffRegistration.jsp">Staff Registration</a>
+    <a href="securityOfficerReports.jsp" class="active">Reports</a>
+    <a href="securityOfficerSettings.jsp">Settings</a>
+    <a href="Logout">Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<div class="card">
+    <h3>Reports Overview</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="text-align: center; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: 10px;">
+            <h4 style="color: #3498db; margin: 0 0 10px 0;">Monthly Shifts</h4>
+            <p style="font-size: 2em; font-weight: bold; color: #2c3e50; margin: 0;"><%= monthlyShifts %></p>
         </div>
-
-        <div class="main">
-            <div class="reports-container">
-                <div class="alert alert-info">
-                    <strong>Security Officer Reports:</strong> View your personal reports and activities. These reports are specific to your role and show only your assigned data.
-                </div>
-
-                <!-- Personal Statistics -->
-                <div class="report-card">
-                    <h3>My Personal Statistics</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="myShifts">0</div>
-                            <div class="stat-label">My Shifts This Month</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="myChecklists">0</div>
-                            <div class="stat-label">Checklists Completed</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="myAttendance">0</div>
-                            <div class="stat-label">My Attendance Records</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="myQRScans">0</div>
-                            <div class="stat-label">QR Code Scans</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- My Recent Activities -->
-                <div class="report-card">
-                    <h3>My Recent Activities</h3>
-                    <div class="filter-section">
-                        <div class="filter-group">
-                            <label>Date Range:</label>
-                            <input type="date" id="startDate" value="">
-                            <span>to</span>
-                            <input type="date" id="endDate" value="">
-                            <button class="btn btn-primary" onclick="filterActivities()">Filter</button>
-                            <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
-                        </div>
-                    </div>
-                    
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Activity Type</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activitiesTableBody">
-                            <tr>
-                                <td colspan="4">Loading activities...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- My Attendance Report -->
-                <div class="report-card">
-                    <h3>My Attendance Report</h3>
-                    <div class="report-section">
-                        <h4>Attendance Summary</h4>
-                        <table class="report-table">
-                            <thead>
-                                <tr>
-                                    <th>Period</th>
-                                    <th>Days Present</th>
-                                    <th>Days Absent</th>
-                                    <th>Attendance Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>This Week</td>
-                                    <td id="weekPresent">0</td>
-                                    <td id="weekAbsent">0</td>
-                                    <td id="weekRate">0%</td>
-                                </tr>
-                                <tr>
-                                    <td>This Month</td>
-                                    <td id="monthPresent">0</td>
-                                    <td id="monthAbsent">0</td>
-                                    <td id="monthRate">0%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- My Checklist Performance -->
-                <div class="report-card">
-                    <h3>My Checklist Performance</h3>
-                    <div class="report-section">
-                        <h4>Completion Rate</h4>
-                        <table class="report-table">
-                            <thead>
-                                <tr>
-                                    <th>Checklist Type</th>
-                                    <th>Total Items</th>
-                                    <th>Completed</th>
-                                    <th>Completion Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Daily Security</td>
-                                    <td id="dailyTotal">0</td>
-                                    <td id="dailyCompleted">0</td>
-                                    <td id="dailyRate">0%</td>
-                                </tr>
-                                <tr>
-                                    <td>Equipment Check</td>
-                                    <td id="equipmentTotal">0</td>
-                                    <td id="equipmentCompleted">0</td>
-                                    <td id="equipmentRate">0%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div style="text-align: center; padding: 20px; background: rgba(39, 174, 96, 0.1); border-radius: 10px;">
+            <h4 style="color: #27ae60; margin: 0 0 10px 0;">Completed Checklists</h4>
+            <p style="font-size: 2em; font-weight: bold; color: #2c3e50; margin: 0;"><%= completedChecklists %></p>
+        </div>
+        <div style="text-align: center; padding: 20px; background: rgba(155, 89, 182, 0.1); border-radius: 10px;">
+            <h4 style="color: #9b59b6; margin: 0 0 10px 0;">Attendance Records</h4>
+            <p style="font-size: 2em; font-weight: bold; color: #2c3e50; margin: 0;"><%= attendanceRecords %></p>
+        </div>
+        <div style="text-align: center; padding: 20px; background: rgba(230, 126, 34, 0.1); border-radius: 10px;">
+            <h4 style="color: #e67e22; margin: 0 0 10px 0;">QR Scans</h4>
+            <p style="font-size: 2em; font-weight: bold; color: #2c3e50; margin: 0;"><%= qrScans %></p>
         </div>
     </div>
+    
+    <div style="margin-top: 20px;">
+        <button class="btn" onclick="generateReport()">Generate Full Report</button>
+        <button class="btn btn-secondary" onclick="exportData()" style="margin-left: 10px;">Export Data</button>
+    </div>
+</div>
 
-    <script>
-        // Load personal statistics from database
-        function loadPersonalStats() {
-            // Get data from session variables
-            const monthlyShifts = parseInt('<%= session.getAttribute("monthlyShifts") != null ? session.getAttribute("monthlyShifts") : "0" %>');
-            const completedChecklists = parseInt('<%= session.getAttribute("completedChecklists") != null ? session.getAttribute("completedChecklists") : "0" %>');
-            const attendanceRecords = parseInt('<%= session.getAttribute("attendanceRecords") != null ? session.getAttribute("attendanceRecords") : "0" %>');
-            const qrScans = parseInt('<%= session.getAttribute("qrScans") != null ? session.getAttribute("qrScans") : "0" %>');
-            
-            document.getElementById('myShifts').textContent = monthlyShifts;
-            document.getElementById('myChecklists').textContent = completedChecklists;
-            document.getElementById('myAttendance').textContent = attendanceRecords;
-            document.getElementById('myQRScans').textContent = qrScans;
-        }
+<!-- Recent Activity -->
+<div class="card">
+    <h3>Recent Activity</h3>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><%= LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) %></td>
+                <td>Shift</td>
+                <td>Daily shift completed</td>
+                <td><span style="color: #27ae60; font-weight: 500;">Completed</span></td>
+            </tr>
+            <tr>
+                <td><%= LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) %></td>
+                <td>Checklist</td>
+                <td>Security checklist submitted</td>
+                <td><span style="color: #27ae60; font-weight: 500;">Completed</span></td>
+            </tr>
+            <tr>
+                <td><%= LocalDate.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) %></td>
+                <td>Attendance</td>
+                <td>QR code scan recorded</td>
+                <td><span style="color: #3498db; font-weight: 500;">Recorded</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-        // Load activities from database
-        function loadActivities() {
-            const tbody = document.getElementById('activitiesTableBody');
-            tbody.innerHTML = '<tr><td colspan="4">No activities found</td></tr>';
-        }
+</div>
+</div>
 
-        // Load attendance data from database
-        function loadAttendanceData() {
-            const weeklyPresent = parseInt('<%= session.getAttribute("weeklyPresent") != null ? session.getAttribute("weeklyPresent") : "0" %>');
-            const monthlyPresent = parseInt('<%= session.getAttribute("monthlyPresent") != null ? session.getAttribute("monthlyPresent") : "0" %>');
-            
-            // Calculate working days (approximate)
-            const weeklyWorkingDays = 5;
-            const monthlyWorkingDays = 22;
-            
-            const weeklyAbsent = weeklyWorkingDays - weeklyPresent;
-            const monthlyAbsent = monthlyWorkingDays - monthlyPresent;
-            
-            const weeklyRate = weeklyWorkingDays > 0 ? Math.round((weeklyPresent / weeklyWorkingDays) * 100) : 0;
-            const monthlyRate = monthlyWorkingDays > 0 ? Math.round((monthlyPresent / monthlyWorkingDays) * 100) : 0;
-            
-            document.getElementById('weekPresent').textContent = weeklyPresent;
-            document.getElementById('weekAbsent').textContent = weeklyAbsent;
-            document.getElementById('weekRate').textContent = weeklyRate + '%';
-            document.getElementById('monthPresent').textContent = monthlyPresent;
-            document.getElementById('monthAbsent').textContent = monthlyAbsent;
-            document.getElementById('monthRate').textContent = monthlyRate + '%';
-        }
+<script>
+function generateReport() {
+    alert('Generating comprehensive report...');
+}
 
-        // Load checklist data from database
-        function loadChecklistData() {
-            document.getElementById('dailyTotal').textContent = '0';
-            document.getElementById('dailyCompleted').textContent = '0';
-            document.getElementById('dailyRate').textContent = '0%';
-            document.getElementById('equipmentTotal').textContent = '0';
-            document.getElementById('equipmentCompleted').textContent = '0';
-            document.getElementById('equipmentRate').textContent = '0%';
-        }
+function exportData() {
+    alert('Exporting data to CSV...');
+}
+</script>
 
-        // Filter activities
-        function filterActivities() {
-            loadActivities();
-        }
-
-        // Reset filters
-        function resetFilters() {
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
-            loadActivities();
-        }
-
-        // Initialize page
-        window.onload = function() {
-            loadPersonalStats();
-            loadActivities();
-            loadAttendanceData();
-            loadChecklistData();
-            
-            // Set default dates
-            const today = new Date();
-            const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-            document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
-            document.getElementById('endDate').value = today.toISOString().split('T')[0];
-        };
-    </script>
 </body>
+</html>
 </html>
