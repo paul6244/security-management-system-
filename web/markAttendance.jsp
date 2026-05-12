@@ -3,11 +3,6 @@
 <%@ page import="model.Mymodel" %>
 <%@ page import="config.DatabaseConfig" %>
 
-<%
-if(session.getAttribute("username")==null){
-    response.sendRedirect("index.jsp");
-}
-
 String staffId = request.getParameter("staffId");
 String date = request.getParameter("date");
 
