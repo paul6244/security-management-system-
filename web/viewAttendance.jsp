@@ -345,9 +345,9 @@ if(session.getAttribute("username")==null){
             hideAlert();
             
             // Generate QR code
-            var qrData = 'ATTENDANCE_' + staffId + '_' + date;
+            var qrData = 'https://security-management-system-6e67860f049f.herokuapp.com/markAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
             var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrData);
-            var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+            var fullUrl = qrData;
 
             // Load QR code image
             const img = new Image();
