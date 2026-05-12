@@ -354,20 +354,10 @@ if(session.getAttribute("username")==null){
         // Auto-refresh QR code every 5 minutes
         setInterval(function() {
             if (document.getElementById('qrContainer').style.display !== 'none') {
-    generateQRCode();
-}
-
-// Generate QR code on page load
-window.onload = function() {
-    generateQRCode();
-};
-</script>
-
-</body>
-</html>
-                refreshQR();
+                generateQRCode();
             }
         }, 300000); // 5 minutes
     </script>
+
 </body>
 </html>
