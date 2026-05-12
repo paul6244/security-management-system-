@@ -76,9 +76,10 @@ if(session.getAttribute("username")==null){
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 2rem;
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
             text-align: center;
+            margin: 0 auto;
         }
 
         .card h2 {
@@ -140,7 +141,7 @@ if(session.getAttribute("username")==null){
             padding: 1rem;
             background: #f8f9fa;
             border-radius: 10px;
-            min-height: 300px;
+            min-height: 400px;
             display: flex;
             flex-direction: column;
             justify-content: center;
