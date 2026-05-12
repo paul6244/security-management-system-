@@ -37,16 +37,7 @@ if(session.getAttribute("username")==null){
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar {
-            width: 250px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            min-height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
+        .header h1 {
         .sidebar a {
             display: block;
             padding: 1rem 2rem;
@@ -240,18 +231,7 @@ if(session.getAttribute("username")==null){
     </div>
 
     <div class="container">
-        <div class="sidebar">
-            <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="checklistDashboard.jsp">Checklist</a>
-            <a href="viewAttendance.jsp" class="active">QR Code</a>
-            <a href="staffRegistration.jsp">Staff Registration</a>
-            <a href="securityOfficerReports.jsp">Reports</a>
-            <a href="securityOfficerSettings.jsp">Settings</a>
-            <a href="Logout">Logout</a>
-        </div>
-
-        <div class="main">
-            <div class="card">
+        <div class="card">
                 <h2>Generate Attendance QR Code</h2>
                 
                 <div id="alert" class="alert"></div>
@@ -318,94 +298,85 @@ if(session.getAttribute("username")==null){
                 <div class="qr-container" id="qrContainer" style="display: none;">
                     <img id="qrImage" alt="Attendance QR Code">
                     <div class="qr-info">
-
-                        <div class="actions">
-                            <button class="btn" onclick="refreshQR()">Refresh QR Code</button>
-                            <button class="btn btn-secondary" onclick="goToScanner()">Open Scanner</button>
-                        </div>
+                        <strong>QR Code Generated!</strong><br>
+                        Staff can scan this code to mark their attendance.<br>
+                        <span id="qrUrl"></span>
                     </div>
                 </div>
 
-                <script>
-                    // Set today's date as default
-                    document.getElementById('date').valueAsDate = new Date();
+                <div class="actions">
+                    <button class="btn" onclick="refreshQR()">Refresh QR Code</button>
+                    <button class="btn btn-secondary" onclick="goToScanner()">Open Scanner</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    // Form submission handler
-                    document.getElementById('qrForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        generateQRCode();
-                    });
+    <script>
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
 
-                    function generateQRCode() {
-                        const staffId = document.getElementById('staffId').value;
-                        const date = document.getElementById('date').value;
-                        
-                        if (!staffId || !date) {
-                            showAlert('Please select a staff member and date', 'error');
-                            return;
-                        }
-                        
-                        // Show loading
-                        document.getElementById('loading').style.display = 'block';
-                        document.getElementById('qrContainer').style.display = 'none';
-                        hideAlert();
-                        
-                        // Generate QR code
-                        var qrUrl = 'QRCodeGenerator?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
-                        var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+        // Form submission handler
+        document.getElementById('qrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateQRCode();
+        });
 
-                        // Load QR code image
-                        const img = new Image();
-                        img.onload = function() {
-                            document.getElementById('qrImage').src = qrUrl;
-                            document.getElementById('qrUrl').textContent = fullUrl;
-                            document.getElementById('loading').style.display = 'none';
-                            document.getElementById('qrContainer').style.display = 'block';
-                        };
-                        img.onerror = function() {
-                            document.getElementById('loading').style.display = 'none';
-                            showAlert('Error generating QR code. Please try again.', 'error');
-                        };
-                        img.src = qrUrl;
-                    }
+        function generateQRCode() {
+            const staffId = document.getElementById('staffId').value;
+            const date = document.getElementById('date').value;
+            
+            if (!staffId || !date) {
+                showAlert('Please select a staff member and date', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('qrContainer').style.display = 'none';
+            hideAlert();
+            
+            // Generate QR code
+            var qrUrl = 'QRCodeGenerator?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+            var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
 
-                    function refreshQR() {
-                        generateQRCode();
-                    }
+            // Load QR code image
+            const img = new Image();
+            img.onload = function() {
+                document.getElementById('qrImage').src = qrUrl;
+                document.getElementById('qrUrl').textContent = fullUrl;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('qrContainer').style.display = 'block';
+            };
+            img.onerror = function() {
+                document.getElementById('loading').style.display = 'none';
+                showAlert('Error generating QR code. Please try again.', 'error');
+            };
+            img.src = qrUrl;
+        }
 
-                    function goToScanner() {
-                        window.location.href = 'scanAttendance.jsp';
-                    }
+        function refreshQR() {
+            generateQRCode();
+        }
 
-                    function showAlert(message, type) {
-                        const alert = document.getElementById('alert');
-                        alert.textContent = message;
-                        alert.className = 'alert alert-' + type;
-                        alert.style.display = 'block';
-                    }
-                <td><span style="color: #f39c12; font-weight: 500;">Late</span></td>
-            </tr>
-            <tr>
-                <td>2026-05-11</td>
-                <td>Mike Johnson</td>
-                <td>08:00 AM</td>
-                <td>05:00 PM</td>
-                <td><span style="color: #27ae60; font-weight: 500;">Present</span></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+        function goToScanner() {
+            window.location.href = 'scanAttendance.jsp';
+        }
 
-</div>
-</div>
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = 'alert alert-' + type;
+            alert.style.display = 'block';
+        }
 
-<script>
-function generateQRCode() {
-    const qrContainer = document.getElementById('qrcode');
-    qrContainer.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ATTENDANCE_' + new Date().getTime() + '" alt="QR Code" style="width: 200px; height: 200px;">';
-}
+        function hideAlert() {
+            document.getElementById('alert').style.display = 'none';
+        }
 
-function refreshQRCode() {
+        // Auto-refresh QR code every 5 minutes
+        setInterval(function() {
+            if (document.getElementById('qrContainer').style.display !== 'none') {
     generateQRCode();
 }
 
