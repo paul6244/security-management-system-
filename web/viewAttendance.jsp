@@ -24,31 +24,51 @@ if(session.getAttribute("username")==null){
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            color: white;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
+        /* Mobile-First Responsive Design */
         .container {
-            flex: 1;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #34495e;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background: #34495e;
+        }
+
+        .sidebar a.active {
+            background: #667eea;
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .card {
@@ -207,7 +227,18 @@ if(session.getAttribute("username")==null){
 </head>
 <body>
     <div class="container">
-        <div class="card">
+        <div class="sidebar">
+            <a href="personnelDashboard.jsp">Dashboard</a>
+            <a href="checklistDashboard.jsp">Checklist</a>
+            <a href="viewAttendance.jsp" class="active">QR Code</a>
+            <a href="staffRegistration.jsp">Staff Registration</a>
+            <a href="securityOfficerReports.jsp">Reports</a>
+            <a href="securityOfficerSettings.jsp">Settings</a>
+            <a href="Logout">Logout</a>
+        </div>
+        
+        <div class="main">
+            <div class="card">
                 <h2>Generate Attendance QR Code</h2>
                 
                 <div id="alert" class="alert"></div>
