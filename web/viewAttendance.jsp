@@ -43,36 +43,6 @@ if(session.getAttribute("username")==null){
             font-weight: 600;
         }
 
-        .sidebar {
-            width: 250px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            min-height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 1rem 2rem;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-radius: 5px;
-            margin-bottom: 5px;
-        }
-
-        .sidebar a:hover {
-            background: rgba(103, 126, 234, 0.1);
-            color: #667eea;
-        }
-
-        .sidebar a.active {
-            background: #667eea;
-            color: white;
-        }
-
         .container {
             flex: 1;
             display: flex;
@@ -236,21 +206,7 @@ if(session.getAttribute("username")==null){
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>QR Code Attendance System</h1>
-    </div>
-
     <div class="container">
-        <div class="sidebar">
-            <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="checklistDashboard.jsp">Checklist</a>
-            <a href="viewAttendance.jsp" class="active">QR Code</a>
-            <a href="staffRegistration.jsp">Staff Registration</a>
-            <a href="securityOfficerReports.jsp">Reports</a>
-            <a href="securityOfficerSettings.jsp">Settings</a>
-            <a href="Logout">Logout</a>
-        </div>
-        
         <div class="card">
                 <h2>Generate Attendance QR Code</h2>
                 
@@ -357,7 +313,8 @@ if(session.getAttribute("username")==null){
             hideAlert();
             
             // Generate QR code
-            var qrUrl = 'QRCodeGenerator?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
+            var qrData = 'ATTENDANCE_' + staffId + '_' + date;
+            var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrData);
             var fullUrl = 'qrAttendance.jsp?staffId=' + encodeURIComponent(staffId) + '&date=' + encodeURIComponent(date);
 
             // Load QR code image
