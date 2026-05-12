@@ -38,27 +38,13 @@ if(session.getAttribute("username")==null){
         }
 
         .header h1 {
-        .sidebar a {
-            display: block;
-            padding: 1rem 2rem;
             color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar a:hover {
-            background: rgba(103, 126, 234, 0.1);
-            color: #677eea;
-        }
-
-        .sidebar a.active {
-            background: #677eea;
-            color: white;
+            font-size: 1.8rem;
+            font-weight: 600;
         }
 
         .container {
             flex: 1;
-            display: flex;
             justify-content: center;
             align-items: center;
             padding: 2rem;
@@ -219,17 +205,6 @@ if(session.getAttribute("username")==null){
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>QR Code Attendance System</h1>
-        <div class="nav-tabs">
-            <a href="personnelDashboard.jsp">Dashboard</a>
-            <a href="viewAttendance.jsp" class="active">QR Code</a>
-            <a href="staffRegistration.jsp">Staff Registration</a>
-            <a href="securityOfficerSettings.jsp">Settings</a>
-            <a href="Logout">Logout</a>
-        </div>
-    </div>
-
     <div class="container">
         <div class="card">
                 <h2>Generate Attendance QR Code</h2>
