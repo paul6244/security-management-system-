@@ -3,6 +3,7 @@
 <%@ page import="model.Mymodel" %>
 <%@ page import="config.DatabaseConfig" %>
 
+<%
 String staffId = request.getParameter("staffId");
 String date = request.getParameter("date");
 
