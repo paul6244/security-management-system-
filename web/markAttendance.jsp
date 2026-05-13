@@ -16,7 +16,7 @@ if (staffId != null && date != null && !staffId.isEmpty() && !date.isEmpty()) {
         Connection conn = DatabaseConfig.getConnection();
         if(conn != null) {
             // Check if attendance already exists for today
-            String checkSql = "SELECT COUNT(*) FROM attendance WHERE staff_id = ? AND date = ?";
+            String checkSql = "SELECT COUNT(*) FROM attendance WHERE staff_id = ? AND DATE(check_in_time) = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
             checkStmt.setInt(1, staffIdInt);
             checkStmt.setString(2, date);
@@ -31,10 +31,9 @@ if (staffId != null && date != null && !staffId.isEmpty() && !date.isEmpty()) {
             
             if (!attendanceExists) {
                 // Insert new attendance record
-                String insertSql = "INSERT INTO attendance (staff_id, date, check_in_time, status) VALUES (?, ?, CURRENT_TIME(), 'present')";
+                String insertSql = "INSERT INTO attendance (staff_id, check_in_time, attendance_type) VALUES (?, CURRENT_TIMESTAMP, 'qr')";
                 PreparedStatement insertStmt = conn.prepareStatement(insertSql);
                 insertStmt.setInt(1, staffIdInt);
-                insertStmt.setString(2, date);
                 insertStmt.executeUpdate();
                 insertStmt.close();
                 
